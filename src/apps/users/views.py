@@ -1,6 +1,6 @@
 from src.utils.apiResponse import ApiResponse
 from rest_framework.permissions import AllowAny
-from src.apps.users.serializer import AuthSerializer
+from src.apps.users.serializers import AuthSerializer
 from src.apps.users.permissions import UserModelPermission
 from rest_framework.decorators import api_view, permission_classes
 from src.services.users import getUserDetailService, usersListService, addUserService, deleteUserService, updateUserService

@@ -2,7 +2,7 @@ from secrets import token_urlsafe
 from src.apps.users.models import User
 from src.utils.dbOptions import USER_TYPES
 from django.contrib.auth.models import Group
-from src.apps.users.serializer import AuthSerializer
+from src.apps.users.serializers import AuthSerializer
 
 # users
 def usersListService():
@@ -51,7 +51,7 @@ def getUserDetailService(userId):
             message = "success"
             data = serializer.data
     except Exception as e:
-        print(f"Failed to get user detail: {e}")
+        print(f"[UserService Err] Failed to get user detail: {e}")
     return status, message, data
 
 def updateUserService(userId, userData):
@@ -61,7 +61,6 @@ def updateUserService(userId, userData):
     try:
         user = User.objects.get(pk=userId)
         if user:
-            print("user", user)
             serializer = AuthSerializer(instance=user, data=userData, partial=True)
             if serializer.is_valid():
                 serializer.save()

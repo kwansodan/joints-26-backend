@@ -21,4 +21,12 @@ urlpatterns = [
     path("users/",
         include("src.apps.users.urls")
     ),
+
+    path("vendors/",
+        include("src.apps.vendors.urls")
+    ),
+
+    path("menu/",
+        include("src.apps.menu.urls")
+    ),
 ]

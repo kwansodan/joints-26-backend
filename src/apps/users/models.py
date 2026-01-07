@@ -49,7 +49,7 @@ class User(AbstractUser):
     gender = models.CharField(max_length=TINY_STR_LEN, choices=GENDER, null=True, blank=True)
     createdBy = models.CharField(max_length=MIN_STR_LEN, default="dev", null=True, blank=True)
     updatedBy = models.CharField(max_length=MIN_STR_LEN, default="dev", null=True, blank=True)
-    createdAat = models.DateTimeField(auto_now=True)
+    createdAt = models.DateTimeField(auto_now=True)
     updatedAt = models.DateTimeField(auto_now_add=True)
 
     objects = UserManager()
@@ -59,6 +59,7 @@ class User(AbstractUser):
 
     class _Meta:
         verbose_name_plural = 'Users'
+        ordering = ["-createdAt"]
 
     def __str__(self):
         return f"{self.email} - {self.userType}"
