@@ -1,5 +1,31 @@
 from secrets import token_urlsafe
+from rest_framework import status
+from rest_framework.views import APIView
 from src.utils.dbOptions import TOKEN_LEN
+from rest_framework.response import Response
+from rest_framework.test import APITestCase, APIClient
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+class BaseAPIView(APIView):
+    def ok(self, message=None, data=None):
+        return Response(status=status.HTTP_200_OK, data={"message": message,  "data": data})
+
+    def created(self, message=None, data=None):
+        return Response(status=status.HTTP_201_CREATED, data={"message": message,  "data": data})
+
+    def bad(self, message=None, data=None):
+        return Response(status=status.HTTP_400_BAD_REQUEST, data={"message": message,  "data": data})
+
+class BaseAPITestCase(APITestCase):
+    def authenticate(self, user):
+        refresh = RefreshToken.for_user(user)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}'
+        )
+
+    def logout(self):
+        self.client.credentials()
 
 def random_token():
     data = None
@@ -9,5 +35,4 @@ def random_token():
         print(f"Failed to generate random token: {str(e)}")
     return data 
 
-def allowedMineYears():
-    return [str(i) for i in range(2025, 2060)]
+

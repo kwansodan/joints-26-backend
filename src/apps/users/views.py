@@ -1,69 +1,34 @@
-from src.utils.apiResponse import ApiResponse
-from rest_framework.permissions import AllowAny
-from src.apps.users.serializers import AuthSerializer
+from src.services.users import *
+from src.utils.helpers import BaseAPIView
 from src.apps.users.permissions import UserModelPermission
-from rest_framework.decorators import api_view, permission_classes
-from src.services.users import getUserDetailService, usersListService, addUserService, deleteUserService, updateUserService
 
-@api_view(["GET", "POST"])
-@permission_classes([UserModelPermission])
-def usersView(request):
-    if request.method == "GET":
-        success, message, data = usersListService() 
-        if success:
-            return ApiResponse("ok", message, data).response
-        return ApiResponse("bad", message, data).response
+class UserListView(BaseAPIView):
+    permission_classes = [UserModelPermission]
 
-    if request.method == "POST":
-        success, message, data = addUserService(userData=request.data)
-        if success:
-            return ApiResponse("created", message, data).response
-        return ApiResponse("bad", message, data).response
-    
-@api_view(["GET", "PUT", "PATCH", "DELETE"])
-@permission_classes([UserModelPermission])
-def userDetailView(request, pk):
-    if request.method == "GET":
-        success, message, data = getUserDetailService(userId=pk)
-        if success:
-            return ApiResponse("ok", message, data).response
-        return ApiResponse("bad", message,  data).response
+    def get(self, request):
+        success, message, data = usersListService()
+        return self.ok(message, data) if success else self.bad(message)
 
-    if request.method in ["PUT", "PATCH"]:
-       success, message, data = updateUserService(userId=pk, userData=request.data)
-       if success:
-            return ApiResponse("ok", message, data).response
-       return ApiResponse("bad", message, data).response
+    def post(self, request):
+        success, message, data = createUserService(request.data)
+        return self.created(message, data) if success else self.bad(message)
 
-    if request.method == "DELETE":
-        success, message, data = deleteUserService(userId=pk)
-        if success:
-            return ApiResponse("ok", message, data).response
-        return ApiResponse("bad", message, data).response
+class UserDetailView(BaseAPIView):
+    permission_classes = [UserModelPermission]
 
+    def get(self, request, pk):
+        success, message, data = getUserDetailService(pk=pk)
+        return self.ok(message, data) if success else self.bad(message)
 
+    def put(self, request, pk):
+        success, message, data = updateUserService(pk=pk, requestData=request.data)
+        return self.ok(message, data) if success else self.bad(message)
 
+    def patch(self, request, pk):
+        success, message, data = updateUserService(pk=pk, requestData=request.data)
+        return self.ok(message, data) if success else self.bad(message)
 
+    def delete(self, request, pk):
+        success, message, data = deleteUserService(pk)
+        return self.ok(message, data) if success else self.bad(message)
 
-
-
-
-
-
-
-
-
-
-
-  
-# def updatePasswordView(request):
-#     user = request.user
-#     if user:
-#         oldPassword = request.data.get("oldPassword", "")
-#         newPassword = request.data.get("newPassword", "")
-#         if user.check_password(oldPassword):
-#             user.set_password(newPassword)
-#             user.save()
-#         return ApiResponse("ok", "success", None).response
-#     else:
-#         return ApiResponse("bad", "failed", None).response

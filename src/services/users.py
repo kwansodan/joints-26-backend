@@ -7,7 +7,7 @@ from src.apps.users.serializers import AuthSerializer
 # users
 def usersListService():
     status = False
-    message = "Error fetching users" 
+    message = None
     data = None
     try:
         users = User.objects.filter(is_staff=False, is_superuser=False)
@@ -16,11 +16,13 @@ def usersListService():
             status = True
             message = "success"
             data = serializer.data
+        else:
+            message = serializer.errors
     except Exception as e:
         print(f"[UserService Err] Failed to get users list: {e}")
     return status, message, data
     
-def addUserService(userData):
+def createUserService(userData):
     status = False
     message = None
     data = None
@@ -39,12 +41,12 @@ def addUserService(userData):
         print(f"[UserService Err] Failed to add user: {e}")
     return status, message, data
 
-def getUserDetailService(userId):
+def getUserDetailService(pk):
     status = False
     message = "no user found"
     data = None
     try:
-        userObj = User.objects.get(pk=userId)
+        userObj = User.objects.get(pk=pk)
         if userObj:
             serializer = AuthSerializer(instance=userObj)
             status = True
@@ -54,14 +56,14 @@ def getUserDetailService(userId):
         print(f"[UserService Err] Failed to get user detail: {e}")
     return status, message, data
 
-def updateUserService(userId, userData):
+def updateUserService(pk, requestData):
     status = False
     message = "user does not exists" 
     data = None
     try:
-        user = User.objects.get(pk=userId)
+        user = User.objects.get(pk=pk)
         if user:
-            serializer = AuthSerializer(instance=user, data=userData, partial=True)
+            serializer = AuthSerializer(instance=user, data=requestData, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 status = True

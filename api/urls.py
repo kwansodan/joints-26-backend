@@ -29,4 +29,8 @@ urlpatterns = [
     path("menu/",
         include("src.apps.menu.urls")
     ),
+
+    path("bikers/",
+        include("src.apps.bikers.urls")
+    ),
 ]

@@ -47,6 +47,7 @@ class User(AbstractUser):
     phone = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     userType = models.CharField(max_length=MIN_STR_LEN, default="customer", choices=USER_TYPES, null=True, blank=True)
     gender = models.CharField(max_length=TINY_STR_LEN, choices=GENDER, null=True, blank=True)
+    dateOfBirth = models.DateTimeField(auto_now=True, null=True, blank=True)
     createdBy = models.CharField(max_length=MIN_STR_LEN, default="dev", null=True, blank=True)
     updatedBy = models.CharField(max_length=MIN_STR_LEN, default="dev", null=True, blank=True)
     createdAt = models.DateTimeField(auto_now=True)
@@ -63,3 +64,4 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.email} - {self.userType}"
+

@@ -1,4 +1,4 @@
-from . import views
+from .views import *
 from django.urls import path 
 
 app_name = "users"
@@ -6,18 +6,13 @@ app_name = "users"
 urlpatterns = [  
 
     path("", 
-         views.usersView, 
-         name="users-view"
+         UserListView.as_view(),
+         name="users-list-view"
     ),
 
     path("<str:pk>/",
-         views.userDetailView,
+         UserDetailView.as_view(),
          name="user-detail-view"
-    ),
-    
-    # path("user-update-password", 
-    #      views.updatePasswordView, 
-    #      name="user-update-password"
-    # ),
-    #
+    )
+
 ]

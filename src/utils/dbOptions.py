@@ -19,8 +19,9 @@ GENDER = [
 ]
 
 USER_TYPES = [
-        ("0", "agent"),
+        ("0", "admin"),
         ("1", "biker"),
-        ("2", "admin"),
-        ("3", "customer")
+        ("2", "customer"),
+        ("3", "vendor"),
+        ("4", "office_agent"),
 ]

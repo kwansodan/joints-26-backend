@@ -27,7 +27,9 @@ INSTALLED_APPS = [
 
     "src.apps.menu",
     "src.apps.users",
+    "src.apps.bikers",
     "src.apps.vendors",
+
     "src.apps.scripts",
     "src.apps.payments",
     "src.apps.notifications"
