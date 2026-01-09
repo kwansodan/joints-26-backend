@@ -1,4 +1,4 @@
-TINY_STR_LEN = 10
+TINY_STR_LEN = 20
 
 MIN_STR_LEN = 150
 
@@ -19,9 +19,14 @@ GENDER = [
 ]
 
 USER_TYPES = [
-        ("0", "admin"),
-        ("1", "biker"),
-        ("2", "customer"),
-        ("3", "vendor"),
-        ("4", "office_agent"),
+        ("admin", "admin"),
+        ("biker", "biker"),
+        ("customer", "customer"),
+        ("vendor", "vendor"),
+        ("office_agent", "office_agent"),
+]
+
+VEHICLE_TYPE = [
+    ("car", "car"),
+    ("motorbike", "motorbike"),
 ]

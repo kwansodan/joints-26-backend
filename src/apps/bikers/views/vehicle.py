@@ -1,80 +1,34 @@
-from src.services.bikers import *
-from src.utils.apiResponse import ApiResponse
-from src.apps.bikers.permissions import BikerPermissionList
-from rest_framework.decorators import api_view, permission_classes
+from src.services.vehicles import *
+from src.utils.helpers import BaseAPIView
+from src.apps.bikers.permissions import VehicleModelPermission
 
-# biker
-@api_view(["GET", "POST"])
-@permission_classes(BikerPermissionList)
-def bikerView(request):
-    if request.method == "GET":
-        success, message, data = bikersListService() 
-        if success:
-            return ApiResponse("ok", message, data).response
-        return ApiResponse("bad", message, data).response
+class VehicleListView(BaseAPIView):
+    permission_classes = [VehicleModelPermission]
 
-    if request.method == "POST":
-        success, message, data = createBikerService(requestData=request.data)
-        if success:
-            return ApiResponse("created", message, data).response
-        return ApiResponse("bad", message, data).response
+    def get(self, request):
+        success, message, data = vehiclesListService()
+        return self.ok(message, data) if success else self.bad(message)
 
-@api_view(["GET", "PUT", "PATCH", "DELETE"])
-@permission_classes(BikerPermissionList)
-def bikerDetailView(request, pk):
-    if request.method == "GET":
-        success, message, data = getBikerDetailService(pk=pk)
-        if success:
-            return ApiResponse("ok", message, data).response
-        return ApiResponse("bad", message,  data).response
+    def post(self, request):
+        success, message, data = createVehicleService(request.data)
+        return self.created(message, data) if success else self.bad(message)
 
-    if request.method in ["PUT", "PATCH"]:
-       success, message, data = updateBikerDetailService(pk=pk, requestData=request.data)
-       if success:
-            return ApiResponse("ok", message, data).response
-       return ApiResponse("bad", message, data).response
+class VehicleDetailView(BaseAPIView):
+    permission_classes = [VehicleModelPermission]
 
-    if request.method == "DELETE":
-        success, message, data = deleteBikerService(pk=pk)
-        if success:
-            return ApiResponse("ok", message, data).response
-        return ApiResponse("bad", message, data).response
+    def get(self, request, pk):
+        success, message, data = getVehicleDetailService(pk=pk)
+        return self.ok(message, data) if success else self.bad(message)
 
-# biker vehicle
-@api_view(["GET", "POST"])
-@permission_classes(BikerPermissionList)
-def bikerVehicleView(request):
-    if request.method == "GET":
-        success, message, data = bikerVehiclesListService() 
-        if success:
-            return ApiResponse("ok", message, data).response
-        return ApiResponse("bad", message, data).response
+    def put(self, request, pk):
+        success, message, data = updateVehicleDetailService(pk=pk, requestData=request.data)
+        return self.ok(message, data) if success else self.bad(message)
 
-    if request.method == "POST":
-        success, message, data = createBikerVehicleService(requestData=request.data)
-        if success:
-            return ApiResponse("created", message, data).response
-        return ApiResponse("bad", message, data).response
-    
-@api_view(["GET", "PUT", "PATCH", "DELETE"])
-@permission_classes(BikerPermissionList)
-def bikerVehicleDetailView(request, pk):
-    if request.method == "GET":
-        success, message, data = getBikerVehicleDetailService(pk=pk)
-        if success:
-            return ApiResponse("ok", message, data).response
-        return ApiResponse("bad", message,  data).response
+    def patch(self, request, pk):
+        success, message, data = updateVehicleDetailService(pk=pk, requestData=request.data)
+        return self.ok(message, data) if success else self.bad(message)
 
-    if request.method in ["PUT", "PATCH"]:
-       success, message, data = updateBikerVehicleDetailService(pk=pk, requestData=request.data)
-       if success:
-            return ApiResponse("ok", message, data).response
-       return ApiResponse("bad", message, data).response
-
-    if request.method == "DELETE":
-        success, message, data = deleteBikerVehicleService(pk=pk)
-        if success:
-            return ApiResponse("ok", message, data).response
-        return ApiResponse("bad", message, data).response
-
+    def delete(self, request, pk):
+        success, message, data = deleteVehicleService(pk)
+        return self.ok(message, data) if success else self.bad(message)
 

@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from src.apps.bikers.models import Biker, BikerVehicle
-from src.utils.dbOptions import MAX_STR_LEN 
+from src.apps.bikers.models import Biker, Vehicle
 
 class BikerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,12 +11,13 @@ class BikerSerializer(serializers.ModelSerializer):
               "totalTrips",
         ]
 
-class BikerVehicleSerializer(serializers.ModelSerializer):
+class VehicleSerializer(serializers.ModelSerializer):
     class Meta:
-        model = BikerVehicle
+        model = Vehicle
         fields = [
               "id",
               "biker",
               "vehicleType",
               "licensePlate",
+              "registered",
         ]

@@ -18,6 +18,10 @@ urlpatterns = [
          name='token-refresh'
     ),
 
+    path("bikers/",
+        include("src.apps.bikers.urls")
+    ),
+
     path("users/",
         include("src.apps.users.urls")
     ),
@@ -29,8 +33,5 @@ urlpatterns = [
     path("menu/",
         include("src.apps.menu.urls")
     ),
-
-    path("bikers/",
-        include("src.apps.bikers.urls")
-    ),
+    
 ]

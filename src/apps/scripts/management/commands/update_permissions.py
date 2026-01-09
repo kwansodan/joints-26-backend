@@ -19,7 +19,7 @@ class Command(BaseCommand):
 
             "bikers": [
                 "biker"
-                "bikervehicle"
+                "vehicle"
             ],
 
             "vendors": [
@@ -35,14 +35,14 @@ class Command(BaseCommand):
         bikerPerms = {
             "bikers": [
                 "biker"
-                "bikervehicle"
+                "vehicle"
             ],
         }
 
         agentPerms = {
             "bikers": [
                 "biker"
-                "bikervehicle"
+                "vehicle"
             ],
 
             "vendors": [

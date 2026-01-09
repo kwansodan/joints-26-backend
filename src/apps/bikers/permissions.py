@@ -1,8 +1,8 @@
 from rest_framework.permissions import BasePermission
 
-ALLOWED_ROLES = {"admin", "biker"}
+ALLOWED_ROLES = {"admin", "agent", "biker"}
 
-class BikerPermissions(BasePermission):
+class BikerModelPermission(BasePermission):
     perms_by_method = {
         "GET": "bikers.view_biker",
         "POST": "bikers.add_biker",
@@ -26,13 +26,13 @@ class BikerPermissions(BasePermission):
 
         return user.has_perm(perm)
 
-class BikerVehiclePermissions(BasePermission):
+class VehicleModelPermission(BasePermission):
     perms_by_method = {
-        "GET": "bikers.view_bikervehicle",
-        "POST": "bikers.add_bikervehicle",
-        "PUT": "bikers.change_bikervehicle",
-        "PATCH": "bikers.change_bikervehicle",
-        "DELETE": "bikers.delete_bikervehicle",
+        "GET": "bikers.view_vehicle",
+        "POST": "bikers.add_vehicle",
+        "PUT": "bikers.change_vehicle",
+        "PATCH": "bikers.change_vehicle",
+        "DELETE": "bikers.delete_vehicle",
     }
 
     def has_permission(self, request, view):
@@ -49,5 +49,3 @@ class BikerVehiclePermissions(BasePermission):
             return False
 
         return user.has_perm(perm)
-
-BikerPermissionList = [BikerPermissions, BikerVehiclePermissions]

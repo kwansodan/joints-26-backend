@@ -1,14 +1,13 @@
-from src.apps.bikers.models import Biker 
-from src.apps.bikers.serializers import BikerSerializer 
+from src.apps.bikers.models import Vehicle
+from src.apps.bikers.serializers import VehicleSerializer 
 
-# biker 
-def bikersListService():
+def vehiclesListService():
     status = False
-    message = "Error fetching bikers" 
+    message = "Error fetching vehicles" 
     data = None
     try:
-        objs = Biker.objects.all()
-        serializer = BikerSerializer(instance=objs, many=True)
+        objs = Vehicle.objects.all()
+        serializer = VehicleSerializer(instance=objs, many=True)
         if serializer:
             status = True
             message = "success"
@@ -16,50 +15,50 @@ def bikersListService():
         else:
             message = serializer.errors
     except Exception as e:
-        print(f"[BikerService Err] Failed to get bikers list: {e}")
+        print(f"[VehicleService Err] Failed to get vehicles list: {e}")
     return status, message, data
     
-def createBikerService(requestData):
+def createVehicleService(requestData):
     status = False
     message = None
     data = None
     try:
         data = requestData.copy()
-        serializer = BikerSerializer(data=data)
+        serializer = VehicleSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             status = True
-            message = "Biker created successfully"
+            message = "Vehicle created successfully"
             data = serializer.data
         else:
             message = serializer.errors
     except Exception as e:
-        print(f"[BikerService Err] Failed to create biker: {e}")
+        print(f"[VehicleService Err] Failed to create vehicle: {e}")
     return status, message, data
 
-def getBikerDetailService(pk):
+def getVehicleDetailService(pk):
     status = False
-    message = "no biker found"
+    message = "no vehicle found"
     data = None
     try:
-       obj = Biker.objects.get(pk=pk)
+       obj = Vehicle.objects.get(pk=pk)
        if obj:
-            serializer = BikerSerializer(instance=obj)
+            serializer = VehicleSerializer(instance=obj)
             status = True
             message = "success"
             data = serializer.data
     except Exception as e:
-        print(f"[BikerService Err] Failed to get biker detail: {e}")
+        print(f"[VehicleService Err] Failed to get vehicle detail: {e}")
     return status, message, data
 
-def updateBikerDetailService(pk, requestData):
+def updateVehicleDetailService(pk, requestData):
     status = False
-    message = "biker does not exists" 
+    message = "vehicle does not exists" 
     data = None
     try:
-        obj = Biker.objects.get(pk=pk)
+        obj = Vehicle.objects.get(pk=pk)
         if obj:
-            serializer = BikerSerializer(instance=obj, data=requestData, partial=True)
+            serializer = VehicleSerializer(instance=obj, data=requestData, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 status = True
@@ -69,20 +68,19 @@ def updateBikerDetailService(pk, requestData):
                 status = False
                 message = serializer.errors
     except Exception as e:
-        print(f"[BikerService Err] Failed to update biker: {e}")
+        print(f"[VehicleService Err] Failed to update vehicle: {e}")
     return status, message, data
 
-def deleteBikerService(pk):
+def deleteVehicleService(pk):
     status = False
-    message = "biker doest not exists" 
+    message = "vehicle doest not exists" 
     data = None
     try:
-        obj = Biker.objects.get(pk=pk)
+        obj = Vehicle.objects.get(pk=pk)
         if obj:
             obj.delete()
             status = True
             message = "success"
     except Exception as e:
-        print(f"[BikerService Err] Failed to delete biker: {e}")
+        print(f"[VehicleService Err] Failed to delete vehicle: {e}")
     return status, message, data
-
