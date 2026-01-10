@@ -25,7 +25,6 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
 
-    "src.apps.menu",
     "src.apps.users",
     "src.apps.bikers",
     "src.apps.vendors",

@@ -23,13 +23,9 @@ class Command(BaseCommand):
             ],
 
             "vendors": [
-                "vendor"
+                "vendor",
+                "menu",
             ],
-
-            "menu": [
-                "menu"
-            ],
-
         }
 
         bikerPerms = {
@@ -46,11 +42,8 @@ class Command(BaseCommand):
             ],
 
             "vendors": [
-                "vendor"
-            ],
-
-            "menu": [
-                "menu"
+                "vendor",
+                "menu",
             ],
         }
 
@@ -71,7 +64,7 @@ class Command(BaseCommand):
                     bikerGroup.permissions.add(permission)
         
         # agent perms [biker, bikerVehicle, vendors, menu]
-        for app_label, models in bikerPerms.items():
+        for app_label, models in agentPerms.items():
             for model in models:
                 content_type = ContentType.objects.get(app_label=app_label, model=model)
                 for action in permissionActions:

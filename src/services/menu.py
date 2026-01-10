@@ -1,5 +1,5 @@
-from src.apps.menu.models import Menu 
-from src.apps.menu.serializers import MenuSerializer
+from src.apps.vendors.models import Menu 
+from src.apps.vendors.serializers import MenuSerializer
 
 # users
 def menuListService():

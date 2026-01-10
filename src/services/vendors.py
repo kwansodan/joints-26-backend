@@ -13,6 +13,8 @@ def vendorsListService():
             status = True
             message = "success"
             data = serializer.data
+        else:
+            message = serializer.errors
     except Exception as e:
         print(f"[VendorService Err] Failed to get vendors list: {e}")
     return status, message, data

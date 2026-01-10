@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from src.apps.vendors.models import Vendor
-from django.contrib.auth.hashers import make_password
+from src.apps.vendors.models import Vendor, Menu
 
 class VendorSerializer(serializers.ModelSerializer):
     menu = serializers.SerializerMethodField(read_only=True)
@@ -9,6 +8,7 @@ class VendorSerializer(serializers.ModelSerializer):
         model = Vendor 
         fields = [
               "id",
+              "user",
               "name",
               "location",
               "phone",
@@ -20,4 +20,15 @@ class VendorSerializer(serializers.ModelSerializer):
             return [] 
         return obj.menuList
 
+class MenuSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Menu 
+        fields = [
+              "id",
+              "vendor",
+              "name",
+              "description",
+              "price"
+        ]
 
+    

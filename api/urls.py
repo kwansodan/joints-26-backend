@@ -28,10 +28,5 @@ urlpatterns = [
 
     path("vendors/",
         include("src.apps.vendors.urls")
-    ),
-
-    path("menu/",
-        include("src.apps.menu.urls")
-    ),
-    
+    ), 
 ]
