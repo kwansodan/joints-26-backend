@@ -29,4 +29,8 @@ urlpatterns = [
     path("vendors/",
         include("src.apps.vendors.urls")
     ), 
+
+    path("orders/",
+        include("src.apps.orders.urls")
+    ),
 ]

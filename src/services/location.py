@@ -1,63 +1,65 @@
-from src.apps.vendors.models import MenuItem
-from src.apps.vendors.serializers import MenuItemSerializer
+from src.apps.orders.models import Location
+from src.apps.orders.serializers import LocationSerializer
 
-# users
-def menuListService():
+# biker 
+def locationListService():
     status = False
-    message = "Error fetching menus" 
+    message = "Error fetching locations" 
     data = None
     try:
-        objs = MenuItem.objects.all()
-        serializer = MenuItemSerializer(instance=objs, many=True)
+        objs = Location.objects.all()
+        serializer = LocationSerializer(instance=objs, many=True)
         if serializer:
             status = True
             message = "success"
             data = serializer.data
+        else:
+            message = serializer.errors
     except Exception as e:
-        print(f"[MenuService Err] Failed to get menu list: {e}")
+        print(f"[LocationService Err] Failed to get location list: {e}")
     return status, message, data
     
-def createMenuService(requestData):
+def createLocationService(requestData):
     status = False
     message = None
     data = None
     try:
         data = requestData.copy()
-        serializer = MenuItemSerializer(data=data)
+        serializer = LocationSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             status = True
-            message = "Menu created successfully"
+            message = "Location created successfully"
             data = serializer.data
         else:
             message = serializer.errors
     except Exception as e:
-        print(f"[MenuService Err] Failed to create menu: {e}")
+        print(f"[LocationService Err] Failed to create location: {e}")
     return status, message, data
 
-def getMenuDetailService(pk):
+def getLocationDetailService(pk):
     status = False
-    message = "no menu found"
+    message = "no location found"
     data = None
     try:
-       obj = MenuItem.objects.get(pk=pk)
+       obj = Location.objects.get(pk=pk)
        if obj:
-            serializer = MenuItemSerializer(instance=obj)
+            serializer = LocationSerializer(instance=obj)
             status = True
             message = "success"
             data = serializer.data
     except Exception as e:
-        print(f"[MenuService Err] Failed to get menu detail: {e}")
+        print(f"[LocationService Err] Failed to get location detail: {e}")
     return status, message, data
 
-def updateMenuDetailService(pk, requestData):
+def updateLocationDetailService(pk, requestData):
     status = False
-    message = "menu does not exists" 
+    message = "location does not exists" 
     data = None
     try:
-        obj = MenuItem.objects.get(pk=pk)
+        obj = Location.objects.get(pk=pk)
         if obj:
-            serializer = MenuItemSerializer(instance=obj, data=requestData, partial=True)
+            serializer = LocationSerializer(instance=obj, data=requestData, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 status = True
@@ -67,19 +69,20 @@ def updateMenuDetailService(pk, requestData):
                 status = False
                 message = serializer.errors
     except Exception as e:
-        print(f"[MenuService Err] Failed to update menu: {e}")
+        print(f"[LocationService Err] Failed to update location: {e}")
     return status, message, data
 
-def deleteMenuService(pk):
+def deleteLocationService(pk):
     status = False
-    message = "menu doest not exists" 
+    message = "biker doest not exists" 
     data = None
     try:
-        obj = MenuItem.objects.get(pk=pk)
+        obj = Location.objects.get(pk=pk)
         if obj:
             obj.delete()
             status = True
             message = "success"
     except Exception as e:
-        print(f"[MenuService Err] Failed to delete menu: {e}")
+        print(f"[LocationService Err] Failed to delete location: {e}")
     return status, message, data
+

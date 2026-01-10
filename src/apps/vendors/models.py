@@ -17,11 +17,11 @@ class Vendor(models.Model):
 
     @property
     def menuList(self):
-        from src.apps.vendors.serializers import MenuSerializer
+        from src.apps.vendors.serializers import MenuItemSerializer
         menu = []
         try:
-            obj = Menu.objects.filter(vendor=self)
-            menu = MenuSerializer(instance=obj, many=True).data
+            obj = MenuItem.objects.filter(vendor=self)
+            menu = MenuItemSerializer(instance=obj, many=True).data
         except Exception as e:
             print(f"error getting menulist for vendor: {e}")
         return menu
@@ -33,7 +33,7 @@ class Vendor(models.Model):
     def __str__(self):
         return f"{self.name} - {self.location}"
 
-class Menu(models.Model):
+class MenuItem(models.Model):
     id = models.CharField(primary_key=True, default=random_token, editable=False)
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, null=False, blank=False)
     name = models.CharField(max_length=MAX_STR_LEN, null=False, blank=True)
@@ -45,7 +45,7 @@ class Menu(models.Model):
     updatedAt = models.DateTimeField(auto_now_add=True)
 
     class _Meta:
-        verbose_name_plural = "Menus"
+        verbose_name_plural = "MenuItems"
         ordering = ["-createdAt"]
 
     def __str__(self):

@@ -1,12 +1,12 @@
 from django.urls import reverse
 from src.utils.helpers import BaseAPITestCase
 from src.apps.users.tests.factory import create_user
-from src.apps.vendors.tests.factory import create_vendor
+from src.apps.bikers.tests.factory import create_biker
 
-class TestMenuListEndpoints(BaseAPITestCase):
+class TestVehicleListEndpoints(BaseAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse("vendors:menu-list-view")
+        self.url = reverse("bikers:vehicle-list-view")
 
     def test_anonymous_user_cannot_access(self):
         response = self.client.get(self.url)
@@ -24,16 +24,15 @@ class TestMenuListEndpoints(BaseAPITestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 403)
 
-    def test_create_menu_success(self):
-        user = create_user(permissions=["vendors.add_menu"])
+    def test_create_vehicle_success(self):
+        user = create_user(permissions=["bikers.add_vehicle"])
         self.authenticate(user)
-        user = create_user(email="biker@gmail.com", userType="biker")
-        vendor = create_vendor(user=user, name="Vendor1", location="Vendor location 1", phone="+233564585963")
+        biker_user = create_user(email="biker@gmail.com", userType="biker")
+        biker = create_biker(user=biker_user)
         payload =  {
-            "vendor": vendor.pk,
-            "name": "Assorted Jollof Rice",
-            "description": "Tasty and affordable assorted jollof rice",
-            "price": 150.00
+            "biker": biker.pk,
+            "vehicleType": "motorbike",
+            "licensePlate": "GW-123-45"
         }
         response = self.client.post(self.url, payload, format="json")
         self.assertEqual(response.status_code, 201)

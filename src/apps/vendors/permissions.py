@@ -26,13 +26,13 @@ class VendorModelPermission(BasePermission):
 
         return user.has_perm(perm)
 
-class MenuModelPermission(BasePermission):
+class MenuItemModelPermission(BasePermission):
     perms_by_method = {
-        "GET": "vendors.view_menu",
-        "POST": "vendors.add_menu",
-        "PUT": "vendors.change_menu",
-        "PATCH": "vendors.change_menu",
-        "DELETE": "vendors.delete_menu",
+        "GET": "vendors.view_menuitem",
+        "POST": "vendors.add_menuitem",
+        "PUT": "vendors.change_menuitem",
+        "PATCH": "vendors.change_menuitem",
+        "DELETE": "vendors.delete_menuitem",
     }
 
     def has_permission(self, request, view):

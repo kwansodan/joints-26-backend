@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from src.apps.vendors.models import Vendor, Menu
+from src.apps.vendors.models import Vendor, MenuItem
 
 class VendorSerializer(serializers.ModelSerializer):
     menu = serializers.SerializerMethodField(read_only=True)
@@ -20,9 +20,9 @@ class VendorSerializer(serializers.ModelSerializer):
             return [] 
         return obj.menuList
 
-class MenuSerializer(serializers.ModelSerializer):
+class MenuItemSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Menu 
+        model = MenuItem 
         fields = [
               "id",
               "vendor",

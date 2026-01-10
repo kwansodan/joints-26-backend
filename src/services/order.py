@@ -1,63 +1,65 @@
-from src.apps.vendors.models import MenuItem
-from src.apps.vendors.serializers import MenuItemSerializer
+from src.apps.orders.models import Order
+from src.apps.orders.serializers import OrderSerializer
 
-# users
-def menuListService():
+# biker 
+def orderListService():
     status = False
-    message = "Error fetching menus" 
+    message = "Error fetching orders" 
     data = None
     try:
-        objs = MenuItem.objects.all()
-        serializer = MenuItemSerializer(instance=objs, many=True)
+        objs = Order.objects.all()
+        serializer = OrderSerializer(instance=objs, many=True)
         if serializer:
             status = True
             message = "success"
             data = serializer.data
+        else:
+            message = serializer.errors
     except Exception as e:
-        print(f"[MenuService Err] Failed to get menu list: {e}")
+        print(f"[OrderService Err] Failed to get order list: {e}")
     return status, message, data
     
-def createMenuService(requestData):
+def createOrderService(requestData):
     status = False
     message = None
     data = None
     try:
         data = requestData.copy()
-        serializer = MenuItemSerializer(data=data)
+        serializer = OrderSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             status = True
-            message = "Menu created successfully"
+            message = "order created successfully"
             data = serializer.data
         else:
             message = serializer.errors
     except Exception as e:
-        print(f"[MenuService Err] Failed to create menu: {e}")
+        print(f"[OrderService Err] Failed to create order: {e}")
     return status, message, data
 
-def getMenuDetailService(pk):
+def getOrderDetailService(pk):
     status = False
-    message = "no menu found"
+    message = "no order found"
     data = None
     try:
-       obj = MenuItem.objects.get(pk=pk)
+       obj = Order.objects.get(pk=pk)
        if obj:
-            serializer = MenuItemSerializer(instance=obj)
+            serializer = OrderSerializer(instance=obj)
             status = True
             message = "success"
             data = serializer.data
     except Exception as e:
-        print(f"[MenuService Err] Failed to get menu detail: {e}")
+        print(f"[OrderService Err] Failed to get order detail: {e}")
     return status, message, data
 
-def updateMenuDetailService(pk, requestData):
+def updateOrderDetailService(pk, requestData):
     status = False
-    message = "menu does not exists" 
+    message = "order does not exists" 
     data = None
     try:
-        obj = MenuItem.objects.get(pk=pk)
+        obj = Order.objects.get(pk=pk)
         if obj:
-            serializer = MenuItemSerializer(instance=obj, data=requestData, partial=True)
+            serializer = OrderSerializer(instance=obj, data=requestData, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 status = True
@@ -67,19 +69,20 @@ def updateMenuDetailService(pk, requestData):
                 status = False
                 message = serializer.errors
     except Exception as e:
-        print(f"[MenuService Err] Failed to update menu: {e}")
+        print(f"[OrderService Err] Failed to update order: {e}")
     return status, message, data
 
-def deleteMenuService(pk):
+def deleteOrderService(pk):
     status = False
-    message = "menu doest not exists" 
+    message = "order doest not exists" 
     data = None
     try:
-        obj = MenuItem.objects.get(pk=pk)
+        obj = Order.objects.get(pk=pk)
         if obj:
             obj.delete()
             status = True
             message = "success"
     except Exception as e:
-        print(f"[MenuService Err] Failed to delete menu: {e}")
+        print(f"[OrderService Err] Failed to delete order: {e}")
     return status, message, data
+

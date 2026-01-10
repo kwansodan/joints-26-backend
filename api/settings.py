@@ -27,6 +27,7 @@ INSTALLED_APPS = [
 
     "src.apps.users",
     "src.apps.bikers",
+    "src.apps.orders",
     "src.apps.vendors",
 
     "src.apps.scripts",
