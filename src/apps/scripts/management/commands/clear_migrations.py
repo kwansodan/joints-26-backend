@@ -12,7 +12,7 @@ class Command(BaseCommand):
         response = input("Are you sure you want to clear all migrations: (yes/no) ")
         
         if response == "yes":
-            apps = ["users", "vendors", "bikers", "menu"]
+            apps = ["users", "vendors", "bikers", "orders"]
             rm_dirs = ["migrations", "__pycache__"]
 
             try:

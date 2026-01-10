@@ -11,66 +11,41 @@ class Command(BaseCommand):
         
         permissionActions = ["view", "add", "change", "delete"]
 
-        adminPerms = {
+        userAppPerms = {"users": ["user"]}
+        bikerAppPerms = {"bikers": ["biker", "vehicle"]}
+        vendorAppPerms = {"vendors": ["vendor", "menuitem"]}
+        orderAppPerms = {"orders": ["location", "orderitem", "order"]}
 
-            "users": [
-                "user"
-            ],
+        bikerPerms = [bikerAppPerms]
+        adminPerms = [userAppPerms, bikerAppPerms, vendorAppPerms, orderAppPerms]
+        agentPerms = [userAppPerms, bikerAppPerms, bikerAppPerms]
 
-            "bikers": [
-                "biker"
-                "vehicle"
-            ],
-
-            "vendors": [
-                "vendor",
-                "menu",
-            ],
-        }
-
-        bikerPerms = {
-            "bikers": [
-                "biker"
-                "vehicle"
-            ],
-        }
-
-        agentPerms = {
-            "bikers": [
-                "biker"
-                "vehicle"
-            ],
-
-            "vendors": [
-                "vendor",
-                "menu",
-            ],
-        }
-
-        # admin perms - [users, biker, bikerVehicle, menu, vendors]
-        for app_label, models in adminPerms.items():
-            for model in models:
-                content_type = ContentType.objects.get(app_label=app_label, model=model)
-                for action in permissionActions:
-                    permission = Permission.objects.get(codename=f"{action}_{model}", content_type=content_type)
-                    adminGroup.permissions.add(permission)
+        # admin perms 
+        for appPerm in adminPerms:
+            for app_label, models in appPerm.items():
+                for model in models:
+                    content_type = ContentType.objects.get(app_label=app_label, model=model)
+                    for action in permissionActions:
+                        permission = Permission.objects.get(codename=f"{action}_{model}", content_type=content_type)
+                        adminGroup.permissions.add(permission)
         
-        # biker perms [biker & bikerVehicle]
-        for app_label, models in bikerPerms.items():
-            for model in models:
-                content_type = ContentType.objects.get(app_label=app_label, model=model)
-                for action in permissionActions:
-                    permission = Permission.objects.get(codename=f"{action}_{model}", content_type=content_type)
-                    bikerGroup.permissions.add(permission)
-        
-        # agent perms [biker, bikerVehicle, vendors, menu]
-        for app_label, models in agentPerms.items():
-            for model in models:
-                content_type = ContentType.objects.get(app_label=app_label, model=model)
-                for action in permissionActions:
-                    permission = Permission.objects.get(codename=f"{action}_{model}", content_type=content_type)
-                    agentGroup.permissions.add(permission)
-        
+        # biker perms 
+        for appPerm in bikerPerms:
+            for app_label, models in appPerm.items():
+                for model in models:
+                    content_type = ContentType.objects.get(app_label=app_label, model=model)
+                    for action in permissionActions:
+                        permission = Permission.objects.get(codename=f"{action}_{model}", content_type=content_type)
+                        adminGroup.permissions.add(permission)
 
+        # agent perms 
+        for appPerm in agentPerms:
+            for app_label, models in appPerm.items():
+                for model in models:
+                    content_type = ContentType.objects.get(app_label=app_label, model=model)
+                    for action in permissionActions:
+                        permission = Permission.objects.get(codename=f"{action}_{model}", content_type=content_type)
+                        adminGroup.permissions.add(permission)
+        
 
         print("done")
