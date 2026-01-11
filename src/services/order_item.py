@@ -25,7 +25,7 @@ def createOrderItemService(requestData):
     data = None
     try:
         data = requestData.copy()
-        serializer = OrderItemSerializer(data=data)
+        serializer = OrderItemSerializer(data=data, many=True)
         if serializer.is_valid():
             serializer.save()
             status = True

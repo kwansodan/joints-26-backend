@@ -30,3 +30,8 @@ VEHICLE_TYPE = [
     ("car", "car"),
     ("motorbike", "motorbike"),
 ]
+
+PAYMENT_OPTIONS = [
+    ("bank", "bank"),
+    ("momo", "momo"),
+]

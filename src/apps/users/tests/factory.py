@@ -8,12 +8,14 @@ def create_user(
     email="admin@gmail.com",
     password="securepass@123",
     userType="admin",
-    permissions=None
+    permissions=None,
+    phone="+2335641256"
 ):
     user = User.objects.create_user(
         email=email,
         password=password,
-        userType=userType
+        userType=userType,
+        phone=phone,
     )
 
     if permissions:

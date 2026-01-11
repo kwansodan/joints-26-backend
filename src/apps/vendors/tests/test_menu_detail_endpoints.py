@@ -1,14 +1,14 @@
 from django.urls import reverse
 from src.utils.helpers import BaseAPITestCase
 from src.apps.users.tests.factory import create_user
-from src.apps.vendors.tests.factory import create_menu, create_vendor
+from src.apps.vendors.tests.factory import create_menuitem, create_vendor
 
 class TestMenuDetailEndpoints(BaseAPITestCase):
     def setUp(self):
         super().setUp()
         user = create_user(email="vendor@gmail.com")
         vendor = create_vendor(user=user, name="KFC", location="North Legon", phone="+224153655256")
-        menu = create_menu(vendor=vendor)
+        menu = create_menuitem(vendor=vendor)
         self.url = reverse("vendors:menu-detail-view", kwargs={"pk": menu.pk})
 
     # anonymous

@@ -1,14 +1,14 @@
-from src.apps.orders.models import Order
-from src.apps.orders.serializers import OrderSerializer
+from src.apps.payments.models import Payment 
+from src.apps.payments.serializers import PaymentSerializer
 
 # biker 
-def orderListService():
+def paymentListService():
     status = False
-    message = "Error fetching orders" 
+    message = "Error fetching payments" 
     data = None
     try:
-        objs = Order.objects.all()
-        serializer = OrderSerializer(instance=objs, many=True)
+        objs = Payment.objects.all()
+        serializer = PaymentSerializer(instance=objs, many=True)
         if serializer:
             status = True
             message = "success"
@@ -16,50 +16,50 @@ def orderListService():
         else:
             message = serializer.errors
     except Exception as e:
-        print(f"[OrderService Err] Failed to get order list: {e}")
+        print(f"[PaymentService Err] Failed to get payment list: {e}")
     return status, message, data
     
-def createOrderService(requestData):
+def createPaymentService(requestData):
     status = False
     message = None
     data = None
     try:
         data = requestData.copy()
-        serializer = OrderSerializer(data=data, many=True)
+        serializer = PaymentSerializer(data=data, many=True)
         if serializer.is_valid():
             serializer.save()
             status = True
-            message = "order created successfully"
+            message = "payment created successfully"
             data = serializer.data
         else:
             message = serializer.errors
     except Exception as e:
-        print(f"[OrderService Err] Failed to create order: {e}")
+        print(f"[PaymentService Err] Failed to create payment: {e}")
     return status, message, data
 
-def getOrderDetailService(pk):
+def getPaymentDetailService(pk):
     status = False
-    message = "no order found"
+    message = "no payment found"
     data = None
     try:
-       obj = Order.objects.get(pk=pk)
+       obj = Payment.objects.get(pk=pk)
        if obj:
-            serializer = OrderSerializer(instance=obj)
+            serializer = PaymentSerializer(instance=obj)
             status = True
             message = "success"
             data = serializer.data
     except Exception as e:
-        print(f"[OrderService Err] Failed to get order detail: {e}")
+        print(f"[PaymentService Err] Failed to get payment detail: {e}")
     return status, message, data
 
-def updateOrderDetailService(pk, requestData):
+def updatePaymentDetailService(pk, requestData):
     status = False
-    message = "order does not exists" 
+    message = "payment does not exists" 
     data = None
     try:
-        obj = Order.objects.get(pk=pk)
+        obj = Payment.objects.get(pk=pk)
         if obj:
-            serializer = OrderSerializer(instance=obj, data=requestData, partial=True)
+            serializer = PaymentSerializer(instance=obj, data=requestData, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 status = True
@@ -69,20 +69,20 @@ def updateOrderDetailService(pk, requestData):
                 status = False
                 message = serializer.errors
     except Exception as e:
-        print(f"[OrderService Err] Failed to update order: {e}")
+        print(f"[PaymentService Err] Failed to update payments: {e}")
     return status, message, data
 
-def deleteOrderService(pk):
+def deletePaymentService(pk):
     status = False
-    message = "order doest not exists" 
+    message = "payment doest not exists" 
     data = None
     try:
-        obj = Order.objects.get(pk=pk)
+        obj = Payment.objects.get(pk=pk)
         if obj:
             obj.delete()
             status = True
             message = "success"
     except Exception as e:
-        print(f"[OrderService Err] Failed to delete order: {e}")
+        print(f"[PaymentService Err] Failed to payment : {e}")
     return status, message, data
 

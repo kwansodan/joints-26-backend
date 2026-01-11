@@ -1,11 +1,14 @@
+from decimal import Decimal
 from django.urls import reverse
+from src.apps.orders.tests.factory import create_location, create_orderitem
 from src.utils.helpers import BaseAPITestCase
 from src.apps.users.tests.factory import create_user
+from src.apps.vendors.tests.factory import create_vendor, create_menuitem
 
-class TestBikerListEndpoints(BaseAPITestCase):
+class TestOrderListEndpoints(BaseAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse("bikers:bikers-list-view")
+        self.url = reverse("orders:order-list-view")
 
     def test_anonymous_user_cannot_access(self):
         response = self.client.get(self.url)
@@ -23,14 +26,32 @@ class TestBikerListEndpoints(BaseAPITestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 403)
 
-    def test_create_biker_success(self):
-        user = create_user(permissions=["bikers.add_biker"])
+    def test_create_order_success(self):
+        user = create_user(permissions=["orders.add_order"])
         self.authenticate(user)
-        biker_user = create_user(email="biker@gmail.com", userType="biker")
-        payload =  {
-            "user": biker_user.pk,
-            "status": False,
-            "totalTrips": 45
-        }
+        customer_user = create_user(email="customer@gmail.com", userType="customer")
+        vendor_user = create_user(email="vendor@gmail.com", userType="vendor")
+        vendor = create_vendor(user=vendor_user, name="Pizzman") 
+        location = create_location(displayName="Israel", latitude=Decimal(8.8), longitude=Decimal(1.0))
+
+        menuitem1 = create_menuitem(vendor=vendor, name="Fried Chips")
+        orderitem1 = create_orderitem(menuitem=menuitem1, quantity=4)
+
+        menuitem2 = create_menuitem(vendor=vendor, name="Fried Chips")
+        orderitem2 = create_orderitem(menuitem=menuitem2, quantity=4)
+
+        payload =  [
+            {
+                "customer": customer_user.pk,
+                "orderItem": orderitem1.pk,
+                "location": location.pk,
+            },
+            {
+                "customer": customer_user.pk,
+                "orderItem": orderitem2.pk,
+                "location": location.pk,
+            },
+        ]
         response = self.client.post(self.url, payload, format="json")
         self.assertEqual(response.status_code, 201)
+

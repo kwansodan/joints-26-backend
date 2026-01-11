@@ -17,16 +17,16 @@ def create_vendor(
     )
     return vendor 
 
-def create_menu(
+def create_menuitem(
         vendor: Vendor, 
         name="Fried Rice & Chicken", 
         description="Affordaable", 
         price=100.00
     ):
-    menu = MenuItem.objects.create(
+    menuitem = MenuItem.objects.create(
         vendor=vendor,
         name=name,
         description=description, 
         price=price
     )
-    return menu 
+    return menuitem

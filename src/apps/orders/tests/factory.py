@@ -1,6 +1,7 @@
 from decimal import Decimal
 from django.contrib.auth import get_user_model
 from src.apps.orders.models import Location, OrderItem, Order
+from src.apps.vendors.models import MenuItem
 
 User = get_user_model()
 
@@ -25,4 +26,27 @@ def create_location(
         road=road,
     )
     return location 
+
+def create_orderitem(
+    menuitem: MenuItem,
+    quantity=1,
+    ):
+    orderitem = OrderItem.objects.create(
+        menuItem=menuitem,
+        quantity=quantity
+    )
+    return orderitem 
+
+def create_order(
+    customer: User,
+    orderItem: OrderItem,
+    location: Location,
+    ):
+    order = Order.objects.create(
+        customer=customer,
+        orderItem=orderItem,
+        location=location
+    )
+    return order
+
 

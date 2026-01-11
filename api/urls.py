@@ -33,4 +33,8 @@ urlpatterns = [
     path("orders/",
         include("src.apps.orders.urls")
     ),
+
+    path("payments/",
+        include("src.apps.payments.urls")
+    ),
 ]

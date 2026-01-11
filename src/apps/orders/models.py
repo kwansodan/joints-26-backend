@@ -77,6 +77,11 @@ class Order(models.Model):
         verbose_name_plural = "Orders"
         ordering = ["-createdAt"]
 
+    def save(self, *args, **kwargs):
+        if not self.subtotal:
+            self.subtotal = self.orderSubtotal
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"Order for - {self.customer.name} - {self.location}"
 
