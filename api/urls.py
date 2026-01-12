@@ -37,4 +37,8 @@ urlpatterns = [
     path("payments/",
         include("src.apps.payments.urls")
     ),
+
+    path("notifications/",
+        include("src.apps.notifications.urls")
+    ),
 ]

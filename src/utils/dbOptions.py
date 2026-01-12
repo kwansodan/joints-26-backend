@@ -35,3 +35,9 @@ PAYMENT_OPTIONS = [
     ("bank", "bank"),
     ("momo", "momo"),
 ]
+
+NOTIFICATION_TYPE = [
+    ("sms", "sms"),
+    ("email", "email"),
+    ("whatsapp", "whatsapp"),
+]

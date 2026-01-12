@@ -53,7 +53,7 @@ class TestPaymentDetailEndpoints(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_update_payment_detail_success(self):
-        user = create_user(email="userconfirm@gmail.com", userType="agent")
+        user = create_user(email="userconfirm@gmail.com", userType="agent", permissions=["payments.change_payment"])
         self.authenticate(user)
         paymentMethod = "momo"
         paymentReference = "prhhskdhii"

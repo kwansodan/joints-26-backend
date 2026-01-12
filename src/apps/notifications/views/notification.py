@@ -1,0 +1,34 @@
+from src.services.notifications import *
+from src.utils.helpers import BaseAPIView
+from src.apps.notifications.permissions import NotificationModelPermission
+
+class NotificationListView(BaseAPIView):
+    permission_classes = [NotificationModelPermission]
+
+    def get(self, request):
+        success, message, data = notificationListService()
+        return self.ok(message, data) if success else self.bad(message)
+
+    def post(self, request):
+        success, message, data = createNotificationService(request.data)
+        return self.created(message, data) if success else self.bad(message)
+
+class NotificationDetailView(BaseAPIView):
+    permission_classes = [NotificationModelPermission]
+
+    def get(self, request, pk):
+        success, message, data = getNotificationDetailService(pk=pk)
+        return self.ok(message, data) if success else self.bad(message)
+
+    def put(self, request, pk):
+        success, message, data = updateNotificationDetailService(pk=pk, requestData=request.data)
+        return self.ok(message, data) if success else self.bad(message)
+
+    def patch(self, request, pk):
+        success, message, data = updateNotificationDetailService(pk=pk, requestData=request.data)
+        return self.ok(message, data) if success else self.bad(message)
+
+    def delete(self, request, pk):
+        success, message, data = deleteNotificationService(pk)
+        return self.ok(message, data) if success else self.bad(message)
+
