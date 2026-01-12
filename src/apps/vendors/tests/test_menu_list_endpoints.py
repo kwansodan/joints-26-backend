@@ -25,7 +25,7 @@ class TestMenuListEndpoints(BaseAPITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_create_menu_success(self):
-        user = create_user(permissions=["vendors.add_menu"])
+        user = create_user(permissions=["vendors.add_menuitem"])
         self.authenticate(user)
         user = create_user(email="biker@gmail.com", userType="biker")
         vendor = create_vendor(user=user, name="Vendor1", location="Vendor location 1", phone="+233564585963")

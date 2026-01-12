@@ -69,6 +69,11 @@ jobs:
           python manage.py test src.apps.vendors.tests.test_vendor_list_endpoints
           python manage.py test src.apps.vendors.tests.test_vendor_detail_endpoints
 
+      - name: Run tests [menu endpoints]
+        run: |
+          python manage.py test src.apps.vendors.tests.test_menu_list_endpoints
+          python manage.py test src.apps.vendors.tests.test_menu_detail_endpoints
+
       - name: Run tests [delivery agent endpoints]
         run: |
           python manage.py test src.apps.bikers.tests.test_biker_list_endpoints

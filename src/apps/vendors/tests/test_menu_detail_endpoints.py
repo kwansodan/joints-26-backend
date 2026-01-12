@@ -30,13 +30,13 @@ class TestMenuDetailEndpoints(BaseAPITestCase):
 
     # with permission
     def test_get_menu_detail_success(self):
-        user = create_user(permissions=["vendors.view_menu"])
+        user = create_user(permissions=["vendors.view_menuitem"])
         self.authenticate(user)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
     def test_update_menu_detail_success(self):
-        user = create_user(permissions=["vendors.change_menu"])
+        user = create_user(permissions=["vendors.change_menuitem"])
         self.authenticate(user)
         new_menu_name = "Banku & Tilapia"
         new_user = create_user(email="newvendoruser@gmail.com")
@@ -45,7 +45,7 @@ class TestMenuDetailEndpoints(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_delete_menu_detail_success(self):
-        user = create_user(permissions=["vendors.delete_menu"])
+        user = create_user(permissions=["vendors.delete_menuitem"])
         self.authenticate(user)
         response = self.client.delete(self.url)
         self.assertEqual(response.status_code, 200)
