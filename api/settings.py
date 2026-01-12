@@ -7,9 +7,9 @@ from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config("djangoSecretKey", cast=str)
+SECRET_KEY = config("DJANGO_SECRET_KEY", cast=str)
 
-DEBUG = config("djangoDebug", cast=bool) 
+DEBUG = config("DJANGO_DEBUG", cast=bool) 
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "api.joints.com"]
 
@@ -64,7 +64,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'api.wsgi.application'
 
-DB_CONNECTION_URL = config("databaseUrl", cast=str)
+DB_CONNECTION_URL = config("DATABASE_URL", cast=str)
 
 DATABASES = {
     'default': dj_database_url.parse(
@@ -113,18 +113,18 @@ MEDIA_URL = 'media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "src/media/")
 
-CONSOLE_EMAILING = config("consoleEmailing", cast=bool)
+CONSOLE_EMAILING = config("CONSOLE_EMAILING", cast=bool)
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' if CONSOLE_EMAILING else'django.core.mail.backends.smtp.EmailBackend'   
-EMAIL_HOST = config("emailHost", cast=str)
-EMAIL_PORT = config("emailPort", cast=str)
-EMAIL_HOST_USER = config("emailHostUser", cast=str)
-EMAIL_HOST_PASSWORD = config("emailHostPassword", cast=str)
-EMAIL_USE_TLS = config("emailUseTls", cast=bool)
-EMAIL_USE_SSL = config("emailUseSsl", cast=bool)
+EMAIL_HOST = config("EMAIL_HOST", cast=str)
+EMAIL_PORT = config("EMAIL_PORT", cast=str)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", cast=str)
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", cast=str)
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool)
+EMAIL_USE_SSL = config("EMAIL_USE_SSL", cast=bool)
 
-ADMIN_USER_NAME = config("adminUserName", cast=str, default="Admin User")
-ADMIN_USER_EMAIL = config("adminUserEmail", cast=str, default=None)
+ADMIN_USER_NAME = config("ADMIN_USER_NAME", cast=str, default="Admin User")
+ADMIN_USER_EMAIL = config("ADMIN_USER_EMAIL", cast=str, default=None)
 
 ADMINS = []
 MANAGERS = []

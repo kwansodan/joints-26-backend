@@ -29,7 +29,17 @@ jobs:
     env:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
       DJANGO_SETTINGS_MODULE: api.settings
-      SECRET_KEY: fjsd707r20u^(*^*&) 
+      DJANGO_SECRET_KEY: fjsd707r20u^(*^*&) 
+      DJANGO_DEBUG: 0
+      CONSOLE_EMAILING: 1
+      EMAIL_HOST:  smtp.gmail.com
+      EMAIL_PORT: 587 
+      EMAIL_HOST_USER: host_user
+      EMAIL_HOST_PASSWORD: host_password
+      EMAIL_USE_TLS: 0
+      EMAIL_USE_SSL: 0
+      ADMIN_USER_NAME: admin_user
+      ADMIN_USER_EMAIL: admin@gmail.com
 
     steps:
       - name: Checkout code
