@@ -7,7 +7,7 @@ on:
     branches: [ "master"]
 
 jobs:
-  test:
+  tests:
     runs-on: ubuntu-latest
 
     services:
@@ -27,7 +27,7 @@ jobs:
 
     env:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
-      DJANGO_SETTINGS_MODULE: settings
+      DJANGO_SETTINGS_MODULE: api.settings
       SECRET_KEY: fjsd707r20u^(*^*&) 
 
     steps:
