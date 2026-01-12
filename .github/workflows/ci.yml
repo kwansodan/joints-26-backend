@@ -59,7 +59,49 @@ jobs:
         run: |
           python manage.py migrate
 
-      - name: Run tests
+      - name: Run tests [user endpoints]
         run: |
           python manage.py test src.apps.users.tests.test_user_list_endpoints
           python manage.py test src.apps.users.tests.test_user_detail_endpoints
+
+      - name: Run tests [vendor endpoints]
+        run: |
+          python manage.py test src.apps.vendors.tests.test_vendor_list_endpoints
+          python manage.py test src.apps.vendors.tests.test_vendor_detail_endpoints
+
+      - name: Run tests [delivery agent endpoints]
+        run: |
+          python manage.py test src.apps.bikers.tests.test_biker_list_endpoints
+          python manage.py test src.apps.bikers.tests.test_biker_detail_endpoints
+
+      - name: Run tests [delivery vechicle endpoints]
+        run: |
+          python manage.py test src.apps.bikers.tests.test_vehicle_list_endpoints
+          python manage.py test src.apps.bikers.tests.test_vehicle_detail_endpoints
+
+      - name: Run tests [location endpoints]
+        run: |
+          python manage.py test src.apps.orders.tests.test_location_list_endpoints
+          python manage.py test src.apps.orders.tests.test_location_detail_endpoints
+
+      - name: Run tests [order-item endpoints]
+        run: |
+          python manage.py test src.apps.orders.tests.test_orderitem_list_endpoints
+          python manage.py test src.apps.orders.tests.test_orderitem_detail_endpoints
+
+      - name: Run tests [order endpoints]
+        run: |
+          python manage.py test src.apps.orders.tests.test_orders_list_endpoints
+          python manage.py test src.apps.orders.tests.test_orders_detail_endpoints
+
+      - name: Run tests [payment endpoints]
+        run: |
+          python manage.py test src.apps.payments.tests.test_payment_list_endpoints
+          python manage.py test src.apps.payments.tests.test_payment_detail_endpoints
+
+      - name: Run tests [notification endpoints]
+        run: |
+          python manage.py test src.apps.notifications.tests.test_notification_list_endpoints
+          python manage.py test src.apps.notifications.tests.test_notification_detail_endpoints
+
+
