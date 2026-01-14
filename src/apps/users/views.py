@@ -1,8 +1,10 @@
 from src.services.users import *
 from src.utils.helpers import BaseAPIView
+from rest_framework.generics import GenericAPIView
 from src.apps.users.permissions import UserModelPermission
 
-class UserListView(BaseAPIView):
+class UserListView(BaseAPIView, GenericAPIView):
+    serializer_class = AuthSerializer 
     permission_classes = [UserModelPermission]
 
     def get(self, request):
@@ -13,7 +15,8 @@ class UserListView(BaseAPIView):
         success, message, data = createUserService(request.data)
         return self.created(message, data) if success else self.bad(message)
 
-class UserDetailView(BaseAPIView):
+class UserDetailView(BaseAPIView, GenericAPIView):
+    serializer_class = AuthSerializer 
     permission_classes = [UserModelPermission]
 
     def get(self, request, pk):

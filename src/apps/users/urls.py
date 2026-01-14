@@ -10,7 +10,7 @@ urlpatterns = [
          name="users-list-view"
     ),
 
-    path("<str:pk>/",
+    path("detail/<str:pk>/",
          UserDetailView.as_view(),
          name="user-detail-view"
     )

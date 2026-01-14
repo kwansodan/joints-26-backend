@@ -1,8 +1,10 @@
 from src.services.location import *
 from src.utils.helpers import BaseAPIView
+from rest_framework.generics import GenericAPIView
 from src.apps.orders.permissions import LocationModelPermission 
 
-class LocationListView(BaseAPIView):
+class LocationListView(BaseAPIView, GenericAPIView):
+    serializer_class = LocationSerializer
     permission_classes = [LocationModelPermission]
 
     def get(self, request):
@@ -13,7 +15,8 @@ class LocationListView(BaseAPIView):
         success, message, data = createLocationService(request.data)
         return self.created(message, data) if success else self.bad(message)
 
-class LocationDetailView(BaseAPIView):
+class LocationDetailView(BaseAPIView, GenericAPIView):
+    serializer_class = LocationSerializer
     permission_classes = [LocationModelPermission]
 
     def get(self, request, pk):

@@ -1,8 +1,10 @@
 from src.services.menu import * 
 from src.utils.helpers import BaseAPIView
+from rest_framework.generics import GenericAPIView
 from src.apps.vendors.permissions import MenuItemModelPermission 
 
-class MenuListView(BaseAPIView):
+class MenuListView(BaseAPIView, GenericAPIView):
+    serializer_class = MenuItemSerializer
     permission_classes = [MenuItemModelPermission]
 
     def get(self, request):
@@ -13,7 +15,8 @@ class MenuListView(BaseAPIView):
         success, message, data = createMenuService(request.data)
         return self.created(message, data) if success else self.bad(message)
 
-class MenuDetailView(BaseAPIView):
+class MenuDetailView(BaseAPIView, GenericAPIView):
+    serializer_class = MenuItemSerializer
     permission_classes = [MenuItemModelPermission]
 
     def get(self, request, pk):

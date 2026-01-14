@@ -1,8 +1,10 @@
 from src.services.vendors import *
 from src.utils.helpers import BaseAPIView
+from rest_framework.generics import GenericAPIView
 from src.apps.vendors.permissions import VendorModelPermission 
 
-class VendorListView(BaseAPIView):
+class VendorListView(BaseAPIView, GenericAPIView):
+    serializer_class = VendorSerializer
     permission_classes = [VendorModelPermission]
 
     def get(self, request):
@@ -13,7 +15,8 @@ class VendorListView(BaseAPIView):
         success, message, data = createVendorService(requestData=request.data)
         return self.created(message, data) if success else self.bad(message)
 
-class VendorDetailView(BaseAPIView):
+class VendorDetailView(BaseAPIView, GenericAPIView):
+    serializer_class = VendorSerializer
     permission_classes = [VendorModelPermission]
 
     def get(self, request, pk):

@@ -1,8 +1,10 @@
 from src.services.payments import *
 from src.utils.helpers import BaseAPIView
+from rest_framework.generics import GenericAPIView
 from src.apps.payments.permissions import PaymentModelPermission 
 
-class PaymentListView(BaseAPIView):
+class PaymentListView(BaseAPIView, GenericAPIView):
+    serializer_class = PaymentSerializer
     permission_classes = [PaymentModelPermission]
 
     def get(self, request):
@@ -13,7 +15,8 @@ class PaymentListView(BaseAPIView):
         success, message, data = createPaymentService(request.data)
         return self.created(message, data) if success else self.bad(message)
 
-class PaymentDetailView(BaseAPIView):
+class PaymentDetailView(BaseAPIView, GenericAPIView):
+    serializer_class = PaymentSerializer
     permission_classes = [PaymentModelPermission]
 
     def get(self, request, pk):

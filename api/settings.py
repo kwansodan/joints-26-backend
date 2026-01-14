@@ -24,6 +24,7 @@ INSTALLED_APPS = [
 
     "corsheaders",
     "rest_framework",
+    "drf_spectacular",
 
     "src.apps.users",
     "src.apps.bikers",
@@ -32,6 +33,7 @@ INSTALLED_APPS = [
 
     "src.apps.scripts",
     "src.apps.payments",
+    "src.apps.external",
     "src.apps.notifications"
 ]
 
@@ -175,6 +177,8 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser',
     ],
+
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 SIMPLE_JWT = {
@@ -184,3 +188,9 @@ SIMPLE_JWT = {
 
 AUTH_USER_MODEL = "users.User"
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Joints',
+    'DESCRIPTION': 'Human assisted food ordering platform',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}

@@ -11,7 +11,7 @@ urlpatterns = [
          name="vendor-list-view"
     ),
 
-    path("<str:pk>/",
+    path("detail/<str:pk>/",
          VendorDetailView.as_view(),
          name="vendor-detail-view"
     ),

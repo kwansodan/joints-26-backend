@@ -13,7 +13,7 @@ urlpatterns = [
          name="order-list-view"
     ),
 
-    path("<str:pk>/",
+    path("detail/<str:pk>/",
          OrderDetailView.as_view(),
          name="order-detail-view"
     ),

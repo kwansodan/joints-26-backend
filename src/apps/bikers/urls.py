@@ -11,7 +11,7 @@ urlpatterns = [
          name="bikers-list-view"
     ),
 
-    path("<str:pk>/",
+    path("detail/<str:pk>/",
          BikerDetailView.as_view(),
          name="biker-detail-view"
     ),

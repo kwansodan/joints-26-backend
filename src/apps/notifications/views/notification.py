@@ -1,8 +1,10 @@
 from src.services.notifications import *
 from src.utils.helpers import BaseAPIView
+from rest_framework.generics import GenericAPIView
 from src.apps.notifications.permissions import NotificationModelPermission
 
-class NotificationListView(BaseAPIView):
+class NotificationListView(BaseAPIView, GenericAPIView):
+    serializer_class = NotificationSerializer
     permission_classes = [NotificationModelPermission]
 
     def get(self, request):
@@ -13,7 +15,8 @@ class NotificationListView(BaseAPIView):
         success, message, data = createNotificationService(request.data)
         return self.created(message, data) if success else self.bad(message)
 
-class NotificationDetailView(BaseAPIView):
+class NotificationDetailView(BaseAPIView, GenericAPIView):
+    serializer_class = NotificationSerializer
     permission_classes = [NotificationModelPermission]
 
     def get(self, request, pk):

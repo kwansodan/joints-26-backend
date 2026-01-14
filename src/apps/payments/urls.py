@@ -11,7 +11,7 @@ urlpatterns = [
          name="payment-list-view"
     ),
 
-    path("<str:pk>/",
+    path("detail/<str:pk>/",
          PaymentDetailView.as_view(),
          name="payment-detail-view"
     ),

@@ -1,8 +1,10 @@
 from src.services.order import *
 from src.utils.helpers import BaseAPIView
+from rest_framework.generics import GenericAPIView
 from src.apps.orders.permissions import OrderModelPermission
 
-class OrderListView(BaseAPIView):
+class OrderListView(BaseAPIView, GenericAPIView):
+    serializer_class = OrderSerializer
     permission_classes = [OrderModelPermission]
 
     def get(self, request):
@@ -13,7 +15,8 @@ class OrderListView(BaseAPIView):
         success, message, data = createOrderService(request.data)
         return self.created(message, data) if success else self.bad(message)
 
-class OrderDetailView(BaseAPIView):
+class OrderDetailView(BaseAPIView, GenericAPIView):
+    serializer_class = OrderSerializer
     permission_classes = [OrderModelPermission]
 
     def get(self, request, pk):

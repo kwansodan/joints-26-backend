@@ -1,8 +1,10 @@
 from src.services.bikers import *
 from src.utils.helpers import BaseAPIView
+from rest_framework.generics import GenericAPIView
 from src.apps.bikers.permissions import BikerModelPermission
 
-class BikerListView(BaseAPIView):
+class BikerListView(BaseAPIView, GenericAPIView):
+    serializer_class = BikerSerializer 
     permission_classes = [BikerModelPermission]
 
     def get(self, request):
@@ -13,7 +15,8 @@ class BikerListView(BaseAPIView):
         success, message, data = createBikerService(request.data)
         return self.created(message, data) if success else self.bad(message)
 
-class BikerDetailView(BaseAPIView):
+class BikerDetailView(BaseAPIView, GenericAPIView):
+    serializer_class = BikerSerializer 
     permission_classes = [BikerModelPermission]
 
     def get(self, request, pk):
