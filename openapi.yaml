@@ -1,0 +1,2384 @@
+openapi: 3.0.3
+info:
+  title: Joints
+  version: 1.0.0
+  description: Human assisted food ordering platform
+  contact:
+    name: dev-muftawu
+    email: mohammedyiwere@gmail.com
+paths:
+  /auth/login/:
+    post:
+      operationId: auth_login_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - email
+              - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  minLength: 1
+                password:
+                  type: string
+                  minLength: 1
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - email
+              - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  minLength: 1
+                password:
+                  type: string
+                  minLength: 1
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - email
+              - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  minLength: 1
+                password:
+                  type: string
+                  minLength: 1
+      responses:
+        '200':
+          description: Authentication tokens
+        '400':
+          description: Invalid input
+        '401':
+          description: Invalid credentials
+  /auth/refresh/:
+    post:
+      operationId: auth_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - refresh
+              type: object
+              properties:
+                refresh:
+                  type: string
+                  minLength: 1
+          application/x-www-form-urlencoded:
+            schema:
+              required:
+              - refresh
+              type: object
+              properties:
+                refresh:
+                  type: string
+                  minLength: 1
+          multipart/form-data:
+            schema:
+              required:
+              - refresh
+              type: object
+              properties:
+                refresh:
+                  type: string
+                  minLength: 1
+      responses:
+        '200':
+          description: Authentication tokens
+        '400':
+          description: Missing refresh token
+        '401':
+          description: Invalid or expired token
+  /bikers/:
+    get:
+      operationId: bikers_list
+      description: List all bikers
+      tags:
+      - bikers
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Biker'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    post:
+      operationId: bikers_create
+      description: Create a new biker
+      tags:
+      - bikers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Biker'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Biker'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Biker'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Biker'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+  /bikers/detail/{id}/:
+    get:
+      operationId: bikers_detail_retrieve
+      description: Get a single biker
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bikers
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Biker'
+          description: ''
+        '403':
+          description: Forbidden
+    put:
+      operationId: bikers_detail_update
+      description: Update a single biker
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bikers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Biker'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Biker'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Biker'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Biker'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    patch:
+      operationId: bikers_detail_partial_update
+      description: Partially update a single biker
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bikers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBiker'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBiker'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBiker'
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Biker'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    delete:
+      operationId: bikers_detail_destroy
+      description: Delete a single biker
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bikers
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Deleted successfully
+        '403':
+          description: Forbidden
+  /bikers/vehicles/detail/{id}/:
+    get:
+      operationId: bikers_vehicles_detail_retrieve
+      description: Get a single biker vehicle
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bikers
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+          description: ''
+        '403':
+          description: Forbidden
+    put:
+      operationId: bikers_vehicles_detail_update
+      description: Update a single biker vehicle
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bikers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vehicle'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Vehicle'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Vehicle'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    patch:
+      operationId: bikers_vehicles_detail_partial_update
+      description: Partially update a single biker vehicle
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bikers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedVehicle'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedVehicle'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedVehicle'
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    delete:
+      operationId: bikers_vehicles_detail_destroy
+      description: Delete a single biker vehicle
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bikers
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Deleted successfully
+        '403':
+          description: Forbidden
+  /bikers/vehicles/list/:
+    get:
+      operationId: bikers_vehicles_list_list
+      description: List all biker vehicles
+      tags:
+      - bikers
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    post:
+      operationId: bikers_vehicles_list_create
+      description: Create a new biker vehicle
+      tags:
+      - bikers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vehicle'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Vehicle'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Vehicle'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+  /notifications/:
+    get:
+      operationId: notifications_list
+      description: List all notifications
+      tags:
+      - notifications
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    post:
+      operationId: notifications_create
+      description: Create a new notification
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Notification'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+  /notifications/detail/{id}/:
+    get:
+      operationId: notifications_detail_retrieve
+      description: Get a single notification
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+        '403':
+          description: Forbidden
+    put:
+      operationId: notifications_detail_update
+      description: Update a single notification
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Notification'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    patch:
+      operationId: notifications_detail_partial_update
+      description: Partially update a single notification
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotification'
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    delete:
+      operationId: notifications_detail_destroy
+      description: Delete a single notification
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Deleted successfully
+        '403':
+          description: Forbidden
+  /orders/:
+    get:
+      operationId: orders_list
+      description: List all orders
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    post:
+      operationId: orders_create
+      description: Create a new order
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Order'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Order'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+  /orders/detail/{id}/:
+    get:
+      operationId: orders_detail_retrieve
+      description: Get a single order
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+        '403':
+          description: Forbidden
+    put:
+      operationId: orders_detail_update
+      description: Update a single order
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Order'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Order'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    patch:
+      operationId: orders_detail_partial_update
+      description: Partially update a single order
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOrder'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedOrder'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedOrder'
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    delete:
+      operationId: orders_detail_destroy
+      description: Delete a single order
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Deleted successfully
+        '403':
+          description: Forbidden
+  /orders/location/detail/{id}/:
+    get:
+      operationId: orders_location_detail_retrieve
+      description: Get a single location
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+          description: ''
+        '403':
+          description: Forbidden
+    put:
+      operationId: orders_location_detail_update
+      description: Update a single location
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Location'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Location'
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    patch:
+      operationId: orders_location_detail_partial_update
+      description: Partially update a single location
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLocation'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLocation'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLocation'
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    delete:
+      operationId: orders_location_detail_destroy
+      description: Delete a single location
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Deleted successfully
+        '403':
+          description: Forbidden
+  /orders/location/list/:
+    get:
+      operationId: orders_location_list_list
+      description: List all locations
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    post:
+      operationId: orders_location_list_create
+      description: Create a new location
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Location'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Location'
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+  /orders/orderitems/detail/{id}/:
+    get:
+      operationId: orders_orderitems_detail_retrieve
+      description: Get a single orderitem
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderItem'
+          description: ''
+        '403':
+          description: Forbidden
+    put:
+      operationId: orders_orderitems_detail_update
+      description: Update a single orderitem
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderItem'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrderItem'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderItem'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderItem'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    patch:
+      operationId: orders_orderitems_detail_partial_update
+      description: Partially update a single orderitem
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOrderItem'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedOrderItem'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedOrderItem'
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderItem'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    delete:
+      operationId: orders_orderitems_detail_destroy
+      description: Delete a single orderitem
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Deleted successfully
+        '403':
+          description: Forbidden
+  /orders/orderitems/list/:
+    get:
+      operationId: orders_orderitems_list_list
+      description: List all orderitems
+      tags:
+      - orders
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderItem'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    post:
+      operationId: orders_orderitems_list_create
+      description: Create a new orderitem
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderItem'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrderItem'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderItem'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderItem'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+  /payments/:
+    get:
+      operationId: payments_list
+      description: List all payments
+      tags:
+      - payments
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    post:
+      operationId: payments_create
+      description: Create a new payment
+      tags:
+      - payments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Payment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Payment'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+  /payments/detail/{id}/:
+    get:
+      operationId: payments_detail_retrieve
+      description: Get a single payment
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - payments
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+        '403':
+          description: Forbidden
+    put:
+      operationId: payments_detail_update
+      description: Update a single payment
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - payments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Payment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Payment'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    patch:
+      operationId: payments_detail_partial_update
+      description: Partially update a single payment
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - payments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPayment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPayment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPayment'
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    delete:
+      operationId: payments_detail_destroy
+      description: Delete a single payment
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - payments
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Deleted successfully
+        '403':
+          description: Forbidden
+  /users/:
+    get:
+      operationId: users_list
+      description: List all users
+      tags:
+      - users
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Auth'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    post:
+      operationId: users_create
+      description: Create a new user
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Auth'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Auth'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Auth'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Auth'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+  /users/detail/{id}/:
+    get:
+      operationId: users_detail_retrieve
+      description: Get a single user
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - users
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Auth'
+          description: ''
+        '403':
+          description: Forbidden
+    put:
+      operationId: users_detail_update
+      description: Update a single user
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Auth'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Auth'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Auth'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Auth'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    patch:
+      operationId: users_detail_partial_update
+      description: Partially update a single user
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAuth'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAuth'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAuth'
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Auth'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    delete:
+      operationId: users_detail_destroy
+      description: Delete a single user
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - users
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Deleted successfully
+        '403':
+          description: Forbidden
+  /vendors/:
+    get:
+      operationId: vendors_list
+      description: List all vendors
+      tags:
+      - vendors
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vendor'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    post:
+      operationId: vendors_create
+      description: Create a new vendor
+      tags:
+      - vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+  /vendors/detail/{id}/:
+    get:
+      operationId: vendors_detail_retrieve
+      description: Get a single vendor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - vendors
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+        '403':
+          description: Forbidden
+    put:
+      operationId: vendors_detail_update
+      description: Update a single vendor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    patch:
+      operationId: vendors_detail_partial_update
+      description: Partially update a single vendor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedVendor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedVendor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedVendor'
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    delete:
+      operationId: vendors_detail_destroy
+      description: Delete a single vendor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - vendors
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Deleted successfully
+        '403':
+          description: Forbidden
+  /vendors/menu/detail/{id}/:
+    get:
+      operationId: vendors_menu_detail_retrieve
+      description: Get a single menu item
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - vendors
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItem'
+          description: ''
+        '403':
+          description: Forbidden
+    put:
+      operationId: vendors_menu_detail_update
+      description: Update a single menu item
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MenuItem'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MenuItem'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MenuItem'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItem'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    patch:
+      operationId: vendors_menu_detail_partial_update
+      description: Partially update a single menu item
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMenuItem'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMenuItem'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMenuItem'
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItem'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    delete:
+      operationId: vendors_menu_detail_destroy
+      description: Delete a single menu item
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - vendors
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Deleted successfully
+        '403':
+          description: Forbidden
+  /vendors/menu/list/:
+    get:
+      operationId: vendors_menu_list_list
+      description: List all menu items
+      tags:
+      - vendors
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuItem'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+    post:
+      operationId: vendors_menu_list_create
+      description: Create a new menu item
+      tags:
+      - vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MenuItem'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MenuItem'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MenuItem'
+        required: true
+      security:
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItem'
+          description: ''
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+components:
+  schemas:
+    Auth:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        first_name:
+          type: string
+          nullable: true
+          maxLength: 150
+        last_name:
+          type: string
+          nullable: true
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          maxLength: 150
+        phone:
+          type: string
+          nullable: true
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+        userType:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/UserTypeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+      required:
+      - email
+      - id
+      - password
+    Biker:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        user:
+          type: string
+        status:
+          type: boolean
+          nullable: true
+        totalTrips:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+      required:
+      - id
+      - user
+    BlankEnum:
+      enum:
+      - ''
+    Location:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        displayName:
+          type: string
+          nullable: true
+          maxLength: 150
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,13}(?:\.\d{0,2})?$
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,13}(?:\.\d{0,2})?$
+        region:
+          type: string
+          nullable: true
+          maxLength: 150
+        district:
+          type: string
+          nullable: true
+          maxLength: 150
+        city:
+          type: string
+          nullable: true
+          maxLength: 150
+        town:
+          type: string
+          nullable: true
+          maxLength: 150
+        suburb:
+          type: string
+          nullable: true
+          maxLength: 150
+        houseNumber:
+          type: string
+          nullable: true
+          maxLength: 150
+        road:
+          type: string
+          nullable: true
+          maxLength: 150
+      required:
+      - id
+    MenuItem:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        vendor:
+          type: string
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,13}(?:\.\d{0,2})?$
+      required:
+      - id
+      - vendor
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        notificationId:
+          type: string
+          readOnly: true
+        sender:
+          type: string
+        receiver:
+          type: string
+        notificationType:
+          $ref: '#/components/schemas/NotificationTypeEnum'
+        topic:
+          type: string
+          nullable: true
+          maxLength: 255
+        message:
+          type: string
+        status:
+          type: boolean
+      required:
+      - id
+      - message
+      - notificationId
+      - receiver
+      - sender
+    NotificationTypeEnum:
+      enum:
+      - sms
+      - email
+      - whatsapp
+      type: string
+      description: |-
+        * `sms` - sms
+        * `email` - email
+        * `whatsapp` - whatsapp
+    NullEnum:
+      enum:
+      - null
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        customer:
+          type: string
+        orderItem:
+          type: string
+        location:
+          type: string
+          nullable: true
+        subtotal:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        status:
+          type: boolean
+          nullable: true
+      required:
+      - customer
+      - id
+      - orderItem
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        menuItem:
+          type: string
+        quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+      required:
+      - id
+      - menuItem
+    PatchedAuth:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        first_name:
+          type: string
+          nullable: true
+          maxLength: 150
+        last_name:
+          type: string
+          nullable: true
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          maxLength: 150
+        phone:
+          type: string
+          nullable: true
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+        userType:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/UserTypeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+    PatchedBiker:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        user:
+          type: string
+        status:
+          type: boolean
+          nullable: true
+        totalTrips:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+    PatchedLocation:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        displayName:
+          type: string
+          nullable: true
+          maxLength: 150
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,13}(?:\.\d{0,2})?$
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,13}(?:\.\d{0,2})?$
+        region:
+          type: string
+          nullable: true
+          maxLength: 150
+        district:
+          type: string
+          nullable: true
+          maxLength: 150
+        city:
+          type: string
+          nullable: true
+          maxLength: 150
+        town:
+          type: string
+          nullable: true
+          maxLength: 150
+        suburb:
+          type: string
+          nullable: true
+          maxLength: 150
+        houseNumber:
+          type: string
+          nullable: true
+          maxLength: 150
+        road:
+          type: string
+          nullable: true
+          maxLength: 150
+    PatchedMenuItem:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        vendor:
+          type: string
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,13}(?:\.\d{0,2})?$
+    PatchedNotification:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        notificationId:
+          type: string
+          readOnly: true
+        sender:
+          type: string
+        receiver:
+          type: string
+        notificationType:
+          $ref: '#/components/schemas/NotificationTypeEnum'
+        topic:
+          type: string
+          nullable: true
+          maxLength: 255
+        message:
+          type: string
+        status:
+          type: boolean
+    PatchedOrder:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        customer:
+          type: string
+        orderItem:
+          type: string
+        location:
+          type: string
+          nullable: true
+        subtotal:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        status:
+          type: boolean
+          nullable: true
+    PatchedOrderItem:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        menuItem:
+          type: string
+        quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+    PatchedPayment:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        paymentId:
+          type: string
+          readOnly: true
+        order:
+          type: string
+        status:
+          type: boolean
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,13}(?:\.\d{0,2})?$
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethodEnum'
+        paymentReference:
+          type: string
+          maxLength: 150
+        confirmedBy:
+          type: string
+          nullable: true
+          maxLength: 150
+    PatchedVehicle:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        biker:
+          type: string
+        vehicleType:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/VehicleTypeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        licensePlate:
+          type: string
+          nullable: true
+          maxLength: 20
+        registered:
+          type: boolean
+          nullable: true
+    PatchedVendor:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        user:
+          type: string
+        name:
+          type: string
+          maxLength: 255
+        location:
+          type: string
+          nullable: true
+          maxLength: 255
+        phone:
+          type: string
+          nullable: true
+          maxLength: 150
+        menu:
+          type: array
+          items: {}
+          readOnly: true
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        paymentId:
+          type: string
+          readOnly: true
+        order:
+          type: string
+        status:
+          type: boolean
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,13}(?:\.\d{0,2})?$
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethodEnum'
+        paymentReference:
+          type: string
+          maxLength: 150
+        confirmedBy:
+          type: string
+          nullable: true
+          maxLength: 150
+      required:
+      - id
+      - order
+      - paymentId
+      - paymentReference
+    PaymentMethodEnum:
+      enum:
+      - bank
+      - momo
+      type: string
+      description: |-
+        * `bank` - bank
+        * `momo` - momo
+    UserTypeEnum:
+      enum:
+      - admin
+      - biker
+      - customer
+      - vendor
+      - office_agent
+      type: string
+      description: |-
+        * `admin` - admin
+        * `biker` - biker
+        * `customer` - customer
+        * `vendor` - vendor
+        * `office_agent` - office_agent
+    Vehicle:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        biker:
+          type: string
+        vehicleType:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/VehicleTypeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        licensePlate:
+          type: string
+          nullable: true
+          maxLength: 20
+        registered:
+          type: boolean
+          nullable: true
+      required:
+      - biker
+      - id
+    VehicleTypeEnum:
+      enum:
+      - car
+      - motorbike
+      type: string
+      description: |-
+        * `car` - car
+        * `motorbike` - motorbike
+    Vendor:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        user:
+          type: string
+        name:
+          type: string
+          maxLength: 255
+        location:
+          type: string
+          nullable: true
+          maxLength: 255
+        phone:
+          type: string
+          nullable: true
+          maxLength: 150
+        menu:
+          type: array
+          items: {}
+          readOnly: true
+      required:
+      - id
+      - menu
+      - user
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+servers:
+- url: http://api.joints.com:8000
+  description: joints backend api url
+tags:
+- name: users
+  description: User endpoints
+- name: bikers
+  description: Biker endpoints
+- name: orders
+  description: Orders endpoints
+- name: vendors
+  description: Vendor endpoints
+- name: payments
+  description: Payment endpoints
+- name: auth
+  description: Authentication endpoints
+- name: notifications
+  description: Notification endpoints

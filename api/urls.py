@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.conf.urls.static import static
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+# from django.conf.urls.static import static
+from src.apps.users.views.auth_login import LoginView, RefreshTokenView 
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
     path("admin/interface/", 
@@ -19,12 +19,12 @@ urlpatterns = [
          name="swagger-docs"),
 
     path("auth/login/", 
-         TokenObtainPairView.as_view(), 
+         LoginView.as_view(), 
          name="signin"
     ),
 
     path("auth/refresh/", 
-         TokenRefreshView.as_view(), 
+         RefreshTokenView.as_view(), 
          name='token-refresh'
     ),
 

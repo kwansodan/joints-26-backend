@@ -9,3 +9,6 @@ djangorestframework
 djangorestframework-simplejwt
 django-stubs
 drf-spectacular
+pytest
+pytest-django
+schemathesis

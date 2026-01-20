@@ -190,7 +190,27 @@ AUTH_USER_MODEL = "users.User"
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Joints',
-    'DESCRIPTION': 'Human assisted food ordering platform',
-    'VERSION': '1.0.0',
+    'VERSION': '1.0.0', 
     'SERVE_INCLUDE_SCHEMA': False,
+    'DESCRIPTION': 'Human assisted food ordering platform',
+    'SERVERS': [
+        {"url": "http://api.joints.com:8000", "description": "joints backend api url"},
+    ],
+    'CONTACT': {
+        "name": "dev-muftawu",
+        "email": "mohammedyiwere@gmail.com",
+    },
+    'TAGS': [
+        {"name": "users", "description": "User endpoints"},
+        {"name": "bikers", "description": "Biker endpoints"},
+        {"name": "orders", "description": "Orders endpoints"},
+        {"name": "vendors", "description": "Vendor endpoints"},
+        {"name": "payments", "description": "Payment endpoints"},
+        {"name": "auth", "description": "Authentication endpoints"},
+        {"name": "notifications", "description": "Notification endpoints"},
+    ]
 }
+
+
+
+

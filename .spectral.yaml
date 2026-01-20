@@ -1,0 +1,18 @@
+extends: spectral:oas
+
+rules:
+  path-keys-no-trailing-slash: off
+
+  require-403:
+    description: "Secured endpoints must define a 403 response"
+    given: "$.paths[*][get,post,put,patch,delete]"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          if:
+            required: [security]
+          then:
+            properties:
+              responses:
+                required: ["403"]
