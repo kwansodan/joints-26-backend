@@ -31,14 +31,14 @@ class TestUserDetailEndpoints(BaseAPITestCase):
     def test_update_user_detail_success(self):
         user = create_user(permissions=["users.change_user"])
         self.authenticate(user)
-        response = self.client.put(self.url, {"email": "updateduser@gmail.com"}, json="format")
+        response = self.client.put(self.url, {"email": "updateduser@gmail.com"}, format="json")
         self.assertEqual(response.status_code, 200)
 
     def test_delete_user_detail_success(self):
         user = create_user(permissions=["users.delete_user"])
         self.authenticate(user)
         response = self.client.delete(self.url)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 204)
 
     # without permission
     def test_get_user_without_permission_is_denied(self):

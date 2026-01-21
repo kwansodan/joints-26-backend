@@ -1,9 +1,12 @@
 from src.services.location import *
-from src.utils.helpers import BaseAPIView
+from src.utils.helpers import DETAIL_VIEW_HTTP_METHODS, INVALID_CREDENTIALS_401, LIST_VIEW_HTTP_METHODS, BaseAPIView
 from rest_framework.generics import GenericAPIView
 from src.apps.orders.permissions import LocationModelPermission 
 from src.utils.helpers import BaseAPIView, FORBIDDEN_403, BAD_REQUEST_400
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse
+from rest_framework.parsers import JSONParser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 @extend_schema_view(
@@ -12,7 +15,8 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResp
         responses={
             200: LocationSerializer(many=True), 
             **BAD_REQUEST_400,
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         },
     ),
     post=extend_schema(
@@ -21,11 +25,16 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResp
         responses={
             201: LocationSerializer,
             **BAD_REQUEST_400,
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         }
     ),
 )
 class LocationListView(BaseAPIView, GenericAPIView):
+    parser_classes = [JSONParser]
+    http_method_names = LIST_VIEW_HTTP_METHODS 
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, LocationModelPermission]
     serializer_class = LocationSerializer
     permission_classes = [LocationModelPermission]
 
@@ -43,7 +52,8 @@ class LocationListView(BaseAPIView, GenericAPIView):
         description="Get a single location",
         responses={
             200: LocationSerializer, 
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         },
     ),
     put=extend_schema(
@@ -52,7 +62,8 @@ class LocationListView(BaseAPIView, GenericAPIView):
         responses={
             200: LocationSerializer,
             **BAD_REQUEST_400,
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         }
     ),
     patch=extend_schema(
@@ -61,18 +72,24 @@ class LocationListView(BaseAPIView, GenericAPIView):
         responses={
             200: LocationSerializer,
             **BAD_REQUEST_400,
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         }
     ),
     delete=extend_schema(
         description="Delete a single location",
         responses={
             204: OpenApiResponse(description="Deleted successfully"),
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         }
     ),
 )
 class LocationDetailView(BaseAPIView, GenericAPIView):
+    parser_classes = [JSONParser]
+    http_method_names = DETAIL_VIEW_HTTP_METHODS 
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, LocationModelPermission]
     serializer_class = LocationSerializer
     permission_classes = [LocationModelPermission]
 
@@ -90,5 +107,5 @@ class LocationDetailView(BaseAPIView, GenericAPIView):
 
     def delete(self, request, pk):
         success, message, data =deleteLocationService(pk)
-        return self.ok(message, data) if success else self.bad(message)
+        return self.no_content() if success else self.bad(message)
 

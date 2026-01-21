@@ -45,7 +45,7 @@ class TestVehicleDetailEndpoints(BaseAPITestCase):
         user = create_user(permissions=["bikers.delete_vehicle"])
         self.authenticate(user)
         response = self.client.delete(self.url)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 204)
 
     # without permission
     def test_get_vehicle_without_permission_is_denied(self):

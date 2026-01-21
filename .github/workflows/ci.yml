@@ -59,13 +59,20 @@ jobs:
         run: |
           python manage.py migrate
 
-      - name: Start django server
+      - name: Start django via gunicorn (wsgi) 
         run: |
-          python manage.py runserver &
+          gunicorn api.wsgi:application \
+            --bind 0.0.0.0:8000 \
+            --workers 2 \
+            --log-level info & 
           sleep 5
 
-      - name: Run schemathesis tests
+      - name: Run non-contract tests
         run: |
           pytest -m "not contract"
+
+      - name: Run contract tests
+        run: |
           pytest -m contract --maxfail=1
+
 

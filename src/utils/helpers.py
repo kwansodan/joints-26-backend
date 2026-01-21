@@ -2,22 +2,39 @@ from secrets import token_urlsafe
 from rest_framework import status
 from rest_framework.views import APIView
 from src.utils.dbOptions import TOKEN_LEN
-from rest_framework.response import Response
 from rest_framework.test import APITestCase 
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.response import Response
 from drf_spectacular.utils import OpenApiResponse
-# from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework.exceptions import MethodNotAllowed
+from rest_framework_simplejwt.tokens import RefreshToken
 
 # spectral linter helpers
-FORBIDDEN_403 = {
-    403: OpenApiResponse(description="Forbidden")
-}
-
 BAD_REQUEST_400 = {
     400: OpenApiResponse(description="Bad Request")
 }
 
-class BaseAPIView(APIView):
+INVALID_CREDENTIALS_401 = {
+    401: OpenApiResponse(description="Invalid credentials")
+}
+
+FORBIDDEN_403 = {
+    403: OpenApiResponse(description="Forbidden")
+}
+
+LIST_VIEW_HTTP_METHODS = ["get", "post"]
+
+DETAIL_VIEW_HTTP_METHODS = ["get", "put", "patch", "delete"]
+
+class AllowOnlyMethodsMixin:
+    def initial(self, request, *args, **kwargs):
+        if request.method.lower() not in getattr(self, "http_method_names", []):
+            return Response(
+                {"detail": f"Method '{request.method}' not allowed."},
+                status=405,
+            )
+        return super().initial(request, *args, **kwargs)
+
+class BaseAPIView(AllowOnlyMethodsMixin, APIView):
     def ok(self, message=None, data=None):
         return Response(status=status.HTTP_200_OK, data={"message": message,  "data": data})
 
@@ -30,6 +47,7 @@ class BaseAPIView(APIView):
     def no_content(self, message=None, data=None):
         return Response(status=status.HTTP_204_NO_CONTENT, data={"message": message,  "data": data})
 
+
 class BaseAPITestCase(APITestCase):
     def authenticate(self, user):
         refresh = RefreshToken.for_user(user)
@@ -38,6 +56,7 @@ class BaseAPITestCase(APITestCase):
         )
     def logout(self):
         self.client.credentials()
+
 
 def random_token():
     data = None

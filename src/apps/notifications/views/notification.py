@@ -1,9 +1,13 @@
 from src.services.notifications import *
-from src.utils.helpers import BaseAPIView
+from src.utils.helpers import DETAIL_VIEW_HTTP_METHODS, INVALID_CREDENTIALS_401, LIST_VIEW_HTTP_METHODS, BaseAPIView
 from rest_framework.generics import GenericAPIView
 from src.apps.notifications.permissions import NotificationModelPermission
 from src.utils.helpers import BaseAPIView, FORBIDDEN_403, BAD_REQUEST_400
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse
+from rest_framework.parsers import JSONParser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 
 @extend_schema_view(
     get=extend_schema(
@@ -11,7 +15,8 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResp
         responses={
             200: NotificationSerializer(many=True), 
             **BAD_REQUEST_400,
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         },
     ),
     post=extend_schema(
@@ -20,13 +25,17 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResp
         responses={
             201: NotificationSerializer,
             **BAD_REQUEST_400,
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         }
     ),
 )
 class NotificationListView(BaseAPIView, GenericAPIView):
+    parser_classes = [JSONParser]
+    http_method_names = LIST_VIEW_HTTP_METHODS 
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, NotificationModelPermission]
     serializer_class = NotificationSerializer
-    permission_classes = [NotificationModelPermission]
 
     def get(self, request):
         success, message, data = notificationListService()
@@ -41,7 +50,8 @@ class NotificationListView(BaseAPIView, GenericAPIView):
         description="Get a single notification",
         responses={
             200: NotificationSerializer, 
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         },
     ),
     put=extend_schema(
@@ -50,7 +60,8 @@ class NotificationListView(BaseAPIView, GenericAPIView):
         responses={
             200: NotificationSerializer,
             **BAD_REQUEST_400,
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         }
     ),
     patch=extend_schema(
@@ -59,20 +70,25 @@ class NotificationListView(BaseAPIView, GenericAPIView):
         responses={
             200: NotificationSerializer,
             **BAD_REQUEST_400,
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         }
     ),
     delete=extend_schema(
         description="Delete a single notification",
         responses={
             204: OpenApiResponse(description="Deleted successfully"),
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         }
     ),
 )
 class NotificationDetailView(BaseAPIView, GenericAPIView):
+    parser_classes = [JSONParser]
+    http_method_names = DETAIL_VIEW_HTTP_METHODS 
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, NotificationModelPermission]
     serializer_class = NotificationSerializer
-    permission_classes = [NotificationModelPermission]
 
     def get(self, request, pk):
         success, message, data = getNotificationDetailService(pk=pk)
@@ -88,5 +104,5 @@ class NotificationDetailView(BaseAPIView, GenericAPIView):
 
     def delete(self, request, pk):
         success, message, data = deleteNotificationService(pk)
-        return self.ok(message, data) if success else self.bad(message)
+        return self.no_content() if success else self.bad(message)
 

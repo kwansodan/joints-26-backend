@@ -64,7 +64,7 @@ class TestPaymentDetailEndpoints(BaseAPITestCase):
         user = create_user(permissions=["payments.delete_payment"])
         self.authenticate(user)
         response = self.client.delete(self.url)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 204)
 
     # without permission
     def test_get_payment_without_permission_is_denied(self):

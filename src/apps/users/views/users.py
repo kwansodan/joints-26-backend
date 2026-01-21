@@ -1,5 +1,8 @@
+from rest_framework.parsers import JSONParser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from src.services.users import *
-from src.utils.helpers import BaseAPIView
+from src.utils.helpers import DETAIL_VIEW_HTTP_METHODS, INVALID_CREDENTIALS_401, LIST_VIEW_HTTP_METHODS, BaseAPIView
 from rest_framework.generics import GenericAPIView
 from src.apps.users.permissions import UserModelPermission
 from src.utils.helpers import BaseAPIView, FORBIDDEN_403, BAD_REQUEST_400
@@ -11,7 +14,8 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResp
         responses={
             200: AuthSerializer(many=True), 
             **BAD_REQUEST_400,
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         },
     ),
     post=extend_schema(
@@ -20,13 +24,17 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResp
         responses={
             201: AuthSerializer,
             **BAD_REQUEST_400,
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         }
     ),
 )
 class UserListView(BaseAPIView, GenericAPIView):
+    parser_classes = [JSONParser]
+    http_method_names = LIST_VIEW_HTTP_METHODS 
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, UserModelPermission]
     serializer_class = AuthSerializer 
-    permission_classes = [UserModelPermission]
 
     def get(self, request):
         success, message, data = usersListService()
@@ -41,7 +49,8 @@ class UserListView(BaseAPIView, GenericAPIView):
         description="Get a single user",
         responses={
             200: AuthSerializer, 
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         },
     ),
     put=extend_schema(
@@ -50,7 +59,8 @@ class UserListView(BaseAPIView, GenericAPIView):
         responses={
             200: AuthSerializer,
             **BAD_REQUEST_400,
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         }
     ),
     patch=extend_schema(
@@ -59,20 +69,25 @@ class UserListView(BaseAPIView, GenericAPIView):
         responses={
             200: AuthSerializer,
             **BAD_REQUEST_400,
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         }
     ),
     delete=extend_schema(
         description="Delete a single user",
         responses={
             204: OpenApiResponse(description="Deleted successfully"),
-            **FORBIDDEN_403
+            **FORBIDDEN_403,
+            **INVALID_CREDENTIALS_401,
         }
     ),
 )
 class UserDetailView(BaseAPIView, GenericAPIView):
+    parser_classes = [JSONParser]
+    http_method_names = DETAIL_VIEW_HTTP_METHODS 
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, UserModelPermission]
     serializer_class = AuthSerializer 
-    permission_classes = [UserModelPermission]
 
     def get(self, request, pk):
         success, message, data = getUserDetailService(pk=pk)
@@ -87,6 +102,6 @@ class UserDetailView(BaseAPIView, GenericAPIView):
         return self.ok(message, data) if success else self.bad(message)
 
     def delete(self, request, pk):
-        success, message, data = deleteUserService(pk)
-        return self.ok(message, data) if success else self.bad(message)
+        success, message, _ = deleteUserService(pk)
+        return self.no_content() if success else self.bad(message)
 

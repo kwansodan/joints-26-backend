@@ -208,7 +208,8 @@ SPECTACULAR_SETTINGS = {
         {"name": "payments", "description": "Payment endpoints"},
         {"name": "auth", "description": "Authentication endpoints"},
         {"name": "notifications", "description": "Notification endpoints"},
-    ]
+    ],
+    'DEFAULT_CONTENT_TYPES': ['application/json'],
 }
 
 

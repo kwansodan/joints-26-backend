@@ -12,3 +12,4 @@ drf-spectacular
 pytest
 pytest-django
 schemathesis
+gunicorn
