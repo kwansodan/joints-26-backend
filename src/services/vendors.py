@@ -1,3 +1,4 @@
+from src.apps.users.models import User
 from src.apps.vendors.models import Vendor
 from src.apps.vendors.serializers import VendorSerializer
 
@@ -24,7 +25,16 @@ def createVendorService(requestData):
     message = "Failed to create vendor" 
     data = None
     try:
-        serializer = VendorSerializer(data=requestData)
+        requestDataCopy = requestData.copy()
+        vendorUser = User.objects.create(
+            first_name=f"fn_{requestDataCopy.get("name").replace(' ', '')}",
+            last_name=f"ln_{requestDataCopy.get("name").replace(' ', '')}",
+            email=f"{requestDataCopy.get("name")}@gmail.com",
+            phone=requestDataCopy.get("phone"),
+            userType="vendor"
+        )
+        requestDataCopy.update({"user": vendorUser.pk})
+        serializer = VendorSerializer(data=requestDataCopy)
         if serializer.is_valid():
             serializer.save()
             status = True

@@ -2206,17 +2206,17 @@ servers:
 - url: http://api.joints.com:8000
   description: joints backend api url
 tags:
+- name: auth
+  description: Authentication endpoints
 - name: users
   description: User endpoints
+- name: vendors
+  description: Vendor endpoints
 - name: bikers
   description: Biker endpoints
 - name: orders
   description: Orders endpoints
-- name: vendors
-  description: Vendor endpoints
 - name: payments
   description: Payment endpoints
-- name: auth
-  description: Authentication endpoints
 - name: notifications
   description: Notification endpoints

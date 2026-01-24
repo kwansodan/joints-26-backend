@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -141,6 +142,7 @@ if all([ADMIN_USER_NAME, ADMIN_USER_EMAIL]):
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://api.joints.com"
 ]
 
 
@@ -182,8 +184,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=30),
 }
 
 AUTH_USER_MODEL = "users.User"
@@ -194,19 +196,21 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
     'DESCRIPTION': 'Human assisted food ordering platform',
     'SERVERS': [
-        {"url": "http://api.joints.com:8000", "description": "joints backend api url"},
+        {"url": "http://api.joints.com:8000", 
+         "description": "joints backend api url"
+        },
     ],
     'CONTACT': {
         "name": "dev-muftawu",
         "email": "mohammedyiwere@gmail.com",
     },
     'TAGS': [
+        {"name": "auth", "description": "Authentication endpoints"},
         {"name": "users", "description": "User endpoints"},
+        {"name": "vendors", "description": "Vendor endpoints"},
         {"name": "bikers", "description": "Biker endpoints"},
         {"name": "orders", "description": "Orders endpoints"},
-        {"name": "vendors", "description": "Vendor endpoints"},
         {"name": "payments", "description": "Payment endpoints"},
-        {"name": "auth", "description": "Authentication endpoints"},
         {"name": "notifications", "description": "Notification endpoints"},
     ],
     'DEFAULT_CONTENT_TYPES': ['application/json'],
