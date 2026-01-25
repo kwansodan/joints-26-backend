@@ -27,8 +27,8 @@ class MenuItemSerializer(serializers.ModelSerializer):
               "id",
               "vendor",
               "name",
+              "price",
               "description",
-              "price"
         ]
 
     

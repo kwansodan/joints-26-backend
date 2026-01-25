@@ -22,8 +22,8 @@ def createMenuService(requestData):
     message = None
     data = None
     try:
-        data = requestData.copy()
-        serializer = MenuItemSerializer(data=data)
+        requestDataCopy = requestData.copy()
+        serializer = MenuItemSerializer(data=requestDataCopy, many=True)
         if serializer.is_valid():
             serializer.save()
             status = True
