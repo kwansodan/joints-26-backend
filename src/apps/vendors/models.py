@@ -18,7 +18,7 @@ class Vendor(models.Model):
     @property
     def menuList(self):
         from src.apps.vendors.serializers import MenuItemSerializer
-        menu = []
+        menu = [] 
         try:
             obj = MenuItem.objects.filter(vendor=self)
             menu = MenuItemSerializer(instance=obj, many=True).data
@@ -28,7 +28,7 @@ class Vendor(models.Model):
 
     class _Meta:
         verbose_name_plural = 'Vendors'
-        ordering = ["-createdAt"]
+        ordering = ["createdAt"]
 
     def __str__(self):
         return f"{self.name} - {self.location}"

@@ -29,11 +29,13 @@ class TestMenuListEndpoints(BaseAPITestCase):
         self.authenticate(user)
         user = create_user(email="biker@gmail.com", userType="biker")
         vendor = create_vendor(user=user, name="Vendor1", location="Vendor location 1", phone="+233564585963")
-        payload =  {
-            "vendor": vendor.pk,
-            "name": "Assorted Jollof Rice",
-            "description": "Tasty and affordable assorted jollof rice",
-            "price": 150.00
-        }
+        payload =  [
+            {
+                "vendor": vendor.pk,
+                "name": "Assorted Jollof Rice",
+                "description": "Tasty and affordable assorted jollof rice",
+                "price": 150.00
+            }
+        ]
         response = self.client.post(self.url, payload, format="json")
         self.assertEqual(response.status_code, 201)
