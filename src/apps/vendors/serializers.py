@@ -15,7 +15,7 @@ class VendorSerializer(serializers.ModelSerializer):
               "menu"
         ]
 
-    def get_menu(self, obj):
+    def get_menu(self, obj) -> list:
         if not hasattr(obj, "id"):
             return [] 
         return obj.menuList

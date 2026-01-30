@@ -19,6 +19,8 @@ class LocationSerializer(serializers.ModelSerializer):
         ]
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    menuItem = serializers.SerializerMethodField(read_only=True)
+    
     class Meta:
         model = OrderItem
         fields = [
@@ -26,16 +28,36 @@ class OrderItemSerializer(serializers.ModelSerializer):
               "menuItem",
               "quantity",
         ]
+    
+    def get_menuItem(self, obj):
+        if not hasattr(obj, "id"):
+            return None 
+        return obj.getMenuItem
 
 class OrderSerializer(serializers.ModelSerializer):
+    customer = serializers.SerializerMethodField(read_only=True)
+    orderItems = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Order
         fields = [
               "id",
               "customer",
-              "orderItem",
-              "location",
+              "orderItems",
               "subtotal",
-              "status",
+              # "location",
+              # "status",
         ]
+
+    def get_customer(self, obj):
+        if not hasattr(obj, "id"):
+            return None 
+        return obj.getCustomer
+
+    def get_orderItems(self, obj) -> list:
+        if not hasattr(obj, "id"):
+            return [] 
+        return obj.orderItems
+
+
 

@@ -28,10 +28,12 @@ def create_location(
     return location 
 
 def create_orderitem(
+    order: Order,
     menuitem: MenuItem,
     quantity=1,
     ):
     orderitem = OrderItem.objects.create(
+        order=order,
         menuItem=menuitem,
         quantity=quantity
     )
@@ -39,12 +41,10 @@ def create_orderitem(
 
 def create_order(
     customer: User,
-    orderItem: OrderItem,
     location: Location,
     ):
     order = Order.objects.create(
         customer=customer,
-        orderItem=orderItem,
         location=location
     )
     return order
