@@ -1,7 +1,6 @@
-from src.apps.orders.models import Order, OrderItem
-from src.apps.orders.serializers import OrderSerializer
-from src.apps.users.models import User
-from src.apps.vendors.models import MenuItem
+from src.apps.orders.models import Order 
+from src.apps.orders.serializers import CreateOrderSerializer, OrderItemSerializer, OrderSerializer
+from src.apps.users.serializers import AuthSerializer
 from django.db import transaction
 
 # biker 
@@ -28,38 +27,57 @@ def createOrderService(requestData):
     data = None
     try:
         with transaction.atomic():
-            newOrderItems = []
             requestCopy = requestData.copy()
             customer = requestCopy.get("customer", None)
-            orderItems = requestCopy.get("orderItems", [])
+            menuItems = requestCopy.get("menuItems", [])
 
             if customer is not None:
                 import uuid
-                customerName = customer["name"].split(" ")
-                customerUser = User.objects.create(
-                    first_name=customerName[0],
-                    last_name=customerName[1] if customerName[1] else "",
-                    email=f"{customerName[0]}{str(uuid.uuid4())[:8]}@gmail.com",
-                    phone=customer["phone"],
-                    userType="customer"
-                )
+                fname = customer["first_name"]
+                lname = customer["last_name"]
+                email = f"{fname}.{lname}{str(uuid.uuid4())[:6]}@gmail.com"
+                phone = customer["phone"]
+                password=f"{fname}@{phone[:4]}"
+                specialNotes=customer.get("specialNotes", "")
 
-                if orderItems is not None:
-                    order = Order.objects.create(customer=customerUser)
-                    for item in orderItems:
-                        menuItem = MenuItem.objects.get(pk=item["id"])
-                        newOrderItem, _ = OrderItem.objects.get_or_create(order=order, menuItem=menuItem, quantity=item["quantity"])
-                        newOrderItems.append(newOrderItem)
-                    
-                status = True
-                message = "order created successfully"
+                user_serializer = AuthSerializer(data={
+                    "first_name": fname,
+                    "last_name": lname,
+                    "email": email,
+                    "phone": phone,
+                    "password": password,
+                    "userType": "customer"
+                })
+                if user_serializer.is_valid():
+                    user_serializer.save()
+                    user = user_serializer.data
+                else:
+                    return False, f"{user_serializer.errors}", None
 
-            # serializer = OrderSerializer(data=payload, many=True)
-            # if serializer.is_valid():
-            #     serializer.save()
-            #     status = True
-            #                 # else:
-            #     message = serializer.errors
+                if menuItems is not None:
+                    order_data = {"customer": user["id"]}
+                    order_serializer = CreateOrderSerializer(data=order_data)
+                    if order_serializer.is_valid():
+                        order = order_serializer.save()
+                    else:
+                        return False, f"{order_serializer.errors}", None
+
+                    for item in menuItems:
+                        orderitem_serializer = OrderItemSerializer(data={
+                            "order": order.pk,
+                            "menuItem": item["id"],
+                            "quantity": item["quantity"],
+                            "specialNotes": specialNotes
+                        })
+                        if orderitem_serializer.is_valid():
+                            orderitem_serializer.save()
+                        else:
+                            print("orderitem serializer errors", orderitem_serializer.errors)
+                            return False, f"{orderitem_serializer.error_messages}", None
+
+                    status = True
+                    data = order_serializer.data
+                    message = "order created successfully"
     except Exception as e:
         print(f"[OrderService Err] Failed to create order: {e}")
     return status, message, data

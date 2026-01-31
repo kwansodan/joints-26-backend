@@ -46,14 +46,14 @@ class Order(models.Model):
         return AuthSerializer(instance=self.customer).data
 
     @property
-    def orderItems(self):
+    def menuItemsList(self):
         from src.apps.orders.serializers import OrderItemSerializer
         data = OrderItemSerializer(instance=OrderItem.objects.filter(order=self), many=True).data
         return data
 
     @property
     def orderSubtotal(self):
-        prices = [item.menuItem.price * item.quantity for item in self.orderItems]
+        prices = [item.menuItem.price * item.quantity for item in self.menuItemsList]
         print("prices", prices)
         return sum(prices)
 
@@ -82,13 +82,14 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, null=False, blank=False)
     menuItem = models.ForeignKey(MenuItem, on_delete=models.CASCADE, null=False, blank=False)
     quantity = models.IntegerField(default=1, null=False, blank=False)
+    specialNotes = models.TextField(null=True, blank=True)
     createdBy = models.CharField(max_length=MIN_STR_LEN, default="dev", null=True, blank=True)
     updatedBy = models.CharField(max_length=MIN_STR_LEN, default="dev", null=True, blank=True)
     createdAt = models.DateTimeField(auto_now=True)
     updatedAt = models.DateTimeField(auto_now_add=True)
 
     @property
-    def getMenuItem(self):
+    def getMenuItems(self):
         from src.apps.vendors.serializers import MenuItemSerializer
         return MenuItemSerializer(instance=self.menuItem).data
 
