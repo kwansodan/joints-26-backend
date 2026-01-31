@@ -53,16 +53,23 @@ class Order(models.Model):
 
     @property
     def orderSubtotal(self):
-        prices = [item.menuItem.price * item.quantity for item in self.menuItemsList]
-        print("prices", prices)
-        return sum(prices)
+        from decimal import Decimal
+        prices = sum([Decimal(item["menuItems"]["price"]) * item["quantity"] for item in self.menuItemsList])
+        return prices
 
     @property
-    def orderActions(self):
+    def orderLocation(self):
+        from src.apps.orders.serializers import LocationSerializer
+        if self.location is not None:
+            return LocationSerializer(instance=self.location).data
+        return None
+     
+    @property
+    def orderMetadata(self):
         return {
-            "has_location": False,
-            "has_payment": False,
-            "has_biker": False,
+            "hasLocation": self.location is not None,
+            "hasPayment": False,
+            "hasRider": False,
         }
 
     class _Meta:
