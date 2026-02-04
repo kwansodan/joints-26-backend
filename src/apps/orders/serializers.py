@@ -33,9 +33,9 @@ class OrderItemSerializer(serializers.ModelSerializer):
               "specialNotes",
         ]
     
-    def get_menuItems(self, obj):
+    def get_menuItems(self, obj) -> list:
         if not hasattr(obj, "id"):
-            return None 
+            return [] 
         return obj.getMenuItems
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -62,7 +62,7 @@ class OrderSerializer(serializers.ModelSerializer):
             return None 
         return obj.getCustomer
 
-    def get_subtotal(self, obj):
+    def get_subtotal(self, obj) -> float:
         if not hasattr(obj, "id"):
             return 0.0
         return obj.orderSubtotal
@@ -77,7 +77,7 @@ class OrderSerializer(serializers.ModelSerializer):
             return None
         return obj.orderLocation
 
-    def get_orderMetadata(self, obj):
+    def get_orderMetadata(self, obj) -> dict:
         return obj.orderMetadata
 
 class CreateOrderSerializer(serializers.ModelSerializer):

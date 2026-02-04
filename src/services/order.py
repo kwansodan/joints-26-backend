@@ -1,7 +1,8 @@
-from src.apps.orders.models import Order 
-from src.apps.orders.serializers import CreateOrderSerializer, OrderItemSerializer, OrderSerializer
-from src.apps.users.serializers import AuthSerializer
 from django.db import transaction
+from src.apps.orders.models import Order, OrderItem
+from src.apps.users.serializers import AuthSerializer
+from src.apps.users.models import User
+from src.apps.orders.serializers import CreateOrderSerializer, OrderItemSerializer, OrderSerializer
 
 # biker 
 def orderListService():
@@ -102,17 +103,33 @@ def updateOrderDetailService(pk, requestData):
     message = "order does not exists" 
     data = None
     try:
-        obj = Order.objects.get(pk=pk)
-        if obj:
-            serializer = OrderSerializer(instance=obj, data=requestData, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                status = True
-                message = "success"
-                data = serializer.data
-            else:
-                status = False
-                message = serializer.errors
+        with transaction.atomic():
+            customer = requestData.get("customer", None)
+            orderUpdates = requestData.get("orderUpdates", None)
+            print("customer", customer)
+            print("order updates", orderUpdates)
+
+            try:
+                obj = Order.objects.get(pk=pk)
+            except Exception as e:
+                return False, "Order not found", None
+
+            if len(orderUpdates) > 0:
+                for item in orderUpdates:
+                    orderitem = OrderItem.objects.get(pk=item["menuItemId"], order=obj) 
+                    if orderitem:
+                        orderitem.quantity = item["quantity"] if item["quantity"]  else orderitem.quantity
+                        orderitem.save()
+
+            if customer is not None:
+                customer = User.objects.filter(pk=customer["id"]).update(
+                    first_name=customer["first_name"],
+                    last_name=customer["last_name"],
+                    phone=customer["phone"],
+                )
+
+            status = True
+            message = "success" 
     except Exception as e:
         print(f"[OrderService Err] Failed to update order: {e}")
     return status, message, data
