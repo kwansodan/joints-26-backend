@@ -3,6 +3,7 @@ from src.apps.orders.models import Order, OrderItem
 from src.apps.users.serializers import AuthSerializer
 from src.apps.users.models import User
 from src.apps.orders.serializers import CreateOrderSerializer, OrderItemSerializer, OrderSerializer
+from src.apps.vendors.models import MenuItem
 
 # biker 
 def orderListService():
@@ -56,7 +57,7 @@ def createOrderService(requestData):
                     return False, f"{user_serializer.errors}", None
 
                 if menuItems is not None:
-                    order_data = {"customer": user["id"]}
+                    order_data = {"customer": dict(user)["id"]}
                     order_serializer = CreateOrderSerializer(data=order_data)
                     if order_serializer.is_valid():
                         order = order_serializer.save()
@@ -103,16 +104,24 @@ def updateOrderDetailService(pk, requestData):
     message = "order does not exists" 
     data = None
     try:
+        print("request data", requestData)
         with transaction.atomic():
             customer = requestData.get("customer", None)
             orderUpdates = requestData.get("orderUpdates", None)
-            print("customer", customer)
-            print("order updates", orderUpdates)
+            newOrders = requestData.get("newOrders", None)
+            subordersToRemove = requestData.get("subordersToRemove", None)
 
             try:
                 obj = Order.objects.get(pk=pk)
             except Exception as e:
                 return False, "Order not found", None
+            
+            if customer is not None:
+                customer = User.objects.filter(pk=customer["id"]).update(
+                    first_name=customer["first_name"],
+                    last_name=customer["last_name"],
+                    phone=customer["phone"],
+                )
 
             if len(orderUpdates) > 0:
                 for item in orderUpdates:
@@ -121,12 +130,23 @@ def updateOrderDetailService(pk, requestData):
                         orderitem.quantity = item["quantity"] if item["quantity"]  else orderitem.quantity
                         orderitem.save()
 
-            if customer is not None:
-                customer = User.objects.filter(pk=customer["id"]).update(
-                    first_name=customer["first_name"],
-                    last_name=customer["last_name"],
-                    phone=customer["phone"],
-                )
+            if len(newOrders) > 0:
+                for item in newOrders:
+                    menuItem = MenuItem.objects.get(pk=item["menuItemId"])
+                    OrderItem.objects.create(
+                        order=obj,
+                        menuItem=menuItem,
+                        quantity=item["quantity"]
+                    ) 
+
+            if len(subordersToRemove) > 0:
+                for item in subordersToRemove:
+                    print("removing item", item)
+                    orderobj = OrderItem.objects.get(pk=item, order=obj)
+                    if orderobj :
+                        orderobj.delete()
+                    else:
+                        return False, "sub order item not found", None
 
             status = True
             message = "success" 
