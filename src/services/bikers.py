@@ -1,41 +1,50 @@
-from src.apps.bikers.models import Biker 
-from src.apps.bikers.serializers import BikerSerializer 
+from django.db import transaction
+from src.apps.bikers.models import Biker, Vehicle 
+from src.apps.bikers.serializers import BikerSerializer, VehicleSerializer
+from src.apps.users.models import User
+from src.apps.users.serializers import AuthSerializer
+from src.services.vehicles import createVehicleService
+from src.utils.helpers import clean_db_error_msgs 
 
 # biker 
 def bikersListService():
-    status = False
-    message = "Error fetching bikers" 
-    data = None
     try:
         objs = Biker.objects.all()
         serializer = BikerSerializer(instance=objs, many=True)
         if serializer:
-            status = True
-            message = "success"
-            data = serializer.data
+            return True, "success", serializer.data
         else:
-            message = serializer.errors
+            return False, serializer.errors, None 
     except Exception as e:
         print(f"[BikerService Err] Failed to get bikers list: {e}")
-    return status, message, data
+        return False, clean_db_error_msgs(str(e)), None 
     
 def createBikerService(requestData):
-    status = False
-    message = None
-    data = None
     try:
-        data = requestData.copy()
-        serializer = BikerSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            status = True
-            message = "Biker created successfully"
-            data = serializer.data
-        else:
-            message = serializer.errors
+        print("request data", requestData)
+        bikerInfo = requestData.get("bikerInfo", None)
+        newvehicles = requestData.get("newVehiclesPayload", None)
+
+        with transaction.atomic():
+            if bikerInfo is not None:
+                user_serializer = AuthSerializer(data={**bikerInfo, "password": "securebiker@123", "userType": "biker"})
+                if user_serializer.is_valid(raise_exception=True):
+                    user = user_serializer.save()
+
+                    biker_serializer = BikerSerializer(data={"user": getattr(user, "pk")}) 
+                    if biker_serializer.is_valid(raise_exception=True):
+                        biker = biker_serializer.save()
+
+                        if len(newvehicles) > 0:
+                            [item.update({"biker": getattr(biker, "pk")}) for item in newvehicles]
+                            print("new vehicle data", newvehicles)
+                            vehicle_serializer = VehicleSerializer(data=newvehicles, many=True)
+                            if vehicle_serializer.is_valid(raise_exception=True):
+                                vehicle_serializer.save()
+                return True, "success", None
     except Exception as e:
         print(f"[BikerService Err] Failed to create biker: {e}")
-    return status, message, data
+        return False, clean_db_error_msgs(str(e)), None
 
 def getBikerDetailService(pk):
     status = False

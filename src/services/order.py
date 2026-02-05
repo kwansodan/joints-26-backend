@@ -104,7 +104,6 @@ def updateOrderDetailService(pk, requestData):
     message = "order does not exists" 
     data = None
     try:
-        print("request data", requestData)
         with transaction.atomic():
             customer = requestData.get("customer", None)
             orderUpdates = requestData.get("orderUpdates", None)

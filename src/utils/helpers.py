@@ -5,7 +5,6 @@ from src.utils.dbOptions import TOKEN_LEN
 from rest_framework.test import APITestCase 
 from rest_framework.response import Response
 from drf_spectacular.utils import OpenApiResponse
-from rest_framework.exceptions import MethodNotAllowed
 from rest_framework_simplejwt.tokens import RefreshToken
 
 # spectral linter helpers
@@ -66,5 +65,10 @@ def random_token():
         print(f"Failed to generate random token: {str(e)}")
     return data 
 
-
+def clean_db_error_msgs(data: str):
+    if data.startswith("duplicate key value violates unique constraint"):
+        newdata = data.splitlines()[0].split("constraint")[1].split("_")
+        return f"{str(newdata[len(newdata)-2]).capitalize()} already exists"
+    else:
+        return data
 

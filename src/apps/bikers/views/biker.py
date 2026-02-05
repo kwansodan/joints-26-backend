@@ -40,7 +40,7 @@ class BikerListView(BaseAPIView, GenericAPIView):
         return self.ok(message, data) if success else self.bad(message)
 
     def post(self, request):
-        success, message, data = createBikerService(request.data)
+        success, message, data = createBikerService(requestData=request.data)
         return self.created(message, data) if success else self.bad(message)
 
 

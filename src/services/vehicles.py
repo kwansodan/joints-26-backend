@@ -24,7 +24,7 @@ def createVehicleService(requestData):
     data = None
     try:
         data = requestData.copy()
-        serializer = VehicleSerializer(data=data)
+        serializer = VehicleSerializer(data=data, many=True)
         if serializer.is_valid():
             serializer.save()
             status = True

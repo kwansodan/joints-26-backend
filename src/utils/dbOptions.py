@@ -28,7 +28,7 @@ USER_TYPES = [
 
 VEHICLE_TYPE = [
     ("car", "car"),
-    ("motorbike", "motorbike"),
+    ("bike", "bike"),
 ]
 
 PAYMENT_OPTIONS = [
