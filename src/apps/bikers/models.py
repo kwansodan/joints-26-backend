@@ -17,7 +17,7 @@ class Biker(models.Model):
     def vehicles(self):
         from src.apps.bikers.serializers import VehicleSerializer
         vehicles = Vehicle.objects.filter(biker=self)
-        return VehicleSerializer(instance=vehicles).data if len(vehicles) > 0 else []
+        return VehicleSerializer(instance=vehicles, many=True).data if len(vehicles) > 0 else []
  
     @property
     def userInfo(self):
@@ -34,7 +34,7 @@ class Biker(models.Model):
 
 class Vehicle(models.Model):
     id = models.CharField(primary_key=True, default=random_token, editable=False)
-    biker = models.ForeignKey(Biker, on_delete=models.CASCADE, null=False, blank=False)
+    biker = models.ForeignKey(Biker, on_delete=models.SET_NULL, null=True, blank=True)
     vehicleType = models.CharField(max_length=TINY_STR_LEN, null=True, choices=VEHICLE_TYPE, default="bike", blank=True)
     licensePlate = models.CharField(max_length=TINY_STR_LEN, null=True, blank=True)
     registered = models.BooleanField(default=False, null=True, blank=True)
@@ -42,10 +42,6 @@ class Vehicle(models.Model):
     updatedBy = models.CharField(max_length=MIN_STR_LEN, default="dev", null=True, blank=True)
     createdAt = models.DateTimeField(auto_now=True)
     updatedAt = models.DateTimeField(auto_now_add=True)
-
-    @property
-    def bikerId(self):
-        return self.biker.pk if self.biker else ""
 
     class _Meta:
         verbose_name_plural = "Vehicle"

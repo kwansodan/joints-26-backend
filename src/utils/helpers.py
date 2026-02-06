@@ -66,6 +66,7 @@ def random_token():
     return data 
 
 def clean_db_error_msgs(data: str):
+    print("actul error", data)
     if data.startswith("duplicate key value violates unique constraint"):
         newdata = data.splitlines()[0].split("constraint")[1].split("_")
         return f"{str(newdata[len(newdata)-2]).capitalize()} already exists"

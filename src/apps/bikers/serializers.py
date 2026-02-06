@@ -24,7 +24,6 @@ class BikerSerializer(serializers.ModelSerializer):
 
 
 class VehicleSerializer(serializers.ModelSerializer):
-    biker = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Vehicle
@@ -35,8 +34,3 @@ class VehicleSerializer(serializers.ModelSerializer):
               "licensePlate",
               "registered",
         ]
-
-    def get_biker(self, obj):
-        if not hasattr(obj, "biker") or not hasattr(obj, "id"):
-            return ""
-        return obj.bikerId
