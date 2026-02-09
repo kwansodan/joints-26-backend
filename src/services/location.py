@@ -1,88 +1,65 @@
 from src.apps.orders.models import Location
 from src.apps.orders.serializers import LocationSerializer
+from src.utils.helpers import clean_db_error_msgs
 
-# biker 
+
+# biker
 def locationListService():
-    status = False
-    message = "Error fetching locations" 
-    data = None
     try:
         objs = Location.objects.all()
         serializer = LocationSerializer(instance=objs, many=True)
         if serializer:
-            status = True
-            message = "success"
-            data = serializer.data
-        else:
-            message = serializer.errors
+            return True, "success", serializer.data
     except Exception as e:
         print(f"[LocationService Err] Failed to get location list: {e}")
-    return status, message, data
-    
+        return False, "failed", None
+
+
 def createLocationService(requestData):
-    status = False
-    message = None
-    data = None
     try:
-        data = requestData.copy()
-        serializer = LocationSerializer(data=data)
-        if serializer.is_valid():
+        serializer = LocationSerializer(data=requestData)
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
-            status = True
-            message = "Location created successfully"
-            data = serializer.data
-        else:
-            message = serializer.errors
+        return True, "success", serializer.data
     except Exception as e:
         print(f"[LocationService Err] Failed to create location: {e}")
-    return status, message, data
+        return False, "failed", None
+
 
 def getLocationDetailService(pk):
-    status = False
-    message = "no location found"
-    data = None
-    try:
-       obj = Location.objects.get(pk=pk)
-       if obj:
-            serializer = LocationSerializer(instance=obj)
-            status = True
-            message = "success"
-            data = serializer.data
-    except Exception as e:
-        print(f"[LocationService Err] Failed to get location detail: {e}")
-    return status, message, data
-
-def updateLocationDetailService(pk, requestData):
-    status = False
-    message = "location does not exists" 
-    data = None
     try:
         obj = Location.objects.get(pk=pk)
         if obj:
-            serializer = LocationSerializer(instance=obj, data=requestData, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                status = True
-                message = "success"
-                data = serializer.data
-            else:
-                status = False
-                message = serializer.errors
+            serializer = LocationSerializer(instance=obj)
+            return True, "success", serializer.data
+    except Exception as e:
+        print(f"[LocationService Err] Failed to get location detail: {e}")
+        return False, "failed", None
+
+
+def updateLocationDetailService(pk, requestData):
+    try:
+        obj = Location.objects.get(pk=pk)
+        if obj:
+            serializer = LocationSerializer(
+                instance=obj, data=requestData, partial=True
+            )
+            if serializer.is_valid(raise_exception=True):
+                location = serializer.save()
+
+                # create order delivery price
+
+        return True, "success", serializer.data
     except Exception as e:
         print(f"[LocationService Err] Failed to update location: {e}")
-    return status, message, data
+        return False, "failed", None
 
 def deleteLocationService(pk):
-    status = False
-    message = "biker doest not exists" 
-    data = None
     try:
         obj = Location.objects.get(pk=pk)
         if obj:
             obj.delete()
-            status = True
-            message = "success"
+        return True, "success", None
     except Exception as e:
         print(f"[LocationService Err] Failed to delete location: {e}")
-    return status, message, data
-
+        return False, "failed", None

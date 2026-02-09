@@ -37,6 +37,7 @@ class Mnotifiy:
               "schedule_date": ""
             }
 
+            print("data", data)
             response = requests.post(url=self.url, json=data, headers=self.headers)
             result = response.json()
             print("result", result)
@@ -49,7 +50,7 @@ class Mnotifiy:
 
 
 if __name__ == "__main__":
-    mnotify = Mnotifiy(["0545723325", "0503768479"], "testing mnotify api")
+    mnotify = Mnotifiy(["0503768479"], "testing mnotify api")
     mnotify.send()
 
 

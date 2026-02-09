@@ -7,11 +7,9 @@ class LoginRequestSerializer(serializers.Serializer):
 
 class RefreshRequestSerializer(serializers.Serializer):
     refresh = serializers.RegexField(regex=r"^[^\x00]+$", min_length=1, write_only=True)
-    # refresh = serializers.CharField(min_length=1, allow_blank=False)
 
 class AuthSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-    # user_type = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User 
