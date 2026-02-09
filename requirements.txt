@@ -13,3 +13,5 @@ pytest
 pytest-django
 schemathesis
 gunicorn
+celery
+redis

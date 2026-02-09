@@ -2,44 +2,33 @@ from django.db import transaction
 from src.apps.orders.models import Order, OrderItem
 from src.apps.users.serializers import AuthSerializer
 from src.apps.users.models import User
-from src.apps.orders.serializers import CreateOrderSerializer, OrderItemSerializer, OrderSerializer
+from src.apps.orders.serializers import LocationSerializer, OrderItemSerializer, OrderSerializer
 from src.apps.vendors.models import MenuItem
+from src.utils.helpers import clean_db_error_msgs
 
-# biker 
+# order 
 def orderListService():
-    status = False
-    message = "Error fetching orders" 
-    data = None
     try:
         objs = Order.objects.all()
         serializer = OrderSerializer(instance=objs, many=True)
         if serializer:
-            status = True
-            message = "success"
-            data = serializer.data
-        else:
-            message = serializer.errors
+            return True, "success", serializer.data
     except Exception as e:
         print(f"[OrderService Err] Failed to get order list: {e}")
-    return status, message, data
+        return False, clean_db_error_msgs(str(e)), None
     
 def createOrderService(requestData):
-    status = False
-    message = None
-    data = None
     try:
-        with transaction.atomic():
-            requestCopy = requestData.copy()
-            customer = requestCopy.get("customer", None)
-            menuItems = requestCopy.get("menuItems", [])
+        customer = requestData.get("customer", None)
+        menuItems = requestData.get("menuItems", [])
 
+        with transaction.atomic():
             if customer is not None:
                 import uuid
                 fname = customer["first_name"]
                 lname = customer["last_name"]
                 email = f"{fname}.{lname}{str(uuid.uuid4())[:6]}@gmail.com"
                 phone = customer["phone"]
-                password=f"{fname}@{phone[:4]}"
                 specialNotes=customer.get("specialNotes", "")
 
                 user_serializer = AuthSerializer(data={
@@ -47,42 +36,34 @@ def createOrderService(requestData):
                     "last_name": lname,
                     "email": email,
                     "phone": phone,
-                    "password": password,
+                    "password": f"secureuser@{phone}",
                     "userType": "customer"
                 })
-                if user_serializer.is_valid():
+                if user_serializer.is_valid(raise_exception=True):
                     user_serializer.save()
                     user = user_serializer.data
-                else:
-                    return False, f"{user_serializer.errors}", None
 
                 if menuItems is not None:
-                    order_data = {"customer": dict(user)["id"]}
-                    order_serializer = CreateOrderSerializer(data=order_data)
-                    if order_serializer.is_valid():
+                    order_data = {"customer": dict(user).get("id"), "specialNotes": specialNotes}
+                    order_serializer = OrderSerializer(data=order_data)
+                    if order_serializer.is_valid(raise_exception=True):
                         order = order_serializer.save()
-                    else:
-                        return False, f"{order_serializer.errors}", None
+                        order_id = getattr(order, "id")
 
-                    for item in menuItems:
-                        orderitem_serializer = OrderItemSerializer(data={
-                            "order": order.pk,
-                            "menuItem": item["id"],
-                            "quantity": item["quantity"],
-                            "specialNotes": specialNotes
-                        })
-                        if orderitem_serializer.is_valid():
+                        [item.update({"order": order_id, "menuItem": item["id"], "quantity": item["quantity"]}) for item in menuItems]
+                        orderitem_serializer = OrderItemSerializer(data=menuItems, many=True)
+                        if orderitem_serializer.is_valid(raise_exception=True):
                             orderitem_serializer.save()
-                        else:
-                            print("orderitem serializer errors", orderitem_serializer.errors)
-                            return False, f"{orderitem_serializer.error_messages}", None
 
-                    status = True
-                    data = order_serializer.data
-                    message = "order created successfully"
+                        # location
+                        location_serializer = LocationSerializer(data={"order": order_id})
+                        if location_serializer.is_valid(raise_exception=True):
+                            location_serializer.save()
+
+            return True, "success", None
     except Exception as e:
         print(f"[OrderService Err] Failed to create order: {e}")
-    return status, message, data
+        return False, clean_db_error_msgs(str(e)), None
 
 def getOrderDetailService(pk):
     status = False

@@ -20,7 +20,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
     ),
     post=extend_schema(
         description="Create a new order",
-        request=CreateOrderSerializer,
+        request=OrderSerializer,
         responses={
             201: OrderSerializer,
             **BAD_REQUEST_400,

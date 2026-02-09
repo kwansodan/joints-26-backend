@@ -1,23 +1,74 @@
 from rest_framework import serializers
 from src.apps.orders.models import Location, OrderItem, Order
-from src.apps.users.models import User
+from src.apps.users.serializers import AuthSerializer
+from decimal import Decimal
+from typing import Any
 
-class LocationSerializer(serializers.ModelSerializer):
+from src.apps.vendors.serializers import MenuItemSerializer
+    
+class OrderSerializer(serializers.ModelSerializer):
+    customerInfo = serializers.SerializerMethodField(read_only=True)
+    subtotal = serializers.SerializerMethodField(read_only=True)
+    menuItemsList = serializers.SerializerMethodField(read_only=True)
+    locationData = serializers.SerializerMethodField(read_only=True)
+    orderMetadata = serializers.SerializerMethodField(read_only=True)
+
+    def create(self, validated_data):
+        try:
+            order = Order.objects.create(**validated_data)
+            return order
+        except Exception:
+            return None
+
     class Meta:
-        model = Location 
+        model = Order
         fields = [
               "id",
-              "displayName",
-              "latitude",
-              "longitude",
-              "region",
-              "district",
-              "city",
-              "town",
-              "suburb",
-              "houseNumber",
-              "road",
+              "customer",
+              "customerInfo",
+              "menuItemsList",
+              "subtotal",
+              "locationData",
+              "orderMetadata",
+              "specialNotes",
         ]
+
+    def get_customerInfo(self, obj) -> Any:
+        try:
+            return AuthSerializer(instance=obj.customer).data
+        except:
+            return None
+
+    def get_menuItemsList(self, obj) -> Any:
+        try:
+            return OrderItemSerializer(instance=OrderItem.objects.filter(order=obj), many=True).data
+        except:
+            return None 
+
+    def get_locationData(self, obj) -> Any:
+        try:
+            if not hasattr(obj, "location"):
+                serializer = LocationSerializer(data={"order": getattr(obj, "pk")})
+                if serializer.is_valid(raise_exception=True):
+                    location = serializer.save()
+                    return LocationSerializer(instance=location).data
+            else:
+                return LocationSerializer(instance=obj).data
+        except Exception:
+            return None
+
+    def get_subtotal(self, obj) -> Any:
+        try:
+            return sum([Decimal(item["menuItems"]["price"]) * item["quantity"] for item in self.get_menuItemsList(obj)])
+        except Exception:
+            return 0.0
+
+    def get_orderMetadata(self, obj) -> Any:
+        return {
+            "hasLocation": obj.location.processed if obj.location else False,
+            "hasPayment": False,
+            "hasRider": False,
+        }
 
 class OrderItemSerializer(serializers.ModelSerializer):
     menuItems = serializers.SerializerMethodField(read_only=True)
@@ -30,61 +81,31 @@ class OrderItemSerializer(serializers.ModelSerializer):
               "menuItem",
               "menuItems",
               "quantity",
-              "specialNotes",
         ]
     
-    def get_menuItems(self, obj) -> list:
-        if not hasattr(obj, "id"):
-            return [] 
-        return obj.getMenuItems
+    def get_menuItems(self, obj) -> Any:
+        try:
+            return MenuItemSerializer(instance=obj.menuItem).data
+        except Exception:
+            return None
 
-class OrderSerializer(serializers.ModelSerializer):
-    customer = serializers.SerializerMethodField(read_only=True)
-    subtotal = serializers.SerializerMethodField(read_only=True)
-    menuItemsList = serializers.SerializerMethodField(read_only=True)
-    locationData = serializers.SerializerMethodField(read_only=True)
-    orderMetadata = serializers.SerializerMethodField(read_only=True)
-
+class LocationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Order
+        model = Location 
         fields = [
               "id",
-              "customer",
-              "menuItemsList",
-              "subtotal",
-              "locationData",
-              "orderMetadata",
-              # "status",
+              "order",
+              "displayName",
+              "latitude",
+              "longitude",
+              "region",
+              "district",
+              "city",
+              "town",
+              "suburb",
+              "houseNumber",
+              "processed",
+              "road",
         ]
 
-    def get_customer(self, obj):
-        if not hasattr(obj, "id"):
-            return None 
-        return obj.getCustomer
 
-    def get_subtotal(self, obj) -> float:
-        if not hasattr(obj, "id"):
-            return 0.0
-        return obj.orderSubtotal
-
-    def get_menuItemsList(self, obj) -> list:
-        if not hasattr(obj, "id"):
-            return [] 
-        return obj.menuItemsList
-
-    def get_locationData(self, obj):
-        if not hasattr(obj, "location") or not hasattr(obj, "id"):
-            return None
-        return obj.orderLocation
-
-    def get_orderMetadata(self, obj) -> dict:
-        return obj.orderMetadata
-
-class CreateOrderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Order
-        fields = [
-              "customer",
-        ]
-
- 

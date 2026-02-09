@@ -6,12 +6,8 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification 
         fields = [
               "id",
-              "notificationId",
-              "sender",
-              "receiver",
-              "notificationType",
-              "topic",
+              "recipient",
               "message",
-              "status",
+              "processed",
         ]
 
