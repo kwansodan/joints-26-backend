@@ -51,13 +51,14 @@ class Location(models.Model):
     longitude = models.DecimalField(
         max_digits=MAX_DIGIT_LEN, decimal_places=DECIMAL_PLACES, default=Decimal("0.00")
     )
-    region = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
-    district = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     city = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
-    town = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
-    suburb = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
+    state = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     houseNumber = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     road = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
+    town = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
+    suburb = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
+    district = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
+    country = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     processed = models.BooleanField(default=False)
     createdBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
@@ -78,9 +79,7 @@ class Location(models.Model):
 
 class OrderItem(models.Model):
     id = models.CharField(primary_key=True, default=random_token, editable=False)
-    order = models.OneToOneField(
-        Order, on_delete=models.CASCADE, null=False, blank=False
-    )
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=False, blank=False)
     menuItem = models.ForeignKey(
         MenuItem, on_delete=models.CASCADE, null=False, blank=False
     )

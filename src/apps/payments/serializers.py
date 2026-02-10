@@ -1,3 +1,4 @@
+from typing import Any
 from rest_framework import serializers
 
 from src.apps.payments.models import Payment
@@ -27,7 +28,7 @@ class PaymentSerializer(serializers.ModelSerializer):
             print("exception", str(e))
             return None
 
-    def get_amount(self, obj):
+    def get_amount(self, obj) -> Any:
         if not hasattr(obj, "order"):
             return 0.0
         return obj.order.subtotal

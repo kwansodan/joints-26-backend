@@ -17,5 +17,5 @@ def on_location_created(sender, instance: Location, created: bool, **kwargs):
 
         transaction.on_commit(_enqueue)
     else:
-        print("location updated from signal")
+        print("location updated from signal. waiting on what to do...")
 

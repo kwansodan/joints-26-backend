@@ -1,9 +1,6 @@
 from src.apps.orders.models import Location
 from src.apps.orders.serializers import LocationSerializer
-from src.utils.helpers import clean_db_error_msgs
 
-
-# biker
 def locationListService():
     try:
         objs = Location.objects.all()

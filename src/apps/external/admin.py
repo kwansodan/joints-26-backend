@@ -1,3 +1,4 @@
 from django.contrib import admin
+from src.apps.external.models import GeneratedLink
 
-# Register your models here.
+admin.site.register(GeneratedLink)

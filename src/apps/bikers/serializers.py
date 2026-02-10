@@ -1,3 +1,4 @@
+from typing import Any
 from rest_framework import serializers
 from src.apps.bikers.models import Biker, Vehicle
 
@@ -16,10 +17,10 @@ class BikerSerializer(serializers.ModelSerializer):
               "vehicles"
         ]
 
-    def get_vehicles(self, obj) -> list:
+    def get_vehicles(self, obj) -> Any:
         return obj.vehicles
 
-    def get_userInfo(self, obj):
+    def get_userInfo(self, obj) -> Any:
         return obj.userInfo
 
 

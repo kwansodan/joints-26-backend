@@ -18,8 +18,7 @@ def orderListService():
     try:
         objs = Order.objects.all()
         serializer = OrderSerializer(instance=objs, many=True)
-        if serializer:
-            return True, "success", serializer.data
+        return True, "success", serializer.data
     except Exception as e:
         print(f"[OrderService Err] Failed to get order list: {e}")
         return False, clean_db_error_msgs(str(e)), None
@@ -97,63 +96,80 @@ def createOrderService(requestData):
             return True, "success", None
     except Exception as e:
         print(f"[OrderService Err] Failed to create order: {e}")
-        return False, clean_db_error_msgs(str(e)), None
+        return False, "failed", None
 
 
 def getOrderDetailService(pk):
-    status = False
-    message = "no order found"
-    data = None
     try:
         obj = Order.objects.get(pk=pk)
         if obj:
             serializer = OrderSerializer(instance=obj)
-            status = True
-            message = "success"
-            data = serializer.data
+        return True, "success", serializer.data
     except Exception as e:
         print(f"[OrderService Err] Failed to get order detail: {e}")
-    return status, message, data
+        return False, "failed", None
 
 
 def updateOrderDetailService(pk, requestData):
-    status = False
-    message = "order does not exists"
-    data = None
     try:
-        with transaction.atomic():
-            customer = requestData.get("customer", None)
-            orderUpdates = requestData.get("orderUpdates", None)
-            newOrders = requestData.get("newOrders", None)
-            subordersToRemove = requestData.get("subordersToRemove", None)
+        customer = requestData.get("customer", None)
+        orderUpdates = requestData.get("orderUpdates", None)
+        newOrders = requestData.get("newOrders", None)
+        subordersToRemove = requestData.get("subordersToRemove", None)
 
+        with transaction.atomic():
             try:
                 obj = Order.objects.get(pk=pk)
             except Exception as e:
                 return False, "Order not found", None
 
             if customer is not None:
-                customer = User.objects.filter(pk=customer["id"]).update(
-                    first_name=customer["first_name"],
-                    last_name=customer["last_name"],
-                    phone=customer["phone"],
+                # customer = User.objects.filter(pk=customer["id"]).update(
+                #     first_name=customer["first_name"],
+                #     last_name=customer["last_name"],
+                #     phone=customer["phone"],
+                # )
+                user_serializer = AuthSerializer(
+                    instance=customer, data=customer, partial=True
                 )
+                if user_serializer.is_valid(raise_exception=True):
+                    user_serializer.save()
 
-            if len(orderUpdates) > 0:
+            if orderUpdates is not None and len(orderUpdates) > 0:
+                [item.update({"order": obj.id}) for item in orderUpdates]
                 for item in orderUpdates:
-                    orderitem = OrderItem.objects.get(pk=item["menuItemId"], order=obj)
-                    if orderitem:
-                        orderitem.quantity = (
-                            item["quantity"] if item["quantity"] else orderitem.quantity
-                        )
-                        orderitem.save()
+                    orderitem_instance = OrderItem.objects.get(
+                        pk=item["menuItemId"], order=obj
+                    )
+                    orderitem_serializer = OrderItemSerializer(
+                        instance=orderitem_instance, data=item, partial=True
+                    )
+                    if orderitem_serializer.is_valid(raise_exception=True):
+                        orderitem_serializer.save()
+
+                # order_serializer = OrderSerializer(instance)
+                # for item in orderUpdates:
+                #     if orderitem:
+                #         orderitem.quantity = (
+                #             item["quantity"] if item["quantity"] else orderitem.quantity
+                #         )
+                #         orderitem.save()
 
             if len(newOrders) > 0:
                 for item in newOrders:
-                    menuItem = MenuItem.objects.get(pk=item["menuItemId"])
-                    OrderItem.objects.create(
-                        order=obj, menuItem=menuItem, quantity=item["quantity"]
+                    # menuItem = MenuItem.objects.get(pk=item["menuItemId"])
+                    # OrderItem.objects.create(
+                    #     order=obj, menuItem=menuItem, quantity=item["quantity"]
+                    # )
+                    new_orderitem_serializer = OrderItemSerializer(
+                        data={
+                            "order": obj,
+                            "menuItem": item["menuItemId"],
+                            "quantity": item["quantity"],
+                        }
                     )
+                    if new_orderitem_serializer.is_valid(raise_exception=True):
+                        new_orderitem_serializer.save()
 
             if len(subordersToRemove) > 0:
                 for item in subordersToRemove:
@@ -164,23 +180,18 @@ def updateOrderDetailService(pk, requestData):
                     else:
                         return False, "sub order item not found", None
 
-            status = True
-            message = "success"
+            return True, "success", None
     except Exception as e:
         print(f"[OrderService Err] Failed to update order: {e}")
-    return status, message, data
+        return False, "failed", None
 
 
 def deleteOrderService(pk):
-    status = False
-    message = "order doest not exists"
-    data = None
     try:
         obj = Order.objects.get(pk=pk)
         if obj:
             obj.delete()
-            status = True
-            message = "success"
+        return True, "success", None
     except Exception as e:
         print(f"[OrderService Err] Failed to delete order: {e}")
-    return status, message, data
+        return False, "failed", None

@@ -26,6 +26,30 @@ class VendorModelPermission(BasePermission):
 
         return user.has_perm(perm)
 
+class VendorLocationModelPermission(BasePermission):
+    perms_by_method = {
+        "GET": "vendors.view_vendorlocation",
+        "POST": "vendors.add_vendorlocation",
+        "PUT": "vendors.change_vendorlocation",
+        "PATCH": "vendors.change_vendorlocation",
+        "DELETE": "vendors.delete_vendorlocation",
+    }
+
+    def has_permission(self, request, view):
+        user = getattr(request, "user", None)
+
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.userType not in ALLOWED_ROLES:
+            return False
+
+        perm = self.perms_by_method.get(request.method)
+        if not perm:
+            return False
+
+        return user.has_perm(perm)
+
 class MenuItemModelPermission(BasePermission):
     perms_by_method = {
         "GET": "vendors.view_menuitem",

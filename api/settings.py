@@ -20,7 +20,7 @@ FRONTEND_URL = (
     else "http://localhost:3000/"
 )
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "api.joints.com"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "api.lingo.com"]
 
 # Application definition
 INSTALLED_APPS = [
@@ -150,7 +150,7 @@ if all([ADMIN_USER_NAME, ADMIN_USER_EMAIL]):
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://api.joints.com",
+    "http://api.lingo.com",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = False
@@ -195,12 +195,12 @@ SIMPLE_JWT = {
 AUTH_USER_MODEL = "users.User"
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Joints",
+    "TITLE": "Lingo",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "DESCRIPTION": "Human assisted food ordering platform",
     "SERVERS": [
-        {"url": "http://api.joints.com:8000", "description": "joints backend api url"},
+        {"url": "http://api.lingo.com:8000", "description": "lingo backend api url"},
     ],
     "CONTACT": {
         "name": "dev-muftawu",

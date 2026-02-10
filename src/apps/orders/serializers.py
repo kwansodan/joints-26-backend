@@ -98,7 +98,7 @@ class LocationSerializer(serializers.ModelSerializer):
               "displayName",
               "latitude",
               "longitude",
-              "region",
+              "state",
               "district",
               "city",
               "town",

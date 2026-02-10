@@ -102,7 +102,7 @@ class WeGoo:
             self.origin_metadata["origin_state"] is not None
         ), "origin state not provided"
 
-        # destination routes 
+        # destination routes
         assert isinstance(
             self.destination_routes["latitude"], float
         ), "destination route has no latitude"
@@ -126,7 +126,9 @@ class WeGoo:
             assert item["quantity"] is not None, "item has no quantity"
             assert item["price"] is not None, "item has no price"
             assert item["is_fragile"] is not None, "item has no prop for is_fragile"
-            assert item["add_insurance"] is not None, "item has no prop for add_insurance"
+            assert (
+                item["add_insurance"] is not None
+            ), "item has no prop for add_insurance"
 
     def create_delivery_price(self):
         self.validate()
@@ -159,4 +161,3 @@ class WeGoo:
         except Exception as e:
             print(f"[WeGoo Create Delivery Price Exception]: {str(e)}")
             return False
-

@@ -6,7 +6,7 @@ MAX_STR_LEN = 255
 
 EXTRA_LONG_STR_LEN = 1500
 
-MIN_DIGIT_LEN = 6
+MIN_DIGIT_LEN = 10
 MAX_DIGIT_LEN = 15
 
 DECIMAL_PLACES = 2
@@ -24,6 +24,11 @@ USER_TYPES = [
         ("customer", "customer"),
         ("vendor", "vendor"),
         ("office_agent", "office_agent"),
+]
+
+LINK_GENERATION_CATEGORIES = [
+        ("vendor", "vendor"),
+        ("order", "order"),
 ]
 
 VEHICLE_TYPE = [
