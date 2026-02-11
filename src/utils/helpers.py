@@ -1,6 +1,6 @@
 from secrets import token_urlsafe
 
-from drf_spectacular.utils import OpenApiResponse
+from drf_spectacular.utils import OpenApiResponse 
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.test import APITestCase
@@ -8,6 +8,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from src.utils.dbOptions import TOKEN_LEN
+
+SUCCESS_REQUEST_200 = {200: OpenApiResponse(description="Successful Request")}
 
 BAD_REQUEST_400 = {400: OpenApiResponse(description="Bad Request")}
 

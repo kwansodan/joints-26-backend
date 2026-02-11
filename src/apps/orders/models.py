@@ -15,7 +15,9 @@ class Order(models.Model):
     )
     subtotal = models.IntegerField(default=1, null=False, blank=False)
     specialNotes = models.TextField(null=True, blank=True)
-    status = models.BooleanField(default=False, null=True, blank=True)
+    deliveryStatus = models.BooleanField(default=False, null=True, blank=True)
+    riderDispatched = models.BooleanField(default=False, null=True, blank=True)
+    customerLocationCaptured = models.BooleanField(default=False, null=True, blank=True)
     createdBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
     )
@@ -24,15 +26,6 @@ class Order(models.Model):
     )
     createdAt = models.DateTimeField(auto_now=True)
     updatedAt = models.DateTimeField(auto_now_add=True)
-
-    @property
-    def vendorLocation(self):
-        try:
-            menuItems = MenuItem.objects.filter(order=self)
-            return [item.vendor for item in menuItems]
-        except Exception as e:
-            print("Exception", str(e))
-            return None
 
     def save(self, *args, **kwargs):
         orderitems = OrderItem.objects.filter(order=self)

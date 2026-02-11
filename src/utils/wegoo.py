@@ -48,19 +48,11 @@ class WeGoo:
         self,
         is_fulfillment_delivery=False,
         service="intracity",
-        destination_metadata={},
-        origin_metadata={},
-        destination_routes={},
-        origin_routes={},
-        items=[],
+        details={},
     ):
         self.is_fulfilment_delivery = is_fulfillment_delivery
         self.service = service
-        self.destination_metadata = destination_metadata
-        self.origin_metadata = origin_metadata
-        self.destination_routes = destination_routes
-        self.origin_routes = origin_routes
-        self.items = items
+        self.details = details
         self.headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {API_KEY}",
@@ -70,84 +62,41 @@ class WeGoo:
         )
 
     def validate(self):
-        assert self.destination_metadata is not None
-        assert self.origin_metadata is not None
-        assert self.destination_routes is not None
-        assert self.origin_routes is not None
-        assert self.items is not None
+        if self.details is None:
+            raise TypeError("details cannot be None")
 
-        # destination metadata
-        assert (
-            self.destination_metadata["destination_country"] is not None
-        ), "destination country not provided"
-        assert (
-            self.destination_metadata["destination"] is not None
-        ), "destination not provided"
-        assert (
-            self.destination_metadata["destination_city"] is not None
-        ), "destination city not provided"
-        assert (
-            self.destination_metadata["destination_state"] is not None
-        ), "destination state not provided"
-
-        # origin metadata
-        assert (
-            self.origin_metadata["origin_country"] is not None
-        ), "origin country not provided"
-        assert self.origin_metadata["origin"] is not None, "origin not provided"
-        assert (
-            self.origin_metadata["origin_city"] is not None
-        ), "origin city not provided"
-        assert (
-            self.origin_metadata["origin_state"] is not None
-        ), "origin state not provided"
-
-        # destination routes
-        assert isinstance(
-            self.destination_routes["latitude"], float
-        ), "destination route has no latitude"
-        assert isinstance(
-            self.destination_routes["longitude"], float
-        ), "destination route has no longitude"
-
-        # origin routes
-        assert isinstance(
-            self.origin_routes["latitude"], float
-        ), "origin route has no latitude"
-        assert isinstance(
-            self.origin_routes["longitude"], float
-        ), "origin route has no longitude"
+        # details
+        if not isinstance(self.details, dict):
+            raise TypeError("details must be a dict")
 
         # items
-        assert len(self.items) > 0, "No items in provided"
-        for item in self.items:
-            assert item["name"] is not None, "item has no name"
-            assert item["type"] is not None, "item has no type"
-            assert item["quantity"] is not None, "item has no quantity"
-            assert item["price"] is not None, "item has no price"
-            assert item["is_fragile"] is not None, "item has no prop for is_fragile"
-            assert (
-                item["add_insurance"] is not None
-            ), "item has no prop for add_insurance"
+        if "items" not in self.details or "routes" not in self.details:
+            raise KeyError("items or routes field is required")
 
-    def create_delivery_price(self):
+        if len(self.details["items"]) < 1:
+            raise ValueError("no items provided")
+
+        for _, value in self.details.items():
+            if value is None:
+                raise TypeError("Invalid details data")
+
+        for item in ["name", "type", "quantity", "price", "add_insurance", "is_fragile"]:
+            if item not in self.details["items"]:
+                raise KeyError(f"{item} missing in items")
+
+        # routes
+        for _, value in self.details["routes"].items():
+            if value is None or type(value) is not float:
+                raise TypeError("Invalid routes data")
+
+    def get_delivery_price(self):
         self.validate()
         print("[WeGoo order delivery validation passed]")
 
         data = {
             "is_fulfillment_delivery": self.is_fulfilment_delivery,
             "service": self.service,
-            "details": [
-                {
-                    **self.destination_metadata,
-                    **self.origin_metadata,
-                    "routes": {
-                        "origin": self.origin_routes,
-                        "destination": self.destination_routes,
-                    },
-                    "items": self.items,
-                }
-            ],
+            "details": self.details,
         }
 
         try:
@@ -161,3 +110,7 @@ class WeGoo:
         except Exception as e:
             print(f"[WeGoo Create Delivery Price Exception]: {str(e)}")
             return False
+
+    def create_delivery(self):
+        print("creating wegoo delivery...")
+        self.validate()

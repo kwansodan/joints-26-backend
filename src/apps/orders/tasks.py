@@ -30,7 +30,7 @@ def send_location_capture_link(self, location_id: str):
     url_token = token_urlsafe(TOKEN_LEN)
     link = f"{FRONTEND_URL}locationcapture/order/{url_token}/{order.id}"
     generated_link = GeneratedLink.objects.create(
-        category="vendor", token=url_token, link=link
+        category="order", token=url_token, link=link
     )
 
     recipients = [order.customer.phone]

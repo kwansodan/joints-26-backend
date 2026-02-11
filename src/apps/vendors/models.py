@@ -22,16 +22,21 @@ class Vendor(models.Model):
     updatedAt = models.DateTimeField(auto_now_add=True)
 
     @property
+    def location(self):
+        try:
+            return VendorLocation.objects.get(vendor=self)
+        except Exception:
+            return
+
+    @property
     def menuList(self):
         from src.apps.vendors.serializers import MenuItemSerializer
-
-        menu = []
         try:
             obj = MenuItem.objects.filter(vendor=self)
-            menu = MenuItemSerializer(instance=obj, many=True).data
+            return MenuItemSerializer(instance=obj, many=True).data
         except Exception as e:
             print(f"error getting menulist for vendor: {e}")
-        return menu
+            return []
 
     class _Meta:
         verbose_name_plural = "Vendors"

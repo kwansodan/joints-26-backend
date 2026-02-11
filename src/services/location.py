@@ -36,7 +36,7 @@ def getLocationDetailService(pk):
 
 def updateLocationDetailService(pk, link_token, requestData):
     try:
-        status = verify_location_capture_link(token=link_token, category="vendor")
+        status = verify_location_capture_link(token=link_token, category="order")
         if not status:
             return False, "Invalid token", None
 
@@ -46,13 +46,11 @@ def updateLocationDetailService(pk, link_token, requestData):
             serializer = LocationSerializer(instance=obj, data=data, partial=True)
             if serializer.is_valid(raise_exception=True):
                 location = serializer.save()
-                print("location saved/updated")
 
-                wegoo_status, wegoo_data = prep_wegoo_location_data(getattr(location, "id"))
-                print("wegoo status", wegoo_status)
-                print("wegoo data", wegoo_data)
-
-                # prep wegoo destination and origin payload 
+                wegoo_status, wegoo_data = prep_wegoo_location_data(
+                    getattr(location, "id")
+                )
+                # prep wegoo destination and origin payload
                 # prep ordersitems for wegoo
                 # create order delivery price wegoo
                 # create delivery
