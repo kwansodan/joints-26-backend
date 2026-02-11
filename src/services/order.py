@@ -11,6 +11,7 @@ from src.apps.users.models import User
 from src.apps.users.serializers import AuthSerializer
 from src.apps.vendors.models import MenuItem
 from src.utils.helpers import clean_db_error_msgs
+from src.utils.workers import clean_email
 
 
 # order
@@ -43,7 +44,7 @@ def createOrderService(requestData):
                     data={
                         "first_name": fname,
                         "last_name": lname,
-                        "email": email,
+                        "email": clean_email(email),
                         "phone": phone,
                         "password": f"secureuser@{phone}",
                         "userType": "customer",

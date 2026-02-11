@@ -1,7 +1,11 @@
+from secrets import token_urlsafe
+
 from celery import Task, shared_task
 from django.conf import settings
 
+from src.apps.external.models import GeneratedLink
 from src.apps.orders.models import Location, Order
+from src.utils.dbOptions import TOKEN_LEN
 from src.utils.sms_mnotify import Mnotifiy
 
 FRONTEND_URL = settings.FRONTEND_URL
@@ -20,13 +24,17 @@ def send_location_capture_link(self, location_id: str):
     except Location.DoesNotExist as e:
         raise self.retry(exc=e, countdown=60)
 
-    if location.processed:
+    if location.captured:
         return {"status": "location already captured", "location_id": location_id}
 
+    url_token = token_urlsafe(TOKEN_LEN)
+    link = f"{FRONTEND_URL}locationcapture/order/{url_token}/{order.id}"
+    generated_link = GeneratedLink.objects.create(
+        category="vendor", token=url_token, link=link
+    )
+
     recipients = [order.customer.phone]
-    link = f"{FRONTEND_URL}locationcapture/{order.id}"
-    print("recipient", recipients)
-    message = f"Hello {order.customer.first_name}. Thanks for placing an order with us. Please use the link below to share your location for delivery. {link}"
+    message = f"Hello {order.customer.first_name}. Thanks for placing an order with us. Please use the link below to share your location for delivery. {generated_link.link}"
     print("mesage", message)
 
     # try:

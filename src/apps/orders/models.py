@@ -25,6 +25,15 @@ class Order(models.Model):
     createdAt = models.DateTimeField(auto_now=True)
     updatedAt = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def vendorLocation(self):
+        try:
+            menuItems = MenuItem.objects.filter(order=self)
+            return [item.vendor for item in menuItems]
+        except Exception as e:
+            print("Exception", str(e))
+            return None
+
     def save(self, *args, **kwargs):
         orderitems = OrderItem.objects.filter(order=self)
         total = sum([item.menuItem.price * item.quantity for item in orderitems])
@@ -46,10 +55,10 @@ class Location(models.Model):
     )
     displayName = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     latitude = models.DecimalField(
-        max_digits=MAX_DIGIT_LEN, decimal_places=DECIMAL_PLACES, default=Decimal("0.00")
+        max_digits=MAX_DIGIT_LEN, decimal_places=MIN_DIGIT_LEN, default=Decimal("0.00")
     )
     longitude = models.DecimalField(
-        max_digits=MAX_DIGIT_LEN, decimal_places=DECIMAL_PLACES, default=Decimal("0.00")
+        max_digits=MAX_DIGIT_LEN, decimal_places=MIN_DIGIT_LEN, default=Decimal("0.00")
     )
     city = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     state = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
@@ -59,7 +68,7 @@ class Location(models.Model):
     suburb = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     district = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     country = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
-    processed = models.BooleanField(default=False)
+    captured = models.BooleanField(default=False)
     createdBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
     )

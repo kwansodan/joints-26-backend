@@ -47,14 +47,10 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_locationData(self, obj) -> Any:
         try:
-            if not hasattr(obj, "location"):
-                serializer = LocationSerializer(data={"order": getattr(obj, "pk")})
-                if serializer.is_valid(raise_exception=True):
-                    location = serializer.save()
-                    return LocationSerializer(instance=location).data
-            else:
-                return LocationSerializer(instance=obj).data
-        except Exception:
+            obj = Location.objects.get(order=obj)
+            return LocationSerializer(instance=obj).data if obj else None
+        except Exception as e:
+            print("exception e", str(e))
             return None
 
     def get_subtotal(self, obj) -> Any:
@@ -64,8 +60,9 @@ class OrderSerializer(serializers.ModelSerializer):
             return 0.0
 
     def get_orderMetadata(self, obj) -> Any:
+        location_obj = Location.objects.get(order=obj)
         return {
-            "hasLocation": obj.location.processed if obj.location else False,
+            "hasLocation": location_obj.captured if location_obj else False,
             "hasPayment": False,
             "hasRider": False,
         }
@@ -90,6 +87,12 @@ class OrderItemSerializer(serializers.ModelSerializer):
             return None
 
 class LocationSerializer(serializers.ModelSerializer):
+
+    def update(self, instance, validated_data):
+        print("validated data", validated_data)
+        instance.captured = True
+        return super().update(instance, validated_data)
+
     class Meta:
         model = Location 
         fields = [
@@ -104,7 +107,7 @@ class LocationSerializer(serializers.ModelSerializer):
               "town",
               "suburb",
               "houseNumber",
-              "processed",
+              "captured",
               "road",
         ]
 

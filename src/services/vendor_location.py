@@ -51,20 +51,19 @@ def getVendorLocationDetailService(pk):
 
 def updateVendorLocationDetailService(pk, link_token, requestData):
     try:
-        print("absolute uri", requestData.build_absolute_uri())
         status = verify_location_capture_link(token=link_token, category="vendor")
         if not status:
             return False, "Invalid token", None
 
+        data = requestData.get("data")
         # metadata, routes = prep_wegoo_location_data(requestData)
 
         obj = VendorLocation.objects.get(pk=pk)
-        if obj:
-            serializer = VendorLocationSerializer(
-                instance=obj, data=requestData, partial=True
-            )
-            if serializer.is_valid(raise_exception=True):
-                serializer.save()
+        serializer = VendorLocationSerializer(
+            instance=obj, data=data, partial=True
+        )
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
         return True, "success", serializer.data
     except Exception as e:
         print(f"[VendorLocationService Err] Failed to update vendor location: {e}")

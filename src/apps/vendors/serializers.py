@@ -38,16 +38,23 @@ class VendorSerializer(serializers.ModelSerializer):
 
 
 class MenuItemSerializer(serializers.ModelSerializer):
+    vendorName = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = MenuItem
         fields = [
             "id",
             "vendor",
+            "vendorName",
             "name",
             "price",
             "description",
         ]
 
+    def get_vendorName(self, obj) -> Any:
+        if not hasattr(obj, "vendor"):
+            return ""
+        return obj.vendor.name if obj.vendor.name else ""
 
 class VendorLocationSerializer(serializers.ModelSerializer):
     vendorInfo = serializers.SerializerMethodField(read_only=True)
@@ -55,6 +62,10 @@ class VendorLocationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         obj = VendorLocation.objects.create(**validated_data)
         return obj if obj else None 
+
+    def update(self, instance, validated_data):
+        instance.captured = True
+        return super().update(instance, validated_data)
 
     class Meta:
         model = VendorLocation
