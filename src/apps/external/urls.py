@@ -1,13 +1,13 @@
-from .views.wegoo import *
-from django.urls import path 
+from django.urls import path
+
+from .views.order_dispatch import *
 
 app_name = "wegoo"
 
-urlpatterns = [  
-
-    path("wegoo/dispatch/<str:pk>/",
-         WegooDispatchDetailView.as_view(),
-         name="wegoo-dispatch-detail-view"
+urlpatterns = [
+    path(
+        "order-dispatch/wegoo/<str:pk>/",
+        WegooDispatchDetailView.as_view(),
+        name="wegoo-dispatch-detail-view",
     )
-
 ]

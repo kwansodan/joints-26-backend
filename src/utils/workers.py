@@ -21,8 +21,7 @@ def verify_location_capture_link(token, category):
         return
 
 
-def prep_wegoo_location_data(order_id: str):
-    wegoo_location_pairs = []
+def prep_wegoo_delivery_price_detail(order_id: str):
     try:
         assert isinstance(order_id, str), "order_location_id not a str instance"
 
@@ -34,33 +33,53 @@ def prep_wegoo_location_data(order_id: str):
         destination_obj = order.location
 
         orderitems = order.orderitem_set.all()
-        for item in orderitems:
-            print(item.menuItem.vendor.location.__dict__)
+        wegoo_delivery_objs = [{}] * len(orderitems)
+
+        for index, item in enumerate(orderitems):
+            vendor = item.menuItem.vendor
             origin_obj = item.menuItem.vendor.location
 
-            wegoo_location_pairs.append(
+            wegoo_delivery_objs[index].update(
                 {
-                    "destination_country": destination_obj.country,
+                    "destination_country": destination_obj.country or "Ghana",
                     "destination": destination_obj.displayName,
                     "destination_city": destination_obj.city,
                     "destination_state": destination_obj.state,
-                    "origin_country": origin_obj.country,
+                    "origin_country": origin_obj.country or "Ghana",
                     "origin": origin_obj.displayName,
                     "origin_city": origin_obj.city,
                     "origin_state": origin_obj.state,
                     "routes": {
                         "origin": {
-                            "latitude": origin_obj.latitude,
-                            "longitude": origin_obj.longitude,
+                            "latitude": float(origin_obj.latitude),
+                            "longitude": float(origin_obj.longitude),
                         },
                         "destination": {
-                            "latitude": origin_obj.latitude,
-                            "longitude": origin_obj.longitude,
+                            "latitude": float(origin_obj.latitude),
+                            "longitude": float(origin_obj.longitude),
                         },
+                    },
+                    "items": [
+                        {
+                            "name": item.menuItem.name,
+                            "type": "Food",
+                            "add_insurance": False,
+                            "quantity": item.quantity,
+                            "price": float(item.menuItem.price),
+                            "weight": 1,
+                            "is_fragile": True,
+                        }
+                    ],
+                    "metadata": {
+                        "recipient": {
+                            "name": f"{order.customer.get_full_name()}",
+                            "phone": order.customer.phone,
+                        },
+                        "sender": {"name": vendor.name, "phone": vendor.phone},
                     },
                 }
             )
-        return True, wegoo_location_pairs
+        return True, wegoo_delivery_objs
     except Exception as e:
         print("Exception prepping wegoo metadata", str(e))
         return False, None

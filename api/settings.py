@@ -195,7 +195,7 @@ SIMPLE_JWT = {
 AUTH_USER_MODEL = "users.User"
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Lingo",
+    "TITLE": "Lingo API",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "DESCRIPTION": "Human assisted food ordering platform",

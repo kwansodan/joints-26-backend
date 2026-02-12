@@ -5,8 +5,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from src.apps.orders.permissions import OrderItemModelPermission
+from src.services.order_dispatch import (
+    updateOrderRiderDispatchService,
+)
 from src.services.order_item import *
-from src.services.wegoo import updateOrderRiderDispatch
 from src.utils.helpers import (
     BAD_REQUEST_400,
     DETAIL_VIEW_HTTP_METHODS,
@@ -47,13 +49,13 @@ class WegooDispatchDetailView(BaseAPIView, GenericAPIView):
     serializer_class = OrderItemSerializer
 
     def put(self, request, pk):
-        success, message, data = updateOrderRiderDispatch(
+        success, message, data = updateOrderRiderDispatchService(
             pk=pk, requestData=request.data
         )
         return self.ok(message, data) if success else self.bad(message)
 
     def patch(self, request, pk):
-        success, message, data = updateOrderRiderDispatch(
+        success, message, data = updateOrderRiderDispatchService(
             pk=pk, requestData=request.data
         )
         return self.ok(message, data) if success else self.bad(message)

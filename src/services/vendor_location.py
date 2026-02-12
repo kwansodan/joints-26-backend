@@ -1,6 +1,6 @@
 from src.apps.vendors.models import Vendor, VendorLocation
 from src.apps.vendors.serializers import VendorLocationSerializer
-from src.utils.workers import prep_wegoo_location_data, verify_location_capture_link
+from src.utils.workers import prep_wegoo_delivery_price_detail, verify_location_capture_link
 
 
 # users
@@ -56,7 +56,7 @@ def updateVendorLocationDetailService(pk, link_token, requestData):
             return False, "Invalid token", None
 
         data = requestData.get("data")
-        # metadata, routes = prep_wegoo_location_data(requestData)
+        # metadata, routes = prep_wegoo_delivery_price_detail(requestData)
 
         obj = VendorLocation.objects.get(pk=pk)
         serializer = VendorLocationSerializer(

@@ -1,46 +1,8 @@
 import requests
 from django.conf import settings
+from django.utils import timezone
 
 API_KEY = settings.WEGOO_API_KEY
-
-"""
-"is_fulfillment_delivery": false,
- "service": "intracity",
- "details": [
-  {
-   "destination_country": "Ghana",
-   "destination": "Grand Floor & 1st Floor , P-Cular Heights behind Legon U.P.S.A Madina, New Rd, Accra, Ghana",
-   "destination_city": "Accra",
-   "destination_state": "Greater Accra",
-   "origin_country": "Ghana",
-   "origin": "JRWV+XR4, East Legon, Accra Ghana",
-   "origin_city": "Accra",
-   "origin_state": "Greater Accra",
-   "routes": {
-    "origin": {
-     "latitude": 5.64791,
-     "longitude": -0.15562
-    },
-    "destination": {
-     "latitude": 5.666179800000001,
-     "longitude": -0.164801
-    }
-   },
-   "items": [
-    {
-     "name": "Iphone",
-     "type": "Books & Stationery",
-     "add_insurance": false,
-     "quantity": 1,
-     "price": 1,
-     "weight": 1,
-     "is_fragile": false
-    }
-   ]
-  }
- ]
-
-"""
 
 
 class WeGoo:
@@ -49,21 +11,55 @@ class WeGoo:
         is_fulfillment_delivery=False,
         service="intracity",
         details={},
+        currency="GHS",
+        delivery_option="SAME_DAY",
+        send_notifications=False,
+        webhook_url="",
+        is_pickup=True,
+        is_prepaid_delivery=True,
+        recipient={},
+        sender={},
     ):
         self.is_fulfilment_delivery = is_fulfillment_delivery
         self.service = service
         self.details = details
+        self.currency = currency
+        self.delivery_option = delivery_option
+        self.send_notification = send_notifications
+        self.webhook_url = webhook_url
+        self.is_pickup = is_pickup
+        self.is_prepaid_delivery = is_prepaid_delivery
+        self.pick_up_at = self._get_pickup_time()
+        self.recipient = recipient
+        self.sender = sender
         self.headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {API_KEY}",
         }
-        self.create_delivery_price_url = (
-            "https://api.wegoo.delivery/v1/deliveries/price"
-        )
+        self.get_quote_url = "https://api.wegoo.delivery/v1/deliveries/price"
+        self.create_delivery_url = "https://api.wegoo.delivery/v1/deliveries"
+
+    def _get_pickup_time(self):
+        delta = timezone.now() + timezone.timedelta(hours=2)
+        return delta.isoformat()
 
     def validate(self):
+        if self.service not in ["intracity", "nationwide"]:
+            raise ValueError("Invalid service type")
+
+        if self.currency not in ["GHS"]:
+            raise ValueError("Invalid currency")
+
         if self.details is None:
             raise TypeError("details cannot be None")
+
+        # recipient & sender
+        if not isinstance(self.recipient, dict) or not isinstance(self.sender, dict):
+            raise TypeError("Invalid recipient and sender data")
+
+        for field in ["name", "phone"]:
+            if field not in self.sender or field not in self.recipient:
+                raise KeyError("missing recipient or sender field")
 
         # details
         if not isinstance(self.details, dict):
@@ -80,37 +76,124 @@ class WeGoo:
             if value is None:
                 raise TypeError("Invalid details data")
 
-        for item in ["name", "type", "quantity", "price", "add_insurance", "is_fragile"]:
-            if item not in self.details["items"]:
-                raise KeyError(f"{item} missing in items")
+        for item in self.details["items"]:
+            for key, value in item.items():
+                if key not in [
+                    "name",
+                    "type",
+                    "add_insurance",
+                    "quantity",
+                    "price",
+                    "weight",
+                    "is_fragile",
+                ]:
+                    raise KeyError(f"{key} missing in order item info")
 
         # routes
-        for _, value in self.details["routes"].items():
-            if value is None or type(value) is not float:
-                raise TypeError("Invalid routes data")
+        if (
+            "origin" not in self.details["routes"]
+            or not "destination" in self.details["routes"]
+        ):
+            raise KeyError("missing orgin or destination routes")
 
-    def get_delivery_price(self):
+        for _, value in self.details["routes"]["destination"].items():
+            if value is None or type(value) is not float:
+                raise ValueError("Invalid destination route data")
+
+        for _, value in self.details["routes"]["origin"].items():
+            if value is None or type(value) is not float:
+                raise ValueError("Invalid origin route data")
+
+        if self.details["destination_country"] != self.details["origin_country"]:
+            raise ValueError(
+                "only nationwide delivery supported now. Use same country for destination and origin"
+            )
+
+    def create_quote(self):
         self.validate()
-        print("[WeGoo order delivery validation passed]")
+
+        self.service = (
+            "nationwide"
+            if self.details["destination_state"] != self.details["origin_state"]
+            else "intracity"
+        )
 
         data = {
             "is_fulfillment_delivery": self.is_fulfilment_delivery,
             "service": self.service,
-            "details": self.details,
+            "details": [self.details],
         }
+        # print("data passed to wegoo", data)
 
         try:
             response = requests.post(
-                url=self.create_delivery_price_url, json=data, headers=self.headers
+                url=self.get_quote_url, json=data, headers=self.headers
             )
-            if response.status_code == 201:
+            print("quote response", response.json())
+
+            if response.status_code in [201, 200]:
                 result = response.json()
-                print("result from wegoo", result)
-            return True
+                quote_data = result["data"]
+                return True, quote_data
+            else:
+                return False, None
         except Exception as e:
             print(f"[WeGoo Create Delivery Price Exception]: {str(e)}")
-            return False
+            return False, None
 
     def create_delivery(self):
-        print("creating wegoo delivery...")
-        self.validate()
+        quote_status, quote_data = self.create_quote()
+
+        if not quote_status or not quote_data:
+            return False
+
+        try:
+            for index, item in enumerate(quote_data):
+                data = {
+                    "currency": self.currency,
+                    "delivery_option": self.delivery_option,
+                    "is_fulfillment_delivery": self.is_fulfilment_delivery,
+                    "send_notifications": self.send_notification,
+                    "webhook_url": self.webhook_url,
+                    "quote_id": item["quote_id"],
+                    "is_pickup": self.is_pickup,
+                    "deliveries": [
+                        {
+                            "destination": self.details["destination"],
+                            "destination_country": self.details["destination_country"],
+                            "destination_state": self.details["destination_state"],
+                            "destination_city": self.details["destination_city"],
+                            "destination_country_code": "GH",
+                            "origin": self.details["origin"],
+                            "origin_city": self.details["origin_city"],
+                            "origin_country": self.details["origin_country"],
+                            "origin_state": self.details["origin_state"],
+                            "origin_country_code": "GH",
+                            "is_prepaid_delivery": self.is_prepaid_delivery,
+                            "items": self.details["items"][index].pop("add_insurance"),
+                            "pick_up_at": self.pick_up_at,
+                            "route": {
+                                "origin": self.details["routes"]["origin"],
+                                "destination": self.details["routes"]["destination"],
+                            },
+                            "recipient": self.recipient,
+                            "sender": self.sender,
+                            "service": self.service,
+                        },
+                    ],
+                }
+            # print("payload", data)
+
+            response = requests.post(
+                url=self.create_delivery_url, json=data, headers=self.headers
+            )
+            print("response from create delivery", response.json())
+
+            if response.status_code in [201, 200]:
+                print("\n delivery response\n", response)
+                return True, 
+            else:
+                return False 
+        except Exception as e:
+            print(f"[WeGoo Create Delivery Price Exception]: {str(e)}")
+            return False 

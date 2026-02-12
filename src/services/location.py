@@ -1,6 +1,9 @@
 from src.apps.orders.models import Location
 from src.apps.orders.serializers import LocationSerializer
-from src.utils.workers import prep_wegoo_location_data, verify_location_capture_link
+from src.utils.workers import (
+    prep_wegoo_delivery_price_detail,
+    verify_location_capture_link,
+)
 
 
 def locationListService():
@@ -47,7 +50,7 @@ def updateLocationDetailService(pk, link_token, requestData):
             if serializer.is_valid(raise_exception=True):
                 location = serializer.save()
 
-                wegoo_status, wegoo_data = prep_wegoo_location_data(
+                wegoo_status, wegoo_data = prep_wegoo_delivery_price_detail(
                     getattr(location, "id")
                 )
                 # prep wegoo destination and origin payload
