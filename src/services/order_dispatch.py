@@ -28,7 +28,7 @@ def updateOrderRiderDispatchService(pk, requestData):
             metadata = item.pop("metadata")
             wegoo = WeGoo(
                 is_fulfillment_delivery=False,
-                service="nationwide",
+                service="intracity",
                 details=item,
                 recipient=metadata["recipient"],
                 sender=metadata["sender"],

@@ -22,7 +22,7 @@ def on_location_created(sender, instance: Location, created: bool, **kwargs):
             try:
                 updated = Order.objects.filter(id=instance.order.id, customerLocationCaptured=False).update(customerLocationCaptured=True)
                 if updated > 0:
-                    print("updated made. can call wegoo task delivery here")
+                    print("updated made. can call wegoo task delivery here. agreed to be triggered by agent")
             except Exception as e:
                 print("order location updated signal exception", str(e))
         transaction.on_commit(_update_order_location)

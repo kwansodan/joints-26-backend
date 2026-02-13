@@ -1,3 +1,5 @@
+from pprint import pprint
+
 import requests
 from django.conf import settings
 from django.utils import timezone
@@ -118,22 +120,25 @@ class WeGoo:
             else "intracity"
         )
 
+        self.delivery_option = "SAME_DAY" if self.service == "intracity" else "NEXT_DAY"
+
         data = {
             "is_fulfillment_delivery": self.is_fulfilment_delivery,
             "service": self.service,
             "details": [self.details],
         }
-        # print("data passed to wegoo", data)
+
+        # pprint(data, indent=1)
 
         try:
             response = requests.post(
                 url=self.get_quote_url, json=data, headers=self.headers
             )
-            print("quote response", response.json())
+            # print("quote response", response.json())
 
             if response.status_code in [201, 200]:
                 result = response.json()
-                quote_data = result["data"]
+                quote_data = [result["data"][0]]
                 return True, quote_data
             else:
                 return False, None
@@ -143,12 +148,14 @@ class WeGoo:
 
     def create_delivery(self):
         quote_status, quote_data = self.create_quote()
+        print("quote data", quote_data)
 
         if not quote_status or not quote_data:
             return False
 
         try:
             for index, item in enumerate(quote_data):
+                self.details["items"][index].pop("add_insurance")
                 data = {
                     "currency": self.currency,
                     "delivery_option": self.delivery_option,
@@ -170,7 +177,7 @@ class WeGoo:
                             "origin_state": self.details["origin_state"],
                             "origin_country_code": "GH",
                             "is_prepaid_delivery": self.is_prepaid_delivery,
-                            "items": self.details["items"][index].pop("add_insurance"),
+                            "items": self.details["items"],
                             "pick_up_at": self.pick_up_at,
                             "route": {
                                 "origin": self.details["routes"]["origin"],
@@ -182,7 +189,8 @@ class WeGoo:
                         },
                     ],
                 }
-            # print("payload", data)
+
+            pprint(data, indent=1)
 
             response = requests.post(
                 url=self.create_delivery_url, json=data, headers=self.headers
@@ -191,9 +199,9 @@ class WeGoo:
 
             if response.status_code in [201, 200]:
                 print("\n delivery response\n", response)
-                return True, 
+                return (True,)
             else:
-                return False 
+                return False
         except Exception as e:
             print(f"[WeGoo Create Delivery Price Exception]: {str(e)}")
-            return False 
+            return False
