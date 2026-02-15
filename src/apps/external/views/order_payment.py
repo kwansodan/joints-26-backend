@@ -7,7 +7,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from src.apps.orders.permissions import OrderItemModelPermission
 from src.apps.payments.serializers import PaymentSerializer
 from src.services.order_item import *
-from src.services.order_payments import updateCustomerOrderPayment 
+from src.services.order_payments import updateCustomerOrderPayment
 from src.utils.helpers import (
     BAD_REQUEST_400,
     DETAIL_VIEW_HTTP_METHODS,
@@ -63,4 +63,3 @@ class PaystackUpdateOrderPaymentDetailView(BaseAPIView, GenericAPIView):
             pk=pk, requestData=request.data
         )
         return self.ok(message, data) if success else self.bad(message)
-

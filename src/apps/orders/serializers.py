@@ -13,6 +13,8 @@ class OrderSerializer(serializers.ModelSerializer):
     subtotal = serializers.SerializerMethodField(read_only=True)
     menuItemsList = serializers.SerializerMethodField(read_only=True)
     locationData = serializers.SerializerMethodField(read_only=True)
+    paymentLinkSent = serializers.SerializerMethodField(read_only=True)
+    paymentLink = serializers.SerializerMethodField(read_only=True)
 
     def create(self, validated_data):
         try:
@@ -31,9 +33,12 @@ class OrderSerializer(serializers.ModelSerializer):
             "subtotal",
             "locationData",
             "specialNotes",
+            "paymentConfirmed",
             "deliveryStatus",
             "riderDispatched",
             "customerLocationCaptured",
+            "paymentLinkSent",
+            "paymentLink",
         ]
 
     def get_customerInfo(self, obj) -> Any:
@@ -68,6 +73,14 @@ class OrderSerializer(serializers.ModelSerializer):
             )
         except Exception:
             return 0.0
+
+    def get_paymentLinkSent(self, obj):
+        return True if obj.paystackTrxRefObj.processed else False
+
+    def get_paymentLink(self, obj):
+        if obj.paystackTrxRefObj:
+            return obj.paystackTrxRefObj.paymentLink
+        return "N/A"
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
