@@ -20,6 +20,12 @@ FRONTEND_URL = (
     else "http://localhost:3000/"
 )
 
+PAYMENT_REDIRECT_LINK = (
+    "https://joints-25-frontend.vercel.app/"
+    if DJANGO_ENV == "prod"
+    else "http://localhost:3000/payments/verification-2rxa2u9"
+)
+
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "api.lingo.com"]
 
 # Application definition

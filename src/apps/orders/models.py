@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from django.db import models
 
-from src.apps.users.models import User
+from src.apps.users.models import Customer
 from src.apps.vendors.models import MenuItem
 from src.utils.dbOptions import *
 from src.utils.helpers import random_token
@@ -11,13 +11,14 @@ from src.utils.helpers import random_token
 class Order(models.Model):
     id = models.CharField(primary_key=True, default=random_token, editable=False)
     customer = models.OneToOneField(
-        User, on_delete=models.CASCADE, null=False, blank=False
+        Customer, on_delete=models.CASCADE, null=False, blank=False
     )
     subtotal = models.IntegerField(default=1, null=False, blank=False)
     specialNotes = models.TextField(null=True, blank=True)
     deliveryStatus = models.BooleanField(default=False, null=True, blank=True)
     riderDispatched = models.BooleanField(default=False, null=True, blank=True)
     customerLocationCaptured = models.BooleanField(default=False, null=True, blank=True)
+    paymentConfirmed = models.BooleanField(default=False, null=True, blank=True)
     createdBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
     )
@@ -27,7 +28,8 @@ class Order(models.Model):
     createdAt = models.DateTimeField(auto_now=True)
     updatedAt = models.DateTimeField(auto_now_add=True)
 
-    def save(self, *args, **kwargs):
+    @property
+    def update_order_subtotal(self, *args, **kwargs):
         orderitems = OrderItem.objects.filter(order=self)
         total = sum([item.menuItem.price * item.quantity for item in orderitems])
         self.subtotal = total if total else 0

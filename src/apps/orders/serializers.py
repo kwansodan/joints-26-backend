@@ -4,7 +4,7 @@ from typing import Any
 from rest_framework import serializers
 
 from src.apps.orders.models import Location, Order, OrderItem
-from src.apps.users.serializers import AuthSerializer
+from src.apps.users.serializers import CustomerSerializer
 from src.apps.vendors.serializers import MenuItemSerializer
 
 
@@ -38,7 +38,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_customerInfo(self, obj) -> Any:
         try:
-            return AuthSerializer(instance=obj.customer).data
+            return CustomerSerializer(instance=obj.customer).data
         except:
             return None
 

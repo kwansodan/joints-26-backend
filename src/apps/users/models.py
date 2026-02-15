@@ -1,9 +1,10 @@
-from django.db import models
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.db import models
 
 from src.utils.dbOptions import *
 from src.utils.helpers import random_token
+
 
 class UserManager(BaseUserManager):
     use_in_migrations = True
@@ -43,13 +44,27 @@ class User(AbstractUser):
     id = models.CharField(primary_key=True, default=random_token, editable=False)
     first_name = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     last_name = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
-    email = models.EmailField(unique=True, max_length=MIN_STR_LEN, null=False, blank=False)
+    email = models.EmailField(
+        unique=True, max_length=MIN_STR_LEN, null=False, blank=False
+    )
     phone = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
-    userType = models.CharField(max_length=MIN_STR_LEN, default="customer", choices=USER_TYPES, null=True, blank=True)
-    gender = models.CharField(max_length=TINY_STR_LEN, choices=GENDER, null=True, blank=True)
+    userType = models.CharField(
+        max_length=MIN_STR_LEN,
+        default="customer",
+        choices=USER_TYPES,
+        null=True,
+        blank=True,
+    )
+    gender = models.CharField(
+        max_length=TINY_STR_LEN, choices=GENDER, null=True, blank=True
+    )
     dateOfBirth = models.DateTimeField(auto_now=True, null=True, blank=True)
-    createdBy = models.CharField(max_length=MIN_STR_LEN, default="dev", null=True, blank=True)
-    updatedBy = models.CharField(max_length=MIN_STR_LEN, default="dev", null=True, blank=True)
+    createdBy = models.CharField(
+        max_length=MIN_STR_LEN, default="dev", null=True, blank=True
+    )
+    updatedBy = models.CharField(
+        max_length=MIN_STR_LEN, default="dev", null=True, blank=True
+    )
     createdAt = models.DateTimeField(auto_now=True)
     updatedAt = models.DateTimeField(auto_now_add=True)
 
@@ -59,9 +74,38 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     class _Meta:
-        verbose_name_plural = 'Users'
+        verbose_name_plural = "Users"
         ordering = ["-createdAt"]
 
     def __str__(self):
         return f"{self.email} - {self.userType}"
 
+
+class Customer(models.Model):
+    username = None
+    id = models.CharField(primary_key=True, default=random_token, editable=False)
+    first_name = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
+    last_name = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
+    email = models.EmailField(max_length=MIN_STR_LEN, null=False, blank=False)
+    phone = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
+    gender = models.CharField(
+        max_length=TINY_STR_LEN, choices=GENDER, null=True, blank=True
+    )
+    createdBy = models.CharField(
+        max_length=MIN_STR_LEN, default="dev", null=True, blank=True
+    )
+    updatedBy = models.CharField(
+        max_length=MIN_STR_LEN, default="dev", null=True, blank=True
+    )
+    createdAt = models.DateTimeField(auto_now=True)
+    updatedAt = models.DateTimeField(auto_now_add=True)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
+
+    class _Meta:
+        verbose_name_plural = "Customers"
+        ordering = ["-createdAt"]
+
+    def __str__(self):
+        return f"{self.email} - {self.phone}"

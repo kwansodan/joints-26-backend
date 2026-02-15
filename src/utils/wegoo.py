@@ -148,7 +148,7 @@ class WeGoo:
 
     def create_delivery(self):
         quote_status, quote_data = self.create_quote()
-        print("quote data", quote_data)
+        # print("quote data", quote_data)
 
         if not quote_status or not quote_data:
             return False
@@ -190,7 +190,7 @@ class WeGoo:
                     ],
                 }
 
-            pprint(data, indent=1)
+            # pprint(data, indent=1)
 
             response = requests.post(
                 url=self.create_delivery_url, json=data, headers=self.headers

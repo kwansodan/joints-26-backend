@@ -1,3 +1,6 @@
+from pprint import pprint
+
+from django.core.validators import validate_email
 from django.db import transaction
 
 from src.apps.orders.models import Order, OrderItem
@@ -7,8 +10,8 @@ from src.apps.orders.serializers import (
     OrderSerializer,
 )
 from src.apps.payments.serializers import PaymentSerializer
-from src.apps.users.models import User
-from src.apps.users.serializers import AuthSerializer
+from src.apps.users.models import Customer, User
+from src.apps.users.serializers import AuthSerializer, CustomerSerializer
 from src.apps.vendors.models import MenuItem
 from src.utils.helpers import clean_db_error_msgs
 from src.utils.workers import clean_email
@@ -32,32 +35,34 @@ def createOrderService(requestData):
 
         with transaction.atomic():
             if customer is not None:
-                import uuid
+
+                try:
+                    validate_email(customer["email"])
+                except Exception as e:
+                    return False, "Invalid email", None
 
                 fname = customer["first_name"]
                 lname = customer["last_name"]
-                email = f"{fname}.{lname}{str(uuid.uuid4())[:6]}@gmail.com"
+                email = customer["email"]
                 phone = customer["phone"]
                 specialNotes = customer.get("specialNotes", "")
 
-                user_serializer = AuthSerializer(
+                customer_serializer = CustomerSerializer(
                     data={
                         "first_name": fname,
                         "last_name": lname,
-                        "email": clean_email(email),
+                        "email": email,
                         "phone": phone,
-                        "password": f"secureuser@{phone}",
-                        "userType": "customer",
                     }
                 )
-                if user_serializer.is_valid(raise_exception=True):
-                    user_serializer.save()
-                    user = user_serializer.data
+                if customer_serializer.is_valid(raise_exception=True):
+                    customer_serializer.save()
+                    customer = customer_serializer.data
 
                 if menuItems is not None:
                     # order
                     order_data = {
-                        "customer": dict(user).get("id"),
+                        "customer": dict(customer).get("id"),
                         "specialNotes": specialNotes,
                     }
                     order_serializer = OrderSerializer(data=order_data)
@@ -81,6 +86,9 @@ def createOrderService(requestData):
                         )
                         if orderitem_serializer.is_valid(raise_exception=True):
                             orderitem_serializer.save()
+
+                        # update order subtotal
+                        order.update_order_subtotal
 
                         # location
                         location_serializer = LocationSerializer(
@@ -120,41 +128,29 @@ def updateOrderDetailService(pk, requestData):
 
         with transaction.atomic():
             try:
-                obj = Order.objects.get(pk=pk)
+                order = Order.objects.get(pk=pk)
             except Exception as e:
                 return False, "Order not found", None
 
             if customer is not None:
-                # customer = User.objects.filter(pk=customer["id"]).update(
-                #     first_name=customer["first_name"],
-                #     last_name=customer["last_name"],
-                #     phone=customer["phone"],
-                # )
-                user_serializer = AuthSerializer(
-                    instance=customer, data=customer, partial=True
+                customerObj = Customer.objects.get(id=order.customer.id)
+                customer_serializer = CustomerSerializer(
+                    instance=customerObj, data=customer, partial=True
                 )
-                if user_serializer.is_valid(raise_exception=True):
-                    user_serializer.save()
+                if customer_serializer.is_valid(raise_exception=True):
+                    customer_serializer.save()
 
             if orderUpdates is not None and len(orderUpdates) > 0:
-                [item.update({"order": obj.id}) for item in orderUpdates]
+                [item.update({"order": order.id}) for item in orderUpdates]
                 for item in orderUpdates:
                     orderitem_instance = OrderItem.objects.get(
-                        pk=item["menuItemId"], order=obj
+                        pk=item["menuItemId"], order=order
                     )
                     orderitem_serializer = OrderItemSerializer(
                         instance=orderitem_instance, data=item, partial=True
                     )
                     if orderitem_serializer.is_valid(raise_exception=True):
                         orderitem_serializer.save()
-
-                # order_serializer = OrderSerializer(instance)
-                # for item in orderUpdates:
-                #     if orderitem:
-                #         orderitem.quantity = (
-                #             item["quantity"] if item["quantity"] else orderitem.quantity
-                #         )
-                #         orderitem.save()
 
             if len(newOrders) > 0:
                 for item in newOrders:
@@ -164,7 +160,7 @@ def updateOrderDetailService(pk, requestData):
                     # )
                     new_orderitem_serializer = OrderItemSerializer(
                         data={
-                            "order": obj,
+                            "order": order,
                             "menuItem": item["menuItemId"],
                             "quantity": item["quantity"],
                         }
@@ -175,7 +171,7 @@ def updateOrderDetailService(pk, requestData):
             if len(subordersToRemove) > 0:
                 for item in subordersToRemove:
                     print("removing item", item)
-                    orderobj = OrderItem.objects.get(pk=item, order=obj)
+                    orderobj = OrderItem.objects.get(pk=item, order=order)
                     if orderobj:
                         orderobj.delete()
                     else:

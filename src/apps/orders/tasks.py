@@ -21,6 +21,7 @@ def send_location_capture_link(self, location_id: str):
     try:
         location = Location.objects.get(pk=location_id)
         order = Order.objects.get(id=location.order.id)
+        order.update_order_subtotal
     except Location.DoesNotExist as e:
         raise self.retry(exc=e, countdown=60)
 

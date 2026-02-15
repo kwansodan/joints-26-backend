@@ -13,6 +13,8 @@ DECIMAL_PLACES = 2
 
 TOKEN_LEN = 15
 
+PAYSTACK_TRANSACTION_REF_LEN = 8
+
 GENDER = [
     ("m", "Male"),
     ("f", "Female"),

@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
         permissionActions = ["view", "add", "change", "delete"]
 
-        userAppPerms = {"users": ["user"]}
+        userAppPerms = {"users": ["user", "customer"]}
         bikerAppPerms = {"bikers": ["biker", "vehicle"]}
         vendorAppPerms = {
             "vendors": [

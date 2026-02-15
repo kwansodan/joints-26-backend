@@ -20,11 +20,11 @@ def send_notification(self, notification_id: str):
     recipients = [notification.recipient]
     message = notification.message
 
-    try:
-        mnotify = Mnotifiy(recipients=recipients, message=message)
-        mnotify.send()
-    except Exception as exc:
-        raise self.retry(exc=exc)
+    # try:
+    #     mnotify = Mnotifiy(recipients=recipients, message=message)
+    #     mnotify.send()
+    # except Exception as exc:
+    #     raise self.retry(exc=exc)
 
     updated = Notification.objects.filter(pk=notification.pk, processed=False).update(processed=True)
     if updated == 0:
