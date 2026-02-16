@@ -2,13 +2,13 @@ from rest_framework.permissions import BasePermission
 
 ALLOWED_ROLES = {"admin", "agent"}
 
-class LocationModelPermission(BasePermission):
+class OrderLocationModelPermission(BasePermission):
     perms_by_method = {
-        "GET": "orders.view_location",
-        "POST": "orders.add_location",
-        "PUT": "orders.change_location",
-        "PATCH": "orders.change_location",
-        "DELETE": "orders.delete_location",
+        "GET": "orders.view_orderlocation",
+        "POST": "orders.add_orderlocation",
+        "PUT": "orders.change_orderlocation",
+        "PATCH": "orders.change_orderlocation",
+        "DELETE": "orders.delete_orderlocation",
     }
 
     def has_permission(self, request, view):

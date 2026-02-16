@@ -5,16 +5,20 @@ from django.db import transaction
 
 from src.apps.orders.models import Order, OrderItem
 from src.apps.orders.serializers import (
-    LocationSerializer,
+    OrderLocationSerializer,
     OrderItemSerializer,
     OrderSerializer,
 )
-from src.apps.payments.serializers import PaymentSerializer
+from src.apps.payments.models import PaystackTransactionReference
+from src.apps.payments.serializers import (
+    PaymentSerializer,
+    PaystackTransactionReferenceSerializer,
+)
 from src.apps.users.models import Customer, User
 from src.apps.users.serializers import AuthSerializer, CustomerSerializer
 from src.apps.vendors.models import MenuItem
 from src.utils.helpers import clean_db_error_msgs
-from src.utils.workers import clean_email
+from src.utils.workers import clean_email, verify_location_capture_link
 
 
 # order
@@ -91,16 +95,27 @@ def createOrderService(requestData):
                         order.update_order_subtotal
 
                         # location
-                        location_serializer = LocationSerializer(
+                        order_location_serializer = OrderLocationSerializer(
                             data={"order": order_id}
                         )
-                        if location_serializer.is_valid(raise_exception=True):
-                            location_serializer.save()
+                        if order_location_serializer.is_valid(raise_exception=True):
+                            order_location_serializer.save()
 
-                        # payment
-                        # payment_serializer = PaymentSerializer(data={"order": order_id})
-                        # if payment_serializer.is_valid(raise_exception=True):
-                        #     payment_serializer.save()
+                        # payment transaction ref object
+                        paystack_trx_ref_obj_serializer = (
+                            PaystackTransactionReferenceSerializer(
+                                data={
+                                    "order": order_id,
+                                    "reference": "",
+                                    "paymentLink": "",
+                                    "processed": False,
+                                }
+                            )
+                        )
+                        if paystack_trx_ref_obj_serializer.is_valid(
+                            raise_exception=True
+                        ):
+                            paystack_trx_ref_obj_serializer.save()
 
             return True, "success", None
     except Exception as e:
@@ -110,13 +125,17 @@ def createOrderService(requestData):
 
 def getOrderDetailService(pk):
     try:
+        print("from this service")
+        # token_valid = verify_location_capture_link(token=token, category="order")
+        # if not token_valid:
+        #     return False, "Invalid link", None
+
         obj = Order.objects.get(pk=pk)
-        if obj:
-            serializer = OrderSerializer(instance=obj)
+        serializer = OrderSerializer(instance=obj)
         return True, "success", serializer.data
     except Exception as e:
         print(f"[OrderService Err] Failed to get order detail: {e}")
-        return False, "failed", None
+        return False, "Invalid link", None
 
 
 def updateOrderDetailService(pk, requestData):

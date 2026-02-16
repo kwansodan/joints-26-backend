@@ -113,21 +113,20 @@ class VendorLocationDetailView(BaseAPIView, GenericAPIView):
             return [AllowAny()]
         return [permission() for permission in self.permission_classes]
 
-    def get(self, request, pk):
-        success, message, data = getVendorLocationDetailService(pk=pk)
+    def get(self, request, token, vendor_location_id):
+        success, message, data = getVendorLocationDetailService(token=token, vendor_location_id=vendor_location_id)
         return self.ok(message, data) if success else self.bad(message)
 
-    def put(self, request, pk):
-        link_token = request.data.get("csrf_token", "")
+    def put(self, request, token, vendor_location_id):
+        print("data", request.data)
         success, message, data = updateVendorLocationDetailService(
-            pk=pk, link_token=link_token, requestData=request.data
+            token=token, vendor_location_id=vendor_location_id, requestData=request.data
         )
         return self.ok(message, data) if success else self.bad(message)
 
-    def patch(self, request, pk):
-        link_token = request.data.get("csrf_token", "")
+    def patch(self, request, token, vendor_location_id):
         success, message, data = updateVendorLocationDetailService(
-            pk=pk, link_token=link_token, requestData=request.data
+            token=token, vendor_location_id=vendor_location_id, requestData=request.data
         )
         return self.ok(message, data) if success else self.bad(message)
 

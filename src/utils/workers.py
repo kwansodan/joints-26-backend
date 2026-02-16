@@ -1,5 +1,5 @@
 from src.apps.external.models import GeneratedLink
-from src.apps.orders.models import Location, Order
+from src.apps.orders.models import OrderLocation, Order
 
 
 def clean_email(data):
@@ -18,7 +18,7 @@ def verify_location_capture_link(token, category):
         return True if link.exists() else False
     except Exception as e:
         print(f"Exception: {str(e)}")
-        return
+        return False
 
 
 def prep_wegoo_delivery_price_detail(order_id: str):
@@ -30,7 +30,7 @@ def prep_wegoo_delivery_price_detail(order_id: str):
         except Order.DoesNotExist:
             return False, None
 
-        destination_obj = order.location
+        destination_obj = order.orderlocation
 
         orderitems = order.orderitem_set.all()
         wegoo_delivery_objs = [{}] * len(orderitems)

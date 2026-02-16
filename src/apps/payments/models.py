@@ -43,8 +43,8 @@ class PaystackTransactionReference(models.Model):
     order = models.OneToOneField(
         Order, on_delete=models.CASCADE, null=False, blank=False, related_name="paystackTrxRefObj"
     )
-    paymentLink = models.CharField(max_length=MAX_STR_LEN, null=False, blank=False)
-    reference = models.CharField(max_length=MIN_STR_LEN, null=False, blank=False)
+    paymentLink = models.CharField(max_length=MAX_STR_LEN, null=False, blank=True)
+    reference = models.CharField(max_length=MIN_STR_LEN, null=False, blank=True)
     processed = models.BooleanField(default=False)
     createdBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True

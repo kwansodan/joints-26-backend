@@ -48,7 +48,7 @@ class PaystackUpdateOrderPaymentDetailView(BaseAPIView, GenericAPIView):
     serializer_class = OrderItemSerializer
 
     def get_permissions(self):
-        if self.request.method == "GET":
+        if self.request.method in ["GET", "PUT", "PATCH"]:
             return [AllowAny()]
         return [permission() for permission in self.permission_classes]
 

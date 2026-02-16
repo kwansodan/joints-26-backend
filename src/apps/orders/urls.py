@@ -1,5 +1,5 @@
 from .views.order import *
-from .views.location import *
+from .views.order_location import *
 from django.urls import path 
 from .views.order_item import *
 
@@ -29,14 +29,14 @@ urlpatterns = [
          name="orderitem-detail-view"
     ),
 
-    # location
+    # order location
     path("location/list/", 
-         LocationListView.as_view(),
+         OrderLocationListView.as_view(),
          name="location-list-view"
     ),
 
-    path("location/detail/<str:pk>/",
-         LocationDetailView.as_view(),
+    path("location/detail/<str:token>/<str:order_location_id>/",
+         OrderLocationDetailView.as_view(),
          name="location-detail-view"
     ),
 ]

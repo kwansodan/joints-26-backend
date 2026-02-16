@@ -30,7 +30,7 @@ class VendorSerializer(serializers.ModelSerializer):
     def get_primaryLocation(self, obj) -> Any:
         try:
             primary_location = VendorLocation.objects.filter(vendor=obj).first()
-            city = getattr(primary_location, "city", "N/A")
+            city = getattr(primary_location, "displayName", "N/A")
             return city if city else "N/A"
         except Exception as e:
             print(f"Exception {str(e)}")

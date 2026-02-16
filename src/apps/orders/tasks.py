@@ -4,7 +4,7 @@ from celery import Task, shared_task
 from django.conf import settings
 
 from src.apps.external.models import GeneratedLink
-from src.apps.orders.models import Location, Order
+from src.apps.orders.models import OrderLocation, Order
 from src.utils.dbOptions import TOKEN_LEN
 from src.utils.sms_mnotify import Mnotifiy
 
@@ -17,19 +17,19 @@ class BaseTaskWithRetry(Task):
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)
-def send_location_capture_link(self, location_id: str):
+def send_order_location_capture_link(self, location_id: str):
     try:
-        location = Location.objects.get(pk=location_id)
+        location = OrderLocation.objects.get(pk=location_id)
         order = Order.objects.get(id=location.order.id)
         order.update_order_subtotal
-    except Location.DoesNotExist as e:
+    except OrderLocation.DoesNotExist as e:
         raise self.retry(exc=e, countdown=60)
 
     if location.captured:
         return {"status": "location already captured", "location_id": location_id}
 
     url_token = token_urlsafe(TOKEN_LEN)
-    link = f"{FRONTEND_URL}locationcapture/order/{url_token}/{order.id}"
+    link = f"{FRONTEND_URL}locationcapture/order/{url_token}/{location.id}"
     generated_link = GeneratedLink.objects.create(
         category="order", token=url_token, link=link
     )

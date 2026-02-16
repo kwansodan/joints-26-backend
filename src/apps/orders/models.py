@@ -43,7 +43,7 @@ class Order(models.Model):
         return f"Order - {self.customer}"
 
 
-class Location(models.Model):
+class OrderLocation(models.Model):
     id = models.CharField(primary_key=True, default=random_token, editable=False)
     order = models.OneToOneField(
         Order, on_delete=models.CASCADE, null=False, blank=False
@@ -74,7 +74,7 @@ class Location(models.Model):
     updatedAt = models.DateTimeField(auto_now_add=True)
 
     class _Meta:
-        verbose_name_plural = "Location"
+        verbose_name_plural = "Order Location"
         ordering = ["-createdAt"]
 
     def __str__(self):

@@ -105,6 +105,7 @@ class OrderDetailView(BaseAPIView, GenericAPIView):
 
     def get(self, request, pk):
         success, message, data = getOrderDetailService(pk=pk)
+        print("from this view")
         return self.ok(message, data) if success else self.bad(message)
 
     def put(self, request, pk):

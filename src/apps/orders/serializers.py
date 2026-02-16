@@ -3,7 +3,7 @@ from typing import Any
 
 from rest_framework import serializers
 
-from src.apps.orders.models import Location, Order, OrderItem
+from src.apps.orders.models import OrderLocation, Order, OrderItem
 from src.apps.users.serializers import CustomerSerializer
 from src.apps.vendors.serializers import MenuItemSerializer
 
@@ -57,8 +57,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_locationData(self, obj) -> Any:
         try:
-            obj = Location.objects.get(order=obj)
-            return LocationSerializer(instance=obj).data if obj else None
+            obj = OrderLocation.objects.get(order=obj)
+            return OrderLocationSerializer(instance=obj).data if obj else None
         except Exception as e:
             print("exception e", str(e))
             return None
@@ -103,14 +103,14 @@ class OrderItemSerializer(serializers.ModelSerializer):
             return None
 
 
-class LocationSerializer(serializers.ModelSerializer):
+class OrderLocationSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.captured = True
         return super().update(instance, validated_data)
 
     class Meta:
-        model = Location
+        model = OrderLocation
         fields = [
             "id",
             "order",

@@ -2,17 +2,17 @@ from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from src.apps.orders.models import Location, Order
-from src.apps.orders.tasks import send_location_capture_link
+from src.apps.orders.models import OrderLocation, Order
+from src.apps.orders.tasks import send_order_location_capture_link
 
 
-@receiver(post_save, sender=Location)
-def on_location_created(sender, instance: Location, created: bool, **kwargs):
+@receiver(post_save, sender=OrderLocation)
+def on_location_created(sender, instance: OrderLocation, created: bool, **kwargs):
     if created:
-        order_id = f"send_location_capture_link-{instance.pk}"
+        order_id = f"send_order_location_capture_link-{instance.pk}"
 
         def _enqueue():
-            send_location_capture_link.apply_async(
+            send_order_location_capture_link.apply_async(
                 args=(instance.pk,), task_id=order_id, retry=False
             )
 

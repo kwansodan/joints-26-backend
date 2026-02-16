@@ -98,17 +98,19 @@ def verify_and_update_order_payment(self, trxRef: str):
 
     paystack = Paystack()
     verification_status = paystack.verify_payment(trxRef)
+    print("verification status", verification_status)
     if not verification_status:
-        print("failed to verify paymetn ref from paystack")
+        print("failed to verify payment ref from paystack")
         return {
             "status": False,
             "detail": "Failed to verify payment reference from paystack",
         }
 
     updated = Payment.objects.filter(order=orderObj).update(
-        paymentStatus=True, paymentReference=trxRef
+        paymentStatus=True, paymentReference=trxRef, processed=True
     )
     if updated > 0:
+        print("worker successfully updated payment object")
         Order.objects.filter(id=orderObj.id, paymentConfirmed=False).update(
             paymentConfirmed=True
         )

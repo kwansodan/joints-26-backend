@@ -8,6 +8,7 @@ PAYSTACK_PUBLIC_KEY = settings.PAYSTACK_PUBLIC_KEY
 
 PAYMENT_REDIRECT_LINK = settings.PAYMENT_REDIRECT_LINK
 
+
 class Paystack:
     def __init__(self, amount=None, email=None, reference=None, metadata={}):
         self.amount = amount
@@ -49,7 +50,7 @@ class Paystack:
                 "currency": self.currency,
                 "reference": self.reference,
                 "metadata": self.metadata,
-                "callback_url": self.callback_url
+                "callback_url": self.callback_url,
             }
 
             response = requests.post(
@@ -72,10 +73,12 @@ class Paystack:
 
     def verify_payment(self, reference):
         try:
-            response = requests.get(f"{self.base_transaction_url}/verify/{reference}")
+            response = requests.get(
+                f"{self.base_transaction_url}/verify/{reference}", headers=self.headers
+            )
             json_response = response.json()
             print("response from verify payment", json_response)
-            
+
             if response.status_code in [200, 201]:
                 print("transaction valid")
                 return True
@@ -83,4 +86,4 @@ class Paystack:
                 return False
         except Exception as e:
             print("Paystack payment verification exception", str(e))
-            return False 
+            return False

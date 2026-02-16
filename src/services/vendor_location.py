@@ -1,6 +1,9 @@
 from src.apps.vendors.models import Vendor, VendorLocation
 from src.apps.vendors.serializers import VendorLocationSerializer
-from src.utils.workers import prep_wegoo_delivery_price_detail, verify_location_capture_link
+from src.utils.workers import (
+    prep_wegoo_delivery_price_detail,
+    verify_location_capture_link,
+)
 
 
 # users
@@ -38,36 +41,36 @@ def createVendorLocationService(requestData):
         return False, "failed", None
 
 
-def getVendorLocationDetailService(pk):
+def getVendorLocationDetailService(token, vendor_location_id):
     try:
-        obj = VendorLocation.objects.get(pk=pk)
-        if obj:
-            serializer = VendorLocationSerializer(instance=obj)
+        token_valid = verify_location_capture_link(token=token, category="vendor")
+        if not token_valid:
+            return False, "Invalid link", None
+
+        obj = VendorLocation.objects.get(pk=vendor_location_id)
+        serializer = VendorLocationSerializer(instance=obj)
         return True, "success", serializer.data
     except Exception as e:
         print(f"[VendorLocationService Err] Failed to get vendor location detail: {e}")
-        return False, "failed", None
+        return False, "Invalid link", None
 
 
-def updateVendorLocationDetailService(pk, link_token, requestData):
+def updateVendorLocationDetailService(token, vendor_location_id, requestData):
     try:
-        status = verify_location_capture_link(token=link_token, category="vendor")
-        if not status:
-            return False, "Invalid token", None
+        token_valid = verify_location_capture_link(token=token, category="vendor")
+        if not token_valid:
+            return False, "Invalid link", None
 
         data = requestData.get("data")
-        # metadata, routes = prep_wegoo_delivery_price_detail(requestData)
 
-        obj = VendorLocation.objects.get(pk=pk)
-        serializer = VendorLocationSerializer(
-            instance=obj, data=data, partial=True
-        )
+        obj = VendorLocation.objects.get(pk=vendor_location_id)
+        serializer = VendorLocationSerializer(instance=obj, data=data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
         return True, "success", serializer.data
     except Exception as e:
         print(f"[VendorLocationService Err] Failed to update vendor location: {e}")
-        return False, "failed", None
+        return False, "Invalid link", None
 
 
 def deleteVendorLocationService(pk):

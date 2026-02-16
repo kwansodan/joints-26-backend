@@ -15,7 +15,7 @@ urlpatterns = [
         name="vendor-location-list-view",
     ),
     path(
-        "location/detail/<str:pk>/",
+        "location/detail/<str:token>/<str:vendor_location_id>/",
         VendorLocationDetailView.as_view(),
         name="vendor-location-detail-view",
     ),

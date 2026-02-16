@@ -4,8 +4,9 @@ from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from src.apps.orders.permissions import LocationModelPermission
-from src.services.location import *
+from src.apps.orders.permissions import OrderLocationModelPermission
+from src.apps.orders.serializers import OrderLocationSerializer
+from src.services.order_location import *
 from src.utils.helpers import (
     BAD_REQUEST_400,
     DETAIL_VIEW_HTTP_METHODS,
@@ -18,73 +19,73 @@ from src.utils.helpers import (
 
 @extend_schema_view(
     get=extend_schema(
-        description="List all locations",
+        description="List all order locations",
         responses={
-            200: LocationSerializer(many=True),
+            200: OrderLocationSerializer(many=True),
             **BAD_REQUEST_400,
             **FORBIDDEN_403,
             **INVALID_CREDENTIALS_401,
         },
     ),
     post=extend_schema(
-        description="Create a new location",
-        request=LocationSerializer,
+        description="Create a new order location",
+        request=OrderLocationSerializer,
         responses={
-            201: LocationSerializer,
+            201: OrderLocationSerializer,
             **BAD_REQUEST_400,
             **FORBIDDEN_403,
             **INVALID_CREDENTIALS_401,
         },
     ),
 )
-class LocationListView(BaseAPIView, GenericAPIView):
+class OrderLocationListView(BaseAPIView, GenericAPIView):
     parser_classes = [JSONParser]
     http_method_names = LIST_VIEW_HTTP_METHODS
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, LocationModelPermission]
-    serializer_class = LocationSerializer
-    permission_classes = [LocationModelPermission]
+    permission_classes = [IsAuthenticated, OrderLocationModelPermission]
+    serializer_class = OrderLocationSerializer
+    permission_classes = [OrderLocationModelPermission]
 
     def get(self, request):
-        success, message, data = locationListService()
+        success, message, data = orderLocationListService()
         return self.ok(message, data) if success else self.bad(message)
 
     def post(self, request):
-        success, message, data = createLocationService(request.data)
+        success, message, data = createOrderLocationService(request.data)
         return self.created(message, data) if success else self.bad(message)
 
 
 @extend_schema_view(
     get=extend_schema(
-        description="Get a single location",
+        description="Get a single order location",
         responses={
-            200: LocationSerializer,
+            200: OrderLocationSerializer,
             **FORBIDDEN_403,
             **INVALID_CREDENTIALS_401,
         },
     ),
     put=extend_schema(
-        description="Update a single location",
-        request=LocationSerializer,
+        description="Update a single order location",
+        request=OrderLocationSerializer,
         responses={
-            200: LocationSerializer,
+            200: OrderLocationSerializer,
             **BAD_REQUEST_400,
             **FORBIDDEN_403,
             **INVALID_CREDENTIALS_401,
         },
     ),
     patch=extend_schema(
-        description="Partially update a single location",
-        request=LocationSerializer,
+        description="Partially update a order single location",
+        request=OrderLocationSerializer,
         responses={
-            200: LocationSerializer,
+            200: OrderLocationSerializer,
             **BAD_REQUEST_400,
             **FORBIDDEN_403,
             **INVALID_CREDENTIALS_401,
         },
     ),
     delete=extend_schema(
-        description="Delete a single location",
+        description="Delete a single order location",
         responses={
             204: OpenApiResponse(description="Deleted successfully"),
             **FORBIDDEN_403,
@@ -92,37 +93,37 @@ class LocationListView(BaseAPIView, GenericAPIView):
         },
     ),
 )
-class LocationDetailView(BaseAPIView, GenericAPIView):
+class OrderLocationDetailView(BaseAPIView, GenericAPIView):
     parser_classes = [JSONParser]
     http_method_names = DETAIL_VIEW_HTTP_METHODS
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, LocationModelPermission]
-    serializer_class = LocationSerializer
-    permission_classes = [LocationModelPermission]
+    permission_classes = [IsAuthenticated, OrderLocationModelPermission]
+    serializer_class = OrderLocationSerializer
+    permission_classes = [OrderLocationModelPermission]
 
     def get_permissions(self):
-        if self.request.method in ["PUT", "PATCH"]:
+        if self.request.method in ["GET", "PUT", "PATCH"]:
             return [AllowAny()]
         return [permission() for permission in self.permission_classes]
 
-    def get(self, request, pk):
-        success, message, data = getLocationDetailService(pk=pk)
-        return self.ok(message, data) if success else self.bad(message)
-
-    def put(self, request, pk):
-        link_token = request.data.get("csrf_token", "")
-        success, message, data = updateLocationDetailService(
-            pk=pk, link_token=link_token, requestData=request.data
+    def get(self, request, token, order_location_id):
+        success, message, data = getOrderLocationDetailService(
+            token=token, order_location_id=order_location_id
         )
         return self.ok(message, data) if success else self.bad(message)
 
-    def patch(self, request, pk):
-        link_token = request.data.get("csrf_token", "")
-        success, message, data = updateLocationDetailService(
-            pk=pk, link_token=link_token, requestData=request.data
+    def put(self, request, token, order_location_id):
+        success, message, data = updateOrderLocationDetailService(
+            token=token, order_location_id=order_location_id, requestData=request.data
+        )
+        return self.ok(message, data) if success else self.bad(message)
+
+    def patch(self, request, token, order_location_id):
+        success, message, data = updateOrderLocationDetailService(
+            token=token, order_location_id=order_location_id, requestData=request.data
         )
         return self.ok(message, data) if success else self.bad(message)
 
     def delete(self, request, pk):
-        success, message, data = deleteLocationService(pk)
+        success, message, data = deleteOrderLocationService(pk)
         return self.no_content() if success else self.bad(message)
