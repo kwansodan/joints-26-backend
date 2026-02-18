@@ -52,11 +52,11 @@ def send_order_payment_link(self, trxRef_id: str):
         message = f"Hello {first_name}. Please make payment for your order using the link below. {auth_url}"
         print("message", message)
 
-        # try:
-        #     mnotify = Mnotifiy(recipients=recipients, message=message)
-        #     _ = mnotify.send()
-        # except Exception as exc:
-        #     raise self.retry(exc=exc)
+        try:
+            mnotify = Mnotifiy(recipients=recipients, message=message)
+            _ = mnotify.send()
+        except Exception as exc:
+            raise self.retry(exc=exc)
 
         PaystackTransactionReference.objects.filter(
             order=order, processed=False
@@ -97,8 +97,7 @@ def verify_and_update_order_payment(self, trxRef: str):
         }
 
     paystack = Paystack()
-    verification_status = paystack.verify_payment(trxRef)
-    print("verification status", verification_status)
+    verification_status, verification_data = paystack.verify_payment(trxRef)
     if not verification_status:
         print("failed to verify payment ref from paystack")
         return {
@@ -106,8 +105,18 @@ def verify_and_update_order_payment(self, trxRef: str):
             "detail": "Failed to verify payment reference from paystack",
         }
 
+    if verification_data is not None:
+        paid_at = verification_data["paid_at"]
+        channel = verification_data["channel"]
+        receipt_number = verification_data["receipt_number"]
+
     updated = Payment.objects.filter(order=orderObj).update(
-        paymentStatus=True, paymentReference=trxRef, processed=True
+        paymentStatus=True,
+        paymentReference=trxRef,
+        paymentMethod=channel,
+        paid_at=paid_at,
+        receipt_number=receipt_number,
+        processed=True,
     )
     if updated > 0:
         print("worker successfully updated payment object")
@@ -121,12 +130,12 @@ def verify_and_update_order_payment(self, trxRef: str):
         #     _ = mnotify.send()
         # except Exception as exc:
         #     raise self.retry(exc=exc)
-        return {"status": True, "detail":" order payment confirmed", "trxRef_id": trxRef, "order_id": orderObj.id}
+        return {
+            "status": True,
+            "detail": " order payment confirmed",
+            "trxRef_id": trxRef,
+            "order_id": orderObj.id,
+        }
     else:
         print("this worker didnt update any rows of orders so returning")
         return
-
-
-
-
-

@@ -1,7 +1,11 @@
 from django.db import models
 
-from src.utils.dbOptions import (LINK_GENERATION_CATEGORIES, MAX_STR_LEN,
-                                 MIN_STR_LEN, TINY_STR_LEN)
+from src.utils.dbOptions import (
+    LINK_GENERATION_CATEGORIES,
+    MAX_STR_LEN,
+    MIN_STR_LEN,
+    TINY_STR_LEN,
+)
 from src.utils.helpers import random_token
 
 

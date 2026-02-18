@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from src.apps.orders.permissions import OrderItemModelPermission
+from src.apps.orders.serializers import OrderLocationSerializer
 from src.services.order_dispatch import (
     updateOrderRiderDispatchService,
 )
@@ -22,7 +23,7 @@ from src.utils.helpers import (
 @extend_schema_view(
     put=extend_schema(
         description="Update order rider dispatch",
-        request=OpenApiResponse,
+        request=OrderLocationSerializer,
         responses={
             **SUCCESS_REQUEST_200,
             **BAD_REQUEST_400,
@@ -32,7 +33,7 @@ from src.utils.helpers import (
     ),
     patch=extend_schema(
         description="Partially update order rider dispatch",
-        request=OpenApiResponse,
+        request=OrderLocationSerializer,
         responses={
             **SUCCESS_REQUEST_200,
             **BAD_REQUEST_400,

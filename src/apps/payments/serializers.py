@@ -15,6 +15,8 @@ class PaymentSerializer(serializers.ModelSerializer):
             "order",
             "paymentStatus",
             "amount",
+            "receipt_number",
+            "paid_at",
             "processed",
             "paymentMethod",
             "paymentReference",

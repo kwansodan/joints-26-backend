@@ -33,3 +33,4 @@ def on_location_created(sender, instance: OrderLocation, created: bool, **kwargs
                 print("order location updated signal exception", str(e))
 
         transaction.on_commit(_update_order_location)
+        # can send link from payment here

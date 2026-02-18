@@ -19,6 +19,8 @@ class Payment(models.Model):
         null=False,
         blank=False,
     )
+    receipt_number = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
     paymentReference = models.CharField(max_length=MIN_STR_LEN, null=False, blank=False)
     confirmedBy = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     createdBy = models.CharField(

@@ -41,11 +41,11 @@ def send_vendor_location_capture_link(self, vendor_location_id: str):
 
     print("mesage", message)
 
-    # try:
-    #     mnotify = Mnotifiy(recipients=recipients, message=message)
-    #     _ = mnotify.send()
-    # except Exception as exc:
-    #     raise self.retry(exc=exc)
+    try:
+        mnotify = Mnotifiy(recipients=recipients, message=message)
+        _ = mnotify.send()
+    except Exception as exc:
+        raise self.retry(exc=exc)
 
     return {
         "status": "vendor location capture link sent",

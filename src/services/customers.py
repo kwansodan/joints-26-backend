@@ -1,13 +1,10 @@
-from secrets import token_urlsafe
 from src.apps.users.models import Customer, User
-from src.utils.dbOptions import USER_TYPES
-from django.contrib.auth.models import Group
 from src.apps.users.serializers import CustomerSerializer
 
 # users
 def customerListService():
     try:
-        customers = Customer.objects.filter(is_staff=False, is_superuser=False)
+        customers = Customer.objects.filter()
         serializer = CustomerSerializer(instance=customers, many=True)
         return True, "success", serializer.data
     except Exception as e:

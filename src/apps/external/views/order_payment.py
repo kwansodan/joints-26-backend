@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from src.apps.orders.permissions import OrderItemModelPermission
-from src.apps.payments.serializers import PaymentSerializer
+from src.apps.payments.serializers import PaymentSerializer, PaystackTransactionReferenceSerializer
 from src.services.order_item import *
 from src.services.order_payments import updateCustomerOrderPayment
 from src.utils.helpers import (
@@ -21,7 +21,7 @@ from src.utils.helpers import (
 @extend_schema_view(
     put=extend_schema(
         description="Update order payment",
-        request=OpenApiResponse,
+        request=PaystackTransactionReferenceSerializer,
         responses={
             **SUCCESS_REQUEST_200,
             **BAD_REQUEST_400,
@@ -31,7 +31,7 @@ from src.utils.helpers import (
     ),
     patch=extend_schema(
         description="Partially update order payment",
-        request=OpenApiResponse,
+        request=PaystackTransactionReferenceSerializer,
         responses={
             **SUCCESS_REQUEST_200,
             **BAD_REQUEST_400,

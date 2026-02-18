@@ -81,9 +81,12 @@ class Paystack:
 
             if response.status_code in [200, 201]:
                 print("transaction valid")
-                return True
+                receipt_number = json_response["data"]["receipt_number"]
+                paid_at = json_response["data"]["paid_at"]
+                channel = json_response["data"]["channel"]
+                return True, {"receipt_number": receipt_number, "paid_at": paid_at, "channel": channel}
             else:
-                return False
+                return False, None
         except Exception as e:
             print("Paystack payment verification exception", str(e))
-            return False
+            return False, None

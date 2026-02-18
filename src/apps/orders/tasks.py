@@ -38,10 +38,10 @@ def send_order_location_capture_link(self, location_id: str):
     message = f"Hello {order.customer.first_name}. Thanks for placing an order with us. Please use the link below to share your location for delivery. {generated_link.link}"
     print("mesage", message)
 
-    # try:
-    #     mnotify = Mnotifiy(recipients=recipients, message=message)
-    #     _ = mnotify.send()
-    # except Exception as exc:
-    #     raise self.retry(exc=exc)
+    try:
+        mnotify = Mnotifiy(recipients=recipients, message=message)
+        _ = mnotify.send()
+    except Exception as exc:
+        raise self.retry(exc=exc)
 
     return {"status": "location capture link sent", "location_id": location_id}
