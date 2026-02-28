@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from django.views.generic import RedirectView  
 
 # from django.conf.urls.static import static
 from src.apps.users.views.auth_login import LoginView, RefreshTokenView
