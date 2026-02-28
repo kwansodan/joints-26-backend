@@ -26,7 +26,7 @@ PAYMENT_REDIRECT_LINK = (
     else "http://localhost:3000/payments/verification-2rxa2u9"
 )
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "api.lingo.com"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "api.lingo.com", "lingo.service4gh.com"]
 
 # Application definition
 INSTALLED_APPS = [
