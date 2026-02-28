@@ -50,3 +50,6 @@ networks:
 
 volumes:
   lingo_db:
+
+
+#GITOPS_HASH: 0000000
