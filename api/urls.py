@@ -6,6 +6,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from src.apps.users.views.auth_login import LoginView, RefreshTokenView
 
 urlpatterns = [
+    path('', RedirectView.as_view(url='/api/swagger-docs/', permanent=False)),
     path("admin/interface/", admin.site.urls),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
