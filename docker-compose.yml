@@ -1,0 +1,52 @@
+services:
+  web:
+    image: lingo_app:latest
+    command: gunicorn --bind 0.0.0.0:8001 --workers 6 api.wsgi
+    restart: always
+    expose:
+      - "8001"
+    depends_on:
+        - redis
+        - db
+    environment:
+      - VIRTUAL_HOST=lingo.service4gh.com
+      - VIRTUAL_PORT=8001
+      - LETSENCRYPT_HOST=lingo.service4gh.com
+      - LETSENCRYPT_EMAIL=mohammedyiwere@gmail.com
+    networks:
+      - proxy-tier
+      - backend-tier
+
+  db:
+    image: postgres:16
+    restart: always
+    volumes:
+      - lingo_db:/var/lib/postgresql/data
+    networks:
+      - backend-tier
+
+  celery:
+    image: lingo_app:latest
+    command: celery -A api worker -l info --concurrency=4 --max-tasks-per-child=100
+    restart: always
+    depends_on:
+      - redis
+      - db
+    networks:
+      - backend-tier
+
+  redis:
+    image: "redis:alpine"
+    restart: always
+    networks:
+      - backend-tier
+
+networks:
+  proxy-tier:
+    external: true
+    name: fulstack_default
+  backend-tier:
+    driver: bridge
+
+volumes:
+  lingo_db:
