@@ -1,5 +1,6 @@
 services:
   web:
+    build: .
     image: lingo_app:latest
     command: gunicorn --bind 0.0.0.0:8001 --workers 6 api.wsgi
     restart: always
@@ -16,7 +17,6 @@ services:
     networks:
       - proxy-tier
       - backend-tier
-
   db:
     image: postgres:16
     restart: always
@@ -24,8 +24,8 @@ services:
       - lingo_db:/var/lib/postgresql/data
     networks:
       - backend-tier
-
   celery:
+    build: .
     image: lingo_app:latest
     command: celery -A api worker -l info --concurrency=4 --max-tasks-per-child=100
     restart: always
@@ -34,22 +34,17 @@ services:
       - db
     networks:
       - backend-tier
-
   redis:
     image: "redis:alpine"
     restart: always
     networks:
       - backend-tier
-
 networks:
   proxy-tier:
     external: true
     name: fulstack_default
   backend-tier:
     driver: bridge
-
 volumes:
   lingo_db:
-
-
 #GITOPS_HASH: 0000000
