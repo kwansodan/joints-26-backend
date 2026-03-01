@@ -21,7 +21,7 @@ FRONTEND_URL = (
 )
 
 PAYMENT_REDIRECT_LINK = (
-    "https://lingo-gamma.vercel.app/"
+    "https://lingo-gamma.vercel.app/payments"
     if DJANGO_ENV == "prod"
     else "http://localhost:3000/payments/verification-2rxa2u9"
 )
