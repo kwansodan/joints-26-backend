@@ -15,13 +15,13 @@ DEBUG = config("DJANGO_DEBUG", cast=bool)
 DJANGO_ENV = config("DJANGO_ENV", cast=str)
 
 FRONTEND_URL = (
-    "https://joints-25-frontend.vercel.app/"
+    "https://lingo-gamma.vercel.app/"
     if DJANGO_ENV == "prod"
     else "http://localhost:3000/"
 )
 
 PAYMENT_REDIRECT_LINK = (
-    "https://joints-25-frontend.vercel.app/"
+    "https://lingo-gamma.vercel.app/"
     if DJANGO_ENV == "prod"
     else "http://localhost:3000/payments/verification-2rxa2u9"
 )
@@ -124,6 +124,8 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+STATIC_ROOT = os.path.join(BASE_DIR, "src/static")
+
 MEDIA_URL = "media/"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "src/media/")
@@ -150,7 +152,7 @@ if all([ADMIN_USER_NAME, ADMIN_USER_EMAIL]):
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://api.lingo.com",
+    "https://lingo.service4gh.com",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = False
@@ -169,6 +171,7 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://lingo.service4gh.com",
 ]
 
 REST_FRAMEWORK = {
@@ -200,7 +203,8 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
     "DESCRIPTION": "Human assisted food ordering platform",
     "SERVERS": [
-        {"url": "http://api.lingo.com:8000", "description": "lingo backend api url"},
+        {"url": "http://api.lingo.com:8000", "description": "Development Server"},
+        {"url": "https://lingo.service4gh.com", "description": "Production Server"},
     ],
     "CONTACT": {
         "name": "dev-muftawu",
