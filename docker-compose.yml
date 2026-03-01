@@ -6,6 +6,8 @@ services:
     restart: always
     expose:
       - "8001"
+    volumes:
+      - lingo_static_files:/app/src/static
     depends_on:
         - redis
         - db
@@ -52,4 +54,6 @@ networks:
     driver: bridge
 volumes:
   lingo_db:
+  lingo_static_files:
+
 #GITOPS_HASH: 0000000

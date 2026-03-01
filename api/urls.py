@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import include, path
+from django.conf import settings
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from django.conf.urls.static import static
@@ -22,4 +23,4 @@ urlpatterns = [
     path("payments/", include("src.apps.payments.urls")),
     path("notifications/", include("src.apps.notifications.urls")),
     path("external/", include("src.apps.external.urls")),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
