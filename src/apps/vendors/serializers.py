@@ -29,9 +29,10 @@ class VendorSerializer(serializers.ModelSerializer):
 
     def get_primaryLocation(self, obj) -> Any:
         try:
-            primary_location = VendorLocation.objects.filter(vendor=obj).first()
-            displayName = getattr(primary_location, "displayName", None)
-            return displayName if displayName else "---"
+            location = VendorLocation.objects.filter(vendor=obj).first()
+            road = getattr(location, 'road', 'N/A') or "---"
+            city = getattr(location, 'city', 'N/A') or "---"
+            return str(f"{city}, {road}")
         except Exception as e:
             print(f"Exception {str(e)}")
             return "N/A"

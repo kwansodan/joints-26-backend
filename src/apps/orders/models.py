@@ -57,7 +57,7 @@ class OrderLocation(models.Model):
         max_digits=MAX_DIGIT_LEN, decimal_places=MIN_DIGIT_LEN, default=Decimal("0.00")
     )
     city = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
-    state = models.CharField(max_length=MIN_STR_LEN, choices=REGIONS, null=True, blank=True)
+    state = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     houseNumber = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     road = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     town = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
