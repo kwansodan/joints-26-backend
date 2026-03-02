@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "src.apps.payments",
     "src.apps.external",
     "src.apps.notifications",
+    "src.apps.reports",
 ]
 
 MIDDLEWARE = [
@@ -204,6 +205,7 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Human assisted food ordering platform",
     "SERVERS": [
         {"url": "http://api.lingo.com:8000", "description": "Development Server"},
+        {"url": "http://127.0.0.1.:8000", "description": "Development Server"},
         {"url": "https://lingo.service4gh.com", "description": "Production Server"},
     ],
     "CONTACT": {
@@ -217,6 +219,7 @@ SPECTACULAR_SETTINGS = {
         {"name": "bikers", "description": "Biker endpoints"},
         {"name": "orders", "description": "Orders endpoints"},
         {"name": "payments", "description": "Payment endpoints"},
+        {"name": "reports", "description": "Reports endpoints"},
         {"name": "notifications", "description": "Notification endpoints"},
     ],
     "DEFAULT_CONTENT_TYPES": ["application/json"],

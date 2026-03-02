@@ -6,7 +6,6 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from src.apps.vendors.permissions import (
     VendorLocationModelPermission,
-    VendorModelPermission,
 )
 from src.apps.vendors.serializers import VendorLocationSerializer
 from src.services.vendor_location import (

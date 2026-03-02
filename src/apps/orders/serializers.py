@@ -129,6 +129,7 @@ class OrderLocationSerializer(serializers.ModelSerializer):
             "id",
             "order",
             "displayName",
+            "captureMethod",
             "latitude",
             "longitude",
             "state",

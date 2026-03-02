@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
 
-ALLOWED_ROLES = {"admin", "agent", "vendor"}
+ALLOWED_ROLES = {"admin", "office_agent"}
 
 class VendorModelPermission(BasePermission):
     perms_by_method = {

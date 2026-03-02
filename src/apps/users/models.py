@@ -12,7 +12,7 @@ class UserManager(BaseUserManager):
     def _create_user_object(self, email, password, **extra_fields):
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
-        user.password = make_password(password)
+        user.set_password(password)
         return user
 
     def _create_user(self, email, password, **extra_fields):
@@ -65,17 +65,24 @@ class User(AbstractUser):
     updatedBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
     )
-    createdAt = models.DateTimeField(auto_now=True)
-    updatedAt = models.DateTimeField(auto_now_add=True)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
 
     objects = UserManager()
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
-    class _Meta:
+    class Meta:
         verbose_name_plural = "Users"
         ordering = ["-createdAt"]
+
+    def save(self, *args, **kwargs):
+        if self.password and not self.password.startswith(
+            ("pbkdf2_", "bcrypt$", "argon2")
+        ):
+            self.password = make_password(self.password)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.email} - {self.userType}"
@@ -97,8 +104,8 @@ class Customer(models.Model):
     updatedBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
     )
-    createdAt = models.DateTimeField(auto_now=True)
-    updatedAt = models.DateTimeField(auto_now_add=True)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

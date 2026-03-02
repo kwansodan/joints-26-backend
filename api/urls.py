@@ -23,4 +23,5 @@ urlpatterns = [
     path("payments/", include("src.apps.payments.urls")),
     path("notifications/", include("src.apps.notifications.urls")),
     path("external/", include("src.apps.external.urls")),
+    path("reports/", include("src.apps.reports.urls")),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

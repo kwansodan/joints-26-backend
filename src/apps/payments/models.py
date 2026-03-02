@@ -29,8 +29,8 @@ class Payment(models.Model):
     updatedBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
     )
-    createdAt = models.DateTimeField(auto_now=True)
-    updatedAt = models.DateTimeField(auto_now_add=True)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
 
     class _Meta:
         verbose_name_plural = "Order Payment"
@@ -54,8 +54,8 @@ class PaystackTransactionReference(models.Model):
     updatedBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
     )
-    createdAt = models.DateTimeField(auto_now=True)
-    updatedAt = models.DateTimeField(auto_now_add=True)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
 
     class _Meta:
         verbose_name_plural = "Paystack Transaction Ref"

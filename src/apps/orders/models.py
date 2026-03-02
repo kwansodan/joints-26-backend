@@ -25,8 +25,8 @@ class Order(models.Model):
     updatedBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
     )
-    createdAt = models.DateTimeField(auto_now=True)
-    updatedAt = models.DateTimeField(auto_now_add=True)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
 
     @property
     def update_order_subtotal(self, *args, **kwargs):
@@ -48,6 +48,7 @@ class OrderLocation(models.Model):
     order = models.OneToOneField(
         Order, on_delete=models.CASCADE, null=False, blank=False
     )
+    captureMethod = models.CharField(max_length=MIN_STR_LEN, choices=LOCATION_CAPTURE_METHOD, default="auto", null=True, blank=True)
     displayName = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     latitude = models.DecimalField(
         max_digits=MAX_DIGIT_LEN, decimal_places=MIN_DIGIT_LEN, default=Decimal("0.00")
@@ -56,13 +57,13 @@ class OrderLocation(models.Model):
         max_digits=MAX_DIGIT_LEN, decimal_places=MIN_DIGIT_LEN, default=Decimal("0.00")
     )
     city = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
-    state = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
+    state = models.CharField(max_length=MIN_STR_LEN, choices=REGIONS, null=True, blank=True)
     houseNumber = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     road = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     town = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     suburb = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     district = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
-    country = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
+    country = models.CharField(max_length=MIN_STR_LEN, default="Ghana", null=True, blank=True)
     captured = models.BooleanField(default=False)
     createdBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
@@ -70,8 +71,8 @@ class OrderLocation(models.Model):
     updatedBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
     )
-    createdAt = models.DateTimeField(auto_now=True)
-    updatedAt = models.DateTimeField(auto_now_add=True)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
 
     class _Meta:
         verbose_name_plural = "Order Location"
@@ -94,8 +95,8 @@ class OrderItem(models.Model):
     updatedBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
     )
-    createdAt = models.DateTimeField(auto_now=True)
-    updatedAt = models.DateTimeField(auto_now_add=True)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
 
     class _Meta:
         verbose_name_plural = "OrderItem"

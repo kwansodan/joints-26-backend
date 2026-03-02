@@ -22,10 +22,11 @@ class Command(BaseCommand):
             ]
         }
         orderAppPerms = {"orders": ["orderlocation", "orderitem", "order"]}
+        reportsAppPerms = {"reports": ["report"]}
 
         bikerPerms = [bikerAppPerms]
-        adminPerms = [userAppPerms, bikerAppPerms, vendorAppPerms, orderAppPerms]
-        agentPerms = [userAppPerms, bikerAppPerms, bikerAppPerms]
+        adminPerms = [userAppPerms, bikerAppPerms, vendorAppPerms, orderAppPerms, reportsAppPerms]
+        agentPerms = [userAppPerms, bikerAppPerms, vendorAppPerms, orderAppPerms]
 
         # admin perms
         for appPerm in adminPerms:

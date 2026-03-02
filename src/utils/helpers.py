@@ -32,7 +32,7 @@ class AllowOnlyMethodsMixin:
         return super().initial(request, *args, **kwargs)
 
 
-class BaseAPIView(AllowOnlyMethodsMixin, APIView):
+class BaseAPIView(APIView):
     def ok(self, message=None, data=None):
         return Response(
             status=status.HTTP_200_OK, data={"message": message, "data": data}
@@ -48,11 +48,20 @@ class BaseAPIView(AllowOnlyMethodsMixin, APIView):
             status=status.HTTP_400_BAD_REQUEST, data={"message": message, "data": data}
         )
 
+    def unauthorized(self, message=None, data=None):
+        return Response(
+            status=status.HTTP_401_UNAUTHORIZED, data={"message": message, "data": data}
+        )
+
+    def forbidden(self, message=None, data=None):
+        return Response(
+            status=status.HTTP_403_FORBIDDEN, data={"message": message, "data": data}
+        )
+
     def no_content(self, message=None, data=None):
         return Response(
             status=status.HTTP_204_NO_CONTENT, data={"message": message, "data": data}
         )
-
 
 class BaseAPITestCase(APITestCase):
     def authenticate(self, user):

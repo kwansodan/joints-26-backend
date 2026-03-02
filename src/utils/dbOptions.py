@@ -48,3 +48,42 @@ NOTIFICATION_TYPE = [
     ("email", "email"),
     ("whatsapp", "whatsapp"),
 ]
+
+REGIONS = [
+    ("GHAA", "Greater Accra"),
+    ( "GHAF", "Ahafo"),
+    ( "GHAH", "Ashanti"),
+    ( "GHBE", "Bono East"),
+    ( "GHBO", "Bono"),
+    ( "GHCP", "Central"),
+    ( "GHEP", "Eastern"),
+    ( "GHNE", "North East"),
+    ( "GHNP", "Northern"),
+    ( "GHOT", "Oti"),
+    ( "GHSV", "Savannah"),
+    ( "GHTV", "Volta"),
+    ( "GHUE", "Upper East"),
+    ( "GHUW", "Upper West"),
+    ( "GHWN", "Western North"),
+    ( "GHWP", "Western"),
+]
+
+LOCATION_CAPTURE_METHOD = [
+    ("auto", "auto"),
+    ("manual", "manual"),
+]
+
+REPORT_TYPES = [
+    ("vendor", "vendor"),
+    ("order", "order"),
+]
+
+REPORT_SCOPE = [
+    ("all", "All"),
+    ("agent", "By Agent"),
+]
+
+REPORT_EXPORT_FORMAT = [
+    ("pdf", "PDF"),
+    ("excel", "Excel")
+]
