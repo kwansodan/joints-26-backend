@@ -43,7 +43,11 @@ class Payment(models.Model):
 class PaystackTransactionReference(models.Model):
     id = models.CharField(primary_key=True, default=random_token, editable=False)
     order = models.OneToOneField(
-        Order, on_delete=models.CASCADE, null=False, blank=False, related_name="paystackTrxRefObj"
+        Order,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="paystackTrxRefObj",
     )
     paymentLink = models.CharField(max_length=MAX_STR_LEN, null=False, blank=True)
     reference = models.CharField(max_length=MIN_STR_LEN, null=False, blank=True)
@@ -63,4 +67,3 @@ class PaystackTransactionReference(models.Model):
 
     def __str__(self):
         return f"Trans Ref {self.order.id} - {self.reference}"
-

@@ -28,8 +28,12 @@ def send_order_location_capture_link(self, location_id: str):
     if location.captured:
         return {"status": "location already captured", "location_id": location_id}
 
+    if order.customerLocationCaptured:
+        return {"status": "customer location for order has already been captured", "order_id": order.id}
+
     url_token = token_urlsafe(TOKEN_LEN)
     link = f"{FRONTEND_URL}locationcapture/order/{url_token}/{location.id}"
+
     generated_link = GeneratedLink.objects.create(
         category="order", token=url_token, link=link
     )

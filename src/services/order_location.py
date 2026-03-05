@@ -1,5 +1,6 @@
 from src.apps.orders.models import OrderLocation
 from src.apps.orders.serializers import OrderLocationSerializer, OrderSerializer
+from src.apps.orders.tasks import send_order_location_capture_link
 from src.utils.workers import (
     prep_wegoo_delivery_price_detail,
     verify_location_capture_link,
@@ -44,16 +45,40 @@ def getOrderLocationDetailService(token, order_location_id):
 
 
 def updateOrderLocationDetailService(token, order_location_id, requestData):
-    try:
-        token_valid = verify_location_capture_link(token=token, category="order")
-        if not token_valid:
-            return False, "Invalid token", None
+    from pprint import pprint
 
-        data = requestData["data"]
-        obj = OrderLocation.objects.get(pk=order_location_id)
-        if obj:
-            serializer = OrderLocationSerializer(instance=obj, data=data, partial=True)
-            if serializer.is_valid(raise_exception=True):
+    pprint(requestData)
+    try:
+        requestAction = requestData.get("action")
+        if requestAction == "link":
+            obj = OrderLocation.objects.get(pk=order_location_id)
+            if obj:
+                send_order_location_capture_link.apply_async(
+                    args=(order_location_id,), task_id=order_location_id, retry=False
+                )
+                return (
+                    True,
+                    "Success. Location capture link has been sent to customer",
+                    None,
+                )
+            else:
+                return (
+                    False,
+                    "No order item found",
+                    None,
+                )
+        else:
+            token_valid = verify_location_capture_link(token=token, category="order")
+            if not token_valid:
+                return False, "Invalid token", None
+
+            data = requestData["data"]
+            obj = OrderLocation.objects.get(pk=order_location_id)
+            if obj:
+                serializer = OrderLocationSerializer(
+                    instance=obj, data=data, partial=True
+                )
+                serializer.is_valid(raise_exception=True)
                 order_location = serializer.save()
 
                 # wegoo_status, wegoo_data = prep_wegoo_delivery_price_detail(
@@ -64,8 +89,7 @@ def updateOrderLocationDetailService(token, order_location_id, requestData):
                 # prep ordersitems for wegoo
                 # create order delivery price wegoo
                 # create delivery
-
-        return True, "success", serializer.data
+            return True, "success", serializer.data
     except Exception as e:
         print(f"[OrderLocationService Err] Failed to update order location: {e}")
         return False, "failed", None

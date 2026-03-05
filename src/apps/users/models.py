@@ -93,7 +93,7 @@ class Customer(models.Model):
     id = models.CharField(primary_key=True, default=random_token, editable=False)
     first_name = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     last_name = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
-    email = models.EmailField(max_length=MIN_STR_LEN, null=False, blank=False)
+    email = models.EmailField(max_length=MIN_STR_LEN, null=True, blank=True)
     phone = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     gender = models.CharField(
         max_length=TINY_STR_LEN, choices=GENDER, null=True, blank=True
@@ -106,9 +106,6 @@ class Customer(models.Model):
     )
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
-
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
 
     class _Meta:
         verbose_name_plural = "Customers"

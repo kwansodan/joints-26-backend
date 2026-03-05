@@ -5,8 +5,8 @@ from django.db import transaction
 
 from src.apps.orders.models import Order, OrderItem
 from src.apps.orders.serializers import (
-    OrderLocationSerializer,
     OrderItemSerializer,
+    OrderLocationSerializer,
     OrderSerializer,
 )
 from src.apps.payments.models import PaystackTransactionReference
@@ -40,14 +40,9 @@ def createOrderService(requestData):
         with transaction.atomic():
             if customer is not None:
 
-                try:
-                    validate_email(customer["email"])
-                except Exception as e:
-                    return False, "Invalid email", None
-
                 fname = customer["first_name"]
                 lname = customer["last_name"]
-                email = customer["email"]
+                email = customer.get("email", None)
                 phone = customer["phone"]
                 specialNotes = customer.get("specialNotes", "")
 
@@ -59,9 +54,9 @@ def createOrderService(requestData):
                         "phone": phone,
                     }
                 )
-                if customer_serializer.is_valid(raise_exception=True):
-                    customer_serializer.save()
-                    customer = customer_serializer.data
+                customer_serializer.is_valid(raise_exception=True)
+                customer_serializer.save()
+                customer = customer_serializer.data
 
                 if menuItems is not None:
                     # order
@@ -70,52 +65,50 @@ def createOrderService(requestData):
                         "specialNotes": specialNotes,
                     }
                     order_serializer = OrderSerializer(data=order_data)
-                    if order_serializer.is_valid(raise_exception=True):
-                        order = order_serializer.save()
-                        order_id = getattr(order, "id")
+                    order_serializer.is_valid(raise_exception=True)
+                    order = order_serializer.save()
+                    order_id = getattr(order, "id")
 
-                        # orderitem
-                        [
-                            item.update(
-                                {
-                                    "order": order_id,
-                                    "menuItem": item["id"],
-                                    "quantity": item["quantity"],
-                                }
-                            )
-                            for item in menuItems
-                        ]
-                        orderitem_serializer = OrderItemSerializer(
-                            data=menuItems, many=True
+                    # orderitem
+                    [
+                        item.update(
+                            {
+                                "order": order_id,
+                                "menuItem": item["id"],
+                                "quantity": item["quantity"],
+                            }
                         )
-                        if orderitem_serializer.is_valid(raise_exception=True):
-                            orderitem_serializer.save()
+                        for item in menuItems
+                    ]
+                    orderitem_serializer = OrderItemSerializer(
+                        data=menuItems, many=True
+                    )
+                    orderitem_serializer.is_valid(raise_exception=True)
+                    orderitem_serializer.save()
 
-                        # update order subtotal
-                        order.update_order_subtotal
+                    # update order subtotal
+                    order.update_order_subtotal
 
-                        # location
-                        order_location_serializer = OrderLocationSerializer(
-                            data={"order": order_id}
+                    # location
+                    order_location_serializer = OrderLocationSerializer(
+                        data={"order": order_id}
+                    )
+                    order_location_serializer.is_valid(raise_exception=True)
+                    order_location_serializer.save()
+
+                    # payment transaction ref object
+                    paystack_trx_ref_obj_serializer = (
+                        PaystackTransactionReferenceSerializer(
+                            data={
+                                "order": order_id,
+                                "reference": "",
+                                "paymentLink": "",
+                                "processed": False,
+                            }
                         )
-                        if order_location_serializer.is_valid(raise_exception=True):
-                            order_location_serializer.save()
-
-                        # payment transaction ref object
-                        paystack_trx_ref_obj_serializer = (
-                            PaystackTransactionReferenceSerializer(
-                                data={
-                                    "order": order_id,
-                                    "reference": "",
-                                    "paymentLink": "",
-                                    "processed": False,
-                                }
-                            )
-                        )
-                        if paystack_trx_ref_obj_serializer.is_valid(
-                            raise_exception=True
-                        ):
-                            paystack_trx_ref_obj_serializer.save()
+                    )
+                    paystack_trx_ref_obj_serializer.is_valid(raise_exception=True)
+                    paystack_trx_ref_obj_serializer.save()
 
             return True, "success", None
     except Exception as e:

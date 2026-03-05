@@ -14,8 +14,11 @@ def clean_email(data):
 def verify_location_capture_link(token, category):
     assert isinstance(token, str), "Invalid link. Must be string instance"
     try:
-        link = GeneratedLink.objects.filter(token=token, category=category)
-        return True if link.exists() else False
+        link = GeneratedLink.objects.get(token=token, category=category)
+        if link is not None and not link.expired:
+            return True 
+        else:
+            return False
     except Exception as e:
         print(f"Exception: {str(e)}")
         return False

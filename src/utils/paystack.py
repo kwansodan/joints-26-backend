@@ -59,6 +59,7 @@ class Paystack:
                 headers=self.headers,
             )
             json_response = response.json()
+            print("ps response", json_response)
 
             if response.status_code in [200, 201]:
                 auth_url = json_response["data"]["authorization_url"]
@@ -84,7 +85,11 @@ class Paystack:
                 receipt_number = json_response["data"]["receipt_number"]
                 paid_at = json_response["data"]["paid_at"]
                 channel = json_response["data"]["channel"]
-                return True, {"receipt_number": receipt_number, "paid_at": paid_at, "channel": channel}
+                return True, {
+                    "receipt_number": receipt_number,
+                    "paid_at": paid_at,
+                    "channel": channel,
+                }
             else:
                 return False, None
         except Exception as e:

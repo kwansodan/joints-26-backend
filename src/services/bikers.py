@@ -1,9 +1,11 @@
 from django.db import transaction
-from src.apps.bikers.models import Biker, Vehicle 
+
+from src.apps.bikers.models import Biker, Vehicle
 from src.apps.bikers.serializers import BikerSerializer, VehicleSerializer
 from src.apps.users.models import User
 from src.apps.users.serializers import AuthSerializer
-from src.utils.helpers import clean_db_error_msgs 
+from src.utils.helpers import clean_db_error_msgs
+
 
 # biker 
 def bikersListService():
@@ -44,31 +46,34 @@ def createBikerService(requestData):
         return False, clean_db_error_msgs(str(e)), None
 
 def getBikerDetailService(pk):
-    status = False
-    message = "no biker found"
-    data = None
     try:
-       obj = Biker.objects.get(pk=pk)
-       if obj:
-            serializer = BikerSerializer(instance=obj)
-            status = True
-            message = "success"
-            data = serializer.data
+        obj = Biker.objects.get(pk=pk)
+        serializer = BikerSerializer(instance=obj)
+        return True, "success", serializer.data
     except Exception as e:
         print(f"[BikerService Err] Failed to get biker detail: {e}")
-    return status, message, data
+        return False, "failed", None
 
 def updateBikerDetailService(pk, requestData):
     try:
-        bikerInfo = requestData.get("bikerInfo", None)
+        bikerId = requestData.get("bikerId")
+        bikerInfo = requestData.get("bikerUserInfo", None)
         newvehicles = requestData.get("newVehicles", None)
     
         with transaction.atomic():
             if bikerInfo is not None:
-                user_instance = User.objects.get(pk=bikerInfo["id"])
+
+                userId = bikerInfo.get("id", None)
+                user_instance = User.objects.get(pk=userId)
+
+                biker_instance = Biker.objects.get(id=bikerId)
+                biker_serializer = BikerSerializer(instance=biker_instance, data={"user": userId,"status": bikerInfo.get("status", False)})
+                biker_serializer.is_valid(raise_exception=True)
+                biker_serializer.save()
+
                 user_serializer = AuthSerializer(instance=user_instance, data=bikerInfo, partial=True)
-                if user_serializer.is_valid(raise_exception=True):
-                    user_serializer.save()
+                user_serializer.is_valid(raise_exception=True)
+                user_serializer.save()
 
             if newvehicles is not None and len(newvehicles) > 0:
                 [item.update({"biker": pk}) for item in newvehicles]

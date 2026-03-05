@@ -37,7 +37,7 @@ def send_vendor_location_capture_link(self, vendor_location_id: str):
     )
 
     recipients = [vendor.phone]
-    message = f"Hello {vendor.name}. Thanks for partnering with us. Please use the link below to share your location to start receiving orders. {generated_link.link}"
+    message = f"Hello {vendor.name}. Thanks for partnering with us. Please use the link below to share your location to start receiving orders. This link will expire in 2 days. {generated_link.link}"
 
     print("mesage", message)
 

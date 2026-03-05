@@ -1,6 +1,7 @@
 import uuid
 
 from celery import Task, shared_task
+from django.db import transaction
 
 from src.apps.orders.models import Order
 from src.apps.payments.models import Payment, PaystackTransactionReference
@@ -21,51 +22,79 @@ def send_order_payment_link(self, trxRef_id: str):
     except PaystackTransactionReference.DoesNotExist as e:
         raise self.retry(exc=e, countdown=60)
 
-    if trxObj.processed:
-        return {"status": "True", "detail": "order payment link has already been sent"}
+    try:
+        with transaction.atomic():
+            order = trxObj.order
+            print("order", order.__dict__)
+            print("trxref obj", trxObj.__dict__)
+            if trxObj.processed and any(trxObj.reference):
+                if not order.paymentConfirmed:
+                    updated = Payment.objects.filter(order=order).update(
+                        paymentStatus=True,
+                        processed=True,
+                        paid_at=trxObj.createdAt,
+                    )
+                    Order.objects.filter(id=order.id, paymentConfirmed=False).update(
+                        paymentConfirmed=True
+                    )
+                    return {
+                        "status": False,
+                        "detail": "payment for order successfully confirmed",
+                    }
+                else:
+                    return {
+                        "status": "True",
+                        "detail": "order payment link has already been sent and payment confirmed",
+                    }
 
-    order = trxObj.order
-    if order.paymentConfirmed:
-        return {"status": False, "detail": "payment already confirmed"}
+            paymentRefString = order.id
+            # str(uuid.uuid4())[:PAYSTACK_TRANSACTION_REF_LEN]
+            print("passed payment ref string", paymentRefString)
 
-    paymentRefString = str(uuid.uuid4())[:PAYSTACK_TRANSACTION_REF_LEN]
-    print("passed payment ref string", paymentRefString)
+            paystack = Paystack(
+                amount=float(order.subtotal),
+                email=(
+                    order.customer.email
+                    if order.customer.email
+                    else "mohammedyiwere@gmail.com"
+                ),
+                reference=paymentRefString,
+                metadata={"order_id": order.id},
+            )
 
-    paystack = Paystack(
-        amount=float(order.subtotal),
-        email=order.customer.email,
-        reference=paymentRefString,
-        metadata={"order_id": order.id},
-    )
+            auth_url_status, auth_url = paystack.get_transaction_url()
+            if not auth_url_status:
+                return {
+                    "status": False,
+                    "detail": "Failed to get auth_url from paystack",
+                }
 
-    auth_url_status, auth_url = paystack.get_transaction_url()
-    if not auth_url_status:
-        return {"status": False, "detail": "Failed to get auth_url from paystack"}
+            updated = PaystackTransactionReference.objects.filter(order=order).update(
+                paymentLink=auth_url, reference=paymentRefString
+            )
 
-    updated = PaystackTransactionReference.objects.filter(order=order).update(
-        paymentLink=auth_url, reference=paymentRefString
-    )
+            if updated > 0:
+                recipients = [order.customer.phone]
+                first_name = order.customer.first_name
+                message = f"Hello {first_name}. Please make payment for your order using the link below. {auth_url}"
+                print("message", message)
 
-    if updated > 0:
-        recipients = [order.customer.phone]
-        first_name = order.customer.first_name
-        message = f"Hello {first_name}. Please make payment for your order using the link below. {auth_url}"
-        print("message", message)
+                try:
+                    mnotify = Mnotifiy(recipients=recipients, message=message)
+                    _ = mnotify.send()
+                except Exception as exc:
+                    raise self.retry(exc=exc)
 
-        try:
-            mnotify = Mnotifiy(recipients=recipients, message=message)
-            _ = mnotify.send()
-        except Exception as exc:
-            raise self.retry(exc=exc)
+                PaystackTransactionReference.objects.filter(
+                    order=order, processed=False
+                ).update(processed=True)
 
-        PaystackTransactionReference.objects.filter(
-            order=order, processed=False
-        ).update(processed=True)
+                return {"status": "order payment link sent", "trxRef_id": trxRef_id}
 
-        return {"status": "order payment link sent", "trxRef_id": trxRef_id}
-
-    else:
-        return
+            else:
+                return
+    except Exception as e:
+        print("failed to prep link for payment", str(e))
 
 
 @shared_task(bind=True, base=BaseTaskWithRetry)

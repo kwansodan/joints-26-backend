@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 from django.db import models
+from django.utils import timezone
 
 from src.utils.dbOptions import (
     LINK_GENERATION_CATEGORIES,
@@ -25,11 +28,22 @@ class GeneratedLink(models.Model):
     link = models.URLField(
         max_length=MAX_STR_LEN, null=False, unique=True, editable=False, blank=False
     )
+    expires_at = models.DateTimeField(
+        null=False, blank=False, default=timezone.now() + timedelta(days=2)
+    )
     updatedBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
     )
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
+
+    @property
+    def expired(self):
+        try:
+            dt = self.expires_at - timezone.now()
+            return True if dt.total_seconds() < 60 else False
+        except Exception:
+            print(f"Failed to get link expiration date")
 
     class _Meta:
         verbose_name_plural = "Generated Links"

@@ -34,12 +34,9 @@ def updateCustomerOrderPayment(pk, requestData):
             )
 
             trxRefId = paystackTrxRefExists.id
-            res = send_order_payment_link.apply_async(
+            send_order_payment_link.apply_async(
                 args=(trxRefId,), task_id=trxRefId, retry=False
             )
-
-            if res.ready():
-                print("results from send payment link", res.result)
             return True, "Success. Payment link has been sent to customer", None
 
         elif requestAction == "verify":

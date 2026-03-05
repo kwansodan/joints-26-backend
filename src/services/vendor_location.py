@@ -6,7 +6,6 @@ from src.utils.workers import (
 )
 
 
-# users
 def vendorLocationListService():
     try:
         objs = VendorLocation.objects.all()
@@ -65,8 +64,8 @@ def updateVendorLocationDetailService(token, vendor_location_id, requestData):
 
         obj = VendorLocation.objects.get(pk=vendor_location_id)
         serializer = VendorLocationSerializer(instance=obj, data=data, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return True, "success", serializer.data
     except Exception as e:
         print(f"[VendorLocationService Err] Failed to update vendor location: {e}")
