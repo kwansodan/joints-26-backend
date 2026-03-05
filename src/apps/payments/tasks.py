@@ -5,7 +5,7 @@ from django.db import transaction
 
 from src.apps.orders.models import Order
 from src.apps.payments.models import Payment, PaystackTransactionReference
-from src.utils.dbOptions import PAYSTACK_TRANSACTION_REF_LEN
+from src.utils.dbOptions import PAYSTACK_TRANSACTION_REF_LEN, TOKEN_LEN
 from src.utils.paystack import Paystack
 from src.utils.sms_mnotify import Mnotifiy
 
@@ -27,72 +27,58 @@ def send_order_payment_link(self, trxRef_id: str):
             order = trxObj.order
             print("order", order.__dict__)
             print("trxref obj", trxObj.__dict__)
-            if trxObj.processed and any(trxObj.reference):
-                if not order.paymentConfirmed:
-                    updated = Payment.objects.filter(order=order).update(
-                        paymentStatus=True,
-                        processed=True,
-                        paid_at=trxObj.createdAt,
-                    )
-                    Order.objects.filter(id=order.id, paymentConfirmed=False).update(
-                        paymentConfirmed=True
-                    )
+
+            paystack = Paystack()
+            verification_status, verification_data = paystack.verify_payment(trxObj.reference)
+            if verification_status:
+                verify_and_update_order_payment(trxObj.reference)
+            else:
+                paymentRefString = str(uuid.uuid4())[:TOKEN_LEN]
+                print("passed payment ref string", paymentRefString)
+
+                paystack = Paystack(
+                    amount=float(order.subtotal),
+                    email=(
+                        order.customer.email
+                        if order.customer.email
+                        else "mohammedyiwere@gmail.com"
+                    ),
+                    reference=paymentRefString,
+                    metadata={"order_id": order.id},
+                )
+
+                auth_url_status, auth_url = paystack.get_transaction_url()
+                if not auth_url_status:
                     return {
                         "status": False,
-                        "detail": "payment for order successfully confirmed",
+                        "detail": "Failed to get auth_url from paystack",
                     }
+
+                updated = PaystackTransactionReference.objects.filter(
+                    order=order, 
+                ).update(paymentLink=auth_url, reference=paymentRefString)
+
+                if updated > 0:
+                    recipients = [order.customer.phone]
+                    first_name = order.customer.first_name
+                    message = f"Hello {first_name}. Please make payment for your order using the link below. {auth_url}"
+                    print("message", message)
+
+                    try:
+                        mnotify = Mnotifiy(recipients=recipients, message=message)
+                        _ = mnotify.send()
+                    except Exception as exc:
+                        raise self.retry(exc=exc)
+
+                    PaystackTransactionReference.objects.filter(
+                        order=order, processed=False
+                    ).update(processed=True)
+
+                    return {"status": "order payment link sent", "trxRef_id": trxRef_id}
+
                 else:
-                    return {
-                        "status": "True",
-                        "detail": "order payment link has already been sent and payment confirmed",
-                    }
-
-            paymentRefString = order.id
-            # str(uuid.uuid4())[:PAYSTACK_TRANSACTION_REF_LEN]
-            print("passed payment ref string", paymentRefString)
-
-            paystack = Paystack(
-                amount=float(order.subtotal),
-                email=(
-                    order.customer.email
-                    if order.customer.email
-                    else "mohammedyiwere@gmail.com"
-                ),
-                reference=paymentRefString,
-                metadata={"order_id": order.id},
-            )
-
-            auth_url_status, auth_url = paystack.get_transaction_url()
-            if not auth_url_status:
-                return {
-                    "status": False,
-                    "detail": "Failed to get auth_url from paystack",
-                }
-
-            updated = PaystackTransactionReference.objects.filter(order=order).update(
-                paymentLink=auth_url, reference=paymentRefString
-            )
-
-            if updated > 0:
-                recipients = [order.customer.phone]
-                first_name = order.customer.first_name
-                message = f"Hello {first_name}. Please make payment for your order using the link below. {auth_url}"
-                print("message", message)
-
-                try:
-                    mnotify = Mnotifiy(recipients=recipients, message=message)
-                    _ = mnotify.send()
-                except Exception as exc:
-                    raise self.retry(exc=exc)
-
-                PaystackTransactionReference.objects.filter(
-                    order=order, processed=False
-                ).update(processed=True)
-
-                return {"status": "order payment link sent", "trxRef_id": trxRef_id}
-
-            else:
-                return
+                    print("nothing updated...")
+                    return
     except Exception as e:
         print("failed to prep link for payment", str(e))
 
@@ -101,7 +87,7 @@ def send_order_payment_link(self, trxRef_id: str):
 def verify_and_update_order_payment(self, trxRef: str):
     try:
         trxObj = PaystackTransactionReference.objects.get(
-            reference=trxRef, processed=True
+            reference=trxRef,
         )
     except PaystackTransactionReference.DoesNotExist as e:
         print("trxRef obj not found")
@@ -153,6 +139,7 @@ def verify_and_update_order_payment(self, trxRef: str):
             paymentConfirmed=True
         )
         print("order finally updated for payment. final payment close off")
+        PaystackTransactionReference.objects.filter(id=trxRef).update(processed=True)
 
         # try:
         #     mnotify = Mnotifiy(recipients=recipients, message=message)

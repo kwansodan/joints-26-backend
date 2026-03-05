@@ -81,15 +81,19 @@ class Paystack:
             print("response from verify payment", json_response)
 
             if response.status_code in [200, 201]:
-                print("transaction valid")
-                receipt_number = json_response["data"]["receipt_number"]
-                paid_at = json_response["data"]["paid_at"]
-                channel = json_response["data"]["channel"]
-                return True, {
-                    "receipt_number": receipt_number,
-                    "paid_at": paid_at,
-                    "channel": channel,
-                }
+                if json_response["data"]["status"] == "success":
+                    print("transaction valid")
+                    receipt_number = json_response["data"]["receipt_number"]
+                    paid_at = json_response["data"]["paid_at"]
+                    channel = json_response["data"]["channel"]
+                    return True, {
+                        "receipt_number": receipt_number,
+                        "paid_at": paid_at,
+                        "channel": channel,
+                    }
+                else:
+                    print("transaction failed")
+                    return False, None
             else:
                 return False, None
         except Exception as e:
