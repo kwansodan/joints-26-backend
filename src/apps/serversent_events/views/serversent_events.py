@@ -1,19 +1,16 @@
-import redis
 from django.http import JsonResponse, StreamingHttpResponse
 from django.views import View
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import AccessToken
 
-from src.services.server_sent_events import orderLocationUpdateChannel
-
-rds = redis.Redis()
+from src.services.server_sent_events import get_redis, orderLocationUpdateChannel
 
 
 class NotifyFrontendView(View):
 
     @staticmethod
     def _event_stream():
-        pubsub = rds.pubsub()
+        pubsub = get_redis().pubsub()
         pubsub.subscribe(orderLocationUpdateChannel)
 
         for message in pubsub.listen():
