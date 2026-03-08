@@ -29,13 +29,18 @@ class GeneratedLink(models.Model):
         max_length=MAX_STR_LEN, null=False, unique=True, editable=False, blank=False
     )
     expires_at = models.DateTimeField(
-        null=False, blank=False, default=timezone.now() + timedelta(days=2)
+        null=True, blank=True, 
     )
     updatedBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
     )
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        now = timezone.now() 
+        self.expires_at = now + timedelta(days=2)
+        return super().save(*args, **kwargs)
 
     @property
     def expired(self):
