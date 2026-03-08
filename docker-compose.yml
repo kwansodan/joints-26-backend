@@ -2,7 +2,7 @@ services:
   web:
     build: .
     image: lingo_app:latest
-    command: gunicorn --bind 0.0.0.0:8001 --worker-class gevent --workers 6 api.wsgi
+    command: gunicorn --bind 0.0.0.0:8001 --worker-class gevent --workers 6 api.wsgi --log-level debug
     restart: always
     expose:
       - "8001"
