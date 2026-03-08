@@ -16,6 +16,8 @@ services:
       - VIRTUAL_PORT=8001
       - LETSENCRYPT_HOST=lingo.service4gh.com
       - LETSENCRYPT_EMAIL=mohammedyiwere@gmail.com
+      - REDIS_PUBSUB_HOST=redis      
+      - REDIS_PUBSUB_DB_INDEX=2
     networks:
       - proxy-tier
       - backend-tier

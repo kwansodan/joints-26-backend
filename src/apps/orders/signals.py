@@ -36,7 +36,7 @@ def on_location_created(sender, instance: OrderLocation, created: bool, **kwargs
 
         transaction.on_commit(_update_order_location)
         customer = instance.order.customer
-        if customer is not None:
+        if customer is not None and instance.captured:
             customer_fullname = f"{customer.first_name} {customer.last_name}"
             notify_frontend(
                 update_type="Order",
