@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "src.apps.external",
     "src.apps.notifications",
     "src.apps.reports",
+    "src.apps.serversent_events",
 ]
 
 MIDDLEWARE = [
@@ -194,7 +195,7 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-    'UPDATE_LAST_LOGIN': True,
+    "UPDATE_LAST_LOGIN": True,
 }
 
 AUTH_USER_MODEL = "users.User"
@@ -222,6 +223,8 @@ SPECTACULAR_SETTINGS = {
         {"name": "payments", "description": "Payment endpoints"},
         {"name": "reports", "description": "Reports endpoints"},
         {"name": "notifications", "description": "Notification endpoints"},
+        {"name": "external", "description": "Third party integration endpoints"},
+        {"name": "server-sent-events", "description": "Frontend update endpoints"},
     ],
     "DEFAULT_CONTENT_TYPES": ["application/json"],
 }
@@ -241,3 +244,6 @@ CELERY_TIMEZONE = "UTC"
 CELERY_ENABLE_UTC = True
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = config("CELERY_TASK_TIME_LIMIT", cast=int)
+
+REDIS_PUBSUB_HOST = config("REDIS_PUBSUB_HOST", cast=str)
+REDIS_PUBSUB_DB_INDEX = config("REDIS_PUBSUB_DB_INDEX", cast=int)

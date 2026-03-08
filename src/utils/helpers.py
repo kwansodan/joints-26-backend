@@ -1,7 +1,8 @@
 from secrets import token_urlsafe
 
-from drf_spectacular.utils import OpenApiResponse 
+from drf_spectacular.utils import OpenApiResponse
 from rest_framework import status
+from rest_framework.renderers import BaseRenderer
 from rest_framework.response import Response
 from rest_framework.test import APITestCase
 from rest_framework.views import APIView
@@ -62,6 +63,7 @@ class BaseAPIView(APIView):
         return Response(
             status=status.HTTP_204_NO_CONTENT, data={"message": message, "data": data}
         )
+
 
 class BaseAPITestCase(APITestCase):
     def authenticate(self, user):

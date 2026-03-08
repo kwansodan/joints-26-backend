@@ -17,6 +17,7 @@ class OrderSerializer(serializers.ModelSerializer):
     paymentLinkSent = serializers.SerializerMethodField(read_only=True)
     paymentLink = serializers.SerializerMethodField(read_only=True)
     paymentInfo = serializers.SerializerMethodField(read_only=True)
+    # customerLocationCaptured = serializers.SerializerMethodField(read_only=True)
 
     def create(self, validated_data):
         try:
@@ -96,6 +97,18 @@ class OrderSerializer(serializers.ModelSerializer):
             "channel": paymentObj.paymentMethod,
             "receipt_number": paymentObj.receipt_number,
         }
+
+    # def get_customerLocationCaptured(self, obj) -> Any:
+    #     if not hasattr(obj, "id") or not obj.orderlocation:
+    #         return False
+    #     try:
+    #         orderlocation = obj.orderlocation
+    #         obj.customerLocationCaptured = orderlocation.captured
+    #         obj.save()
+    #         return True if orderlocation.captured else False
+    #     except Exception:
+    #         return False
+
 
 class OrderItemSerializer(serializers.ModelSerializer):
     menuItems = serializers.SerializerMethodField(read_only=True)

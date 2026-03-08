@@ -24,4 +24,5 @@ urlpatterns = [
     path("notifications/", include("src.apps.notifications.urls")),
     path("external/", include("src.apps.external.urls")),
     path("reports/", include("src.apps.reports.urls")),
+    path("server-sent-events/", include("src.apps.serversent_events.urls")),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

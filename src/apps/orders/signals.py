@@ -2,8 +2,9 @@ from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from src.apps.orders.models import OrderLocation, Order
+from src.apps.orders.models import Order, OrderLocation
 from src.apps.orders.tasks import send_order_location_capture_link
+from src.services.server_sent_events import notify_frontend
 
 
 @receiver(post_save, sender=OrderLocation)
@@ -18,19 +19,29 @@ def on_location_created(sender, instance: OrderLocation, created: bool, **kwargs
 
         transaction.on_commit(_enqueue)
     else:
-        print("order location happend. proceeding to update status")
 
         def _update_order_location():
             try:
                 updated = Order.objects.filter(
-                    id=instance.order.id, customerLocationCaptured=False
-                ).update(customerLocationCaptured=True)
+                    id=instance.order.id, 
+                ).update(customerLocationCaptured=instance.captured)
                 if updated > 0:
                     print(
                         "updated made. can call wegoo task delivery here. agreed to be triggered by agent"
                     )
+                else:
+                    return
             except Exception as e:
                 print("order location updated signal exception", str(e))
 
         transaction.on_commit(_update_order_location)
-        # can send link from payment here
+        customer = instance.order.customer
+        if customer is not None:
+            customer_fullname = f"{customer.first_name} {customer.last_name}"
+            notify_frontend(
+                update_type="Order",
+                update_action="location",
+                update_id=f"{customer_fullname}",
+                status=instance.captured,
+            )
+

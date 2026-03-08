@@ -29,8 +29,6 @@ def createOrderLocationService(requestData):
 
 
 def getOrderLocationDetailService(token, order_location_id):
-    print("getting from order locaiton here")
-    print("token", token)
     try:
         token_valid = verify_location_capture_link(token=token, category="order")
         if not token_valid:
@@ -45,9 +43,6 @@ def getOrderLocationDetailService(token, order_location_id):
 
 
 def updateOrderLocationDetailService(token, order_location_id, requestData):
-    from pprint import pprint
-
-    pprint(requestData)
     try:
         requestAction = requestData.get("action")
         if requestAction == "link":

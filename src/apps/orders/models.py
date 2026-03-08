@@ -15,10 +15,10 @@ class Order(models.Model):
     )
     subtotal = models.IntegerField(default=1, null=False, blank=False)
     specialNotes = models.TextField(null=True, blank=True)
-    deliveryStatus = models.BooleanField(default=False, null=True, blank=True)
-    riderDispatched = models.BooleanField(default=False, null=True, blank=True)
-    customerLocationCaptured = models.BooleanField(default=False, null=True, blank=True)
-    paymentConfirmed = models.BooleanField(default=False, null=True, blank=True)
+    deliveryStatus = models.BooleanField(default=False)
+    riderDispatched = models.BooleanField(default=False)
+    customerLocationCaptured = models.BooleanField(default=False)
+    paymentConfirmed = models.BooleanField(default=False)
     createdBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
     )
@@ -48,8 +48,14 @@ class OrderLocation(models.Model):
     order = models.OneToOneField(
         Order, on_delete=models.CASCADE, null=False, blank=False
     )
-    captureMethod = models.CharField(max_length=MIN_STR_LEN, choices=LOCATION_CAPTURE_METHOD, default="auto", null=True, blank=True)
-    displayName = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
+    captureMethod = models.CharField(
+        max_length=MIN_STR_LEN,
+        choices=LOCATION_CAPTURE_METHOD,
+        default="auto",
+        null=True,
+        blank=True,
+    )
+    displayName = models.CharField(max_length=EXTRA_LONG_STR_LEN, null=True, blank=True)
     latitude = models.DecimalField(
         max_digits=MAX_DIGIT_LEN, decimal_places=MIN_DIGIT_LEN, default=Decimal("0.00")
     )
@@ -63,7 +69,9 @@ class OrderLocation(models.Model):
     town = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     suburb = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     district = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
-    country = models.CharField(max_length=MIN_STR_LEN, default="Ghana", null=True, blank=True)
+    country = models.CharField(
+        max_length=MIN_STR_LEN, default="Ghana", null=True, blank=True
+    )
     captured = models.BooleanField(default=False)
     createdBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
@@ -74,6 +82,14 @@ class OrderLocation(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
 
+    # def save(self, *args, **kwargs):
+    #     order = Order.objects.get(id=self.order.id)
+    #     print("OLD order custoemr location", order.customerLocationCaptured)
+    #     order.customerLocationCaptured = self.captured
+    #     order.save()
+    #     print("NEW order custoemr location", order.customerLocationCaptured)
+    #     return super().save(*args, **kwargs)
+    #
     class _Meta:
         verbose_name_plural = "Order Location"
         ordering = ["-createdAt"]
