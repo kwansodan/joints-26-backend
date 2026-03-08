@@ -15,6 +15,7 @@ class NotifyFrontendView(View):
 
         for message in pubsub.listen():
             if message["type"] == "message":
+                print("received message", message)
                 yield f"data: {message['data'].decode()}\n\n"
             else:
                 yield ": keepalive\n\n"

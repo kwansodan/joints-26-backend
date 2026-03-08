@@ -44,4 +44,5 @@ def on_location_created(sender, instance: OrderLocation, created: bool, **kwargs
                 update_id=f"{customer_fullname}",
                 status=instance.captured,
             )
+            print("NOTIFYING FRONTEND HERE")
 
