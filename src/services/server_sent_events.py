@@ -9,11 +9,13 @@ R_DB_INDEX = 2
 
 _rds = None
 
+
 def get_redis():
     global _rds
     if _rds is None:
         _rds = redis.Redis(host=R_HOST, port=6379, db=R_DB_INDEX)
     return _rds
+
 
 orderLocationUpdateChannel = "order_location_updates"
 
@@ -24,7 +26,7 @@ def notify_frontend(update_type, update_action, update_id, status):
 
             match update_action:
                 case "location":
-                    get_redis().publish(
+                    results = get_redis().publish(
                         orderLocationUpdateChannel,
                         json.dumps(
                             {
@@ -35,7 +37,7 @@ def notify_frontend(update_type, update_action, update_id, status):
                             }
                         ),
                     )
-
+                    print(f"PUBLISHED to redis, subscribers: {results}")  # ← add this
         else:
             pass
     except Exception as e:
