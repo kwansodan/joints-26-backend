@@ -17,7 +17,7 @@ class NotifyFrontendView(View):
             if message["type"] == "message":
                 yield f"data: {message['data'].decode()}\n\n"
             else:
-                yield ": keepalive\n\n" 
+                yield ": keepalive\n\n"
 
     def get(self, request):
         token = request.GET.get("token")
@@ -27,9 +27,10 @@ class NotifyFrontendView(View):
             AccessToken(token=token, verify=True)
         except TokenError:
             return JsonResponse({"message": "invalid token"}, status=401)
+
         response = StreamingHttpResponse(
             self._event_stream(), content_type="text/event-stream"
         )
-        response['Cache-Control'] = 'no-cache'
-        response['X-Accel-Buffering'] = 'no' 
+        response["Cache-Control"] = "no-cache"
+        response["X-Accel-Buffering"] = "no"
         return response
