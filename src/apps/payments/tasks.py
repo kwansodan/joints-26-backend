@@ -103,7 +103,7 @@ def verify_and_update_order_payment(self, trxRef: str):
         print("no payment found")
         return {"status": False, "detail": "Payment not found", "trxRef": trxRef}
 
-    if orderObj.paymentConfirmed:
+    if orderObj.paymentConfirmed and paymentObj.paymentStatus and paymentObj.processed:
         print("payment already confirmed")
         return {
             "status": False,

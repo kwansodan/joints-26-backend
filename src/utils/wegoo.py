@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from pprint import pprint
 
 import requests
@@ -42,7 +43,8 @@ class WeGoo:
         self.create_delivery_url = "https://api.wegoo.delivery/v1/deliveries"
 
     def _get_pickup_time(self):
-        delta = timezone.now() + timezone.timedelta(hours=2)
+        now = timezone.now()
+        delta = now + timedelta(hours=2)
         return delta.isoformat()
 
     def validate(self):
@@ -74,7 +76,7 @@ class WeGoo:
         if len(self.details["items"]) < 1:
             raise ValueError("no items provided")
 
-        for _, value in self.details.items():
+        for key, value in self.details.items():
             if value is None:
                 raise TypeError("Invalid details data")
 
@@ -120,7 +122,12 @@ class WeGoo:
             else "intracity"
         )
 
-        self.delivery_option = "SAME_DAY" if self.service == "intracity" else "NEXT_DAY"
+        n = datetime.now()
+        hourNow = int(n.time().isoformat().split(":")[0])
+        if self.service == "intracity":
+            self.delivery_option = "SAME_DAY" if hourNow < 10 else "NEXT_DAY"
+        else:
+            self.delivery_option ="NEXT_DAY"
 
         data = {
             "is_fulfillment_delivery": self.is_fulfilment_delivery,
@@ -128,17 +135,17 @@ class WeGoo:
             "details": [self.details],
         }
 
-        # pprint(data, indent=1)
+        pprint(data, indent=1)
 
         try:
             response = requests.post(
                 url=self.get_quote_url, json=data, headers=self.headers
             )
-            # print("quote response", response.json())
+            json_response = response.json()
+            print("quote response", json_response)
 
             if response.status_code in [201, 200]:
-                result = response.json()
-                quote_data = [result["data"][0]]
+                quote_data = [json_response["data"][0]]
                 return True, quote_data
             else:
                 return False, None
@@ -148,10 +155,12 @@ class WeGoo:
 
     def create_delivery(self):
         quote_status, quote_data = self.create_quote()
-        # print("quote data", quote_data)
 
         if not quote_status or not quote_data:
             return False
+
+        print("QUOTE SUCCESSFULLY CREATED")
+        print("QUOTE DATA", quote_data)
 
         try:
             for index, item in enumerate(quote_data):
@@ -190,17 +199,19 @@ class WeGoo:
                     ],
                 }
 
-            # pprint(data, indent=1)
+            pprint(data, indent=1)
 
             response = requests.post(
                 url=self.create_delivery_url, json=data, headers=self.headers
             )
-            print("response from create delivery", response.json())
+            json_response = response.json()
+            print("response from create delivery", json_response)
 
             if response.status_code in [201, 200]:
                 print("\n delivery response\n", response)
                 return (True,)
             else:
+                print("failed to create delivery")
                 return False
         except Exception as e:
             print(f"[WeGoo Create Delivery Price Exception]: {str(e)}")

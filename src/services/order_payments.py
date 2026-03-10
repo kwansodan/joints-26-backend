@@ -40,7 +40,6 @@ def updateCustomerOrderPayment(pk, requestData):
             return True, "Success. Payment link has been sent to customer", None
 
         elif requestAction == "verify":
-            print("WORKING ON VERYFYING CUSTOMER ORDER PAYMENT")
             trxRef = requestData.get("trxref")
 
             trxRefObj = PaystackTransactionReference.objects.get(reference=trxRef)

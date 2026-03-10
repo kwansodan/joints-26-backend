@@ -16,3 +16,6 @@ urlpatterns = [
          name="notification-detail-view"
     ),
 ]
+
+# gunicorn --bind 0.0.0.0:8000 --worker-class gevent --workers 6 --timeout 0 --log-level debug api.wsgi
+

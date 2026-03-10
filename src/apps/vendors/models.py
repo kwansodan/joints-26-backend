@@ -31,6 +31,7 @@ class Vendor(models.Model):
     @property
     def menuList(self):
         from src.apps.vendors.serializers import MenuItemSerializer
+
         try:
             obj = MenuItem.objects.filter(vendor=self)
             return MenuItemSerializer(instance=obj, many=True).data
@@ -78,7 +79,13 @@ class VendorLocation(models.Model):
     vendor = models.ForeignKey(
         Vendor, on_delete=models.CASCADE, null=False, blank=False
     )
-    captureMethod = models.CharField(max_length=MIN_STR_LEN, choices=LOCATION_CAPTURE_METHOD, default="auto", null=True, blank=True)
+    captureMethod = models.CharField(
+        max_length=MIN_STR_LEN,
+        choices=LOCATION_CAPTURE_METHOD,
+        default="auto",
+        null=True,
+        blank=True,
+    )
     displayName = models.CharField(max_length=MAX_STR_LEN, null=True, blank=True)
     latitude = models.DecimalField(
         max_digits=MAX_DIGIT_LEN, decimal_places=MIN_DIGIT_LEN, default=Decimal("0.00")
@@ -93,7 +100,9 @@ class VendorLocation(models.Model):
     town = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     suburb = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     district = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
-    country = models.CharField(max_length=MIN_STR_LEN, default="Ghana", null=True, blank=True)
+    country = models.CharField(
+        max_length=MIN_STR_LEN, default="Ghana", null=True, blank=True
+    )
     captured = models.BooleanField(default=False)
     createdBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
@@ -110,3 +119,34 @@ class VendorLocation(models.Model):
 
     def __str__(self):
         return f"{self.vendor} - {self.city}"
+
+
+class VendorRedeemToken(models.Model):
+    id = models.CharField(primary_key=True, default=random_token, editable=False)
+    vendor = models.ForeignKey(Vendor, on_delete=models.SET_NULL, null=True, blank=True)
+    redeemToken = models.CharField(default=random_token, editable=False)
+    redeemOrderId = models.CharField(
+        max_length=TINY_STR_LEN, unique=True, null=True, blank=True
+    )
+    deliveryId = models.CharField(
+        max_length=TINY_STR_LEN, unique=True, null=True, blank=True
+    )
+    redeemNote = models.CharField(
+        max_length=MAX_STR_LEN, unique=True, null=True, blank=True
+    )
+    redeemed = models.BooleanField(default=False)
+    createdBy = models.CharField(
+        max_length=MIN_STR_LEN, default="dev", null=True, blank=True
+    )
+    updatedBy = models.CharField(
+        max_length=MIN_STR_LEN, default="dev", null=True, blank=True
+    )
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Vendor Redeem Tokens"
+        ordering = ["createdAt"]
+
+    def __str__(self):
+        return f"{self.vendor.name} - {self.redeemToken}"

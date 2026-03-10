@@ -3,12 +3,8 @@ from datetime import timedelta
 from django.db import models
 from django.utils import timezone
 
-from src.utils.dbOptions import (
-    LINK_GENERATION_CATEGORIES,
-    MAX_STR_LEN,
-    MIN_STR_LEN,
-    TINY_STR_LEN,
-)
+from src.utils.dbOptions import (LINK_GENERATION_CATEGORIES, MAX_STR_LEN,
+                                 MIN_STR_LEN, TINY_STR_LEN)
 from src.utils.helpers import random_token
 
 
@@ -38,9 +34,10 @@ class GeneratedLink(models.Model):
     updatedAt = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        now = timezone.now() 
-        self.expires_at = now + timedelta(days=2)
-        return super().save(*args, **kwargs)
+        if not self.expires_at:
+            now = timezone.now() 
+            self.expires_at = now + timedelta(days=2)
+            return super().save(*args, **kwargs)
 
     @property
     def expired(self):

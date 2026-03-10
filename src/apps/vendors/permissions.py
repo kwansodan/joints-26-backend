@@ -74,4 +74,28 @@ class MenuItemModelPermission(BasePermission):
 
         return user.has_perm(perm)
 
+class VendorRedeemTokenModelPermission(BasePermission):
+    perms_by_method = {
+        "GET": "vendors.view_vendorredeemtoken",
+        "POST": "vendors.add_vendorredeemtoken",
+        "PUT": "vendors.change_vendorredeemtoken",
+        "PATCH": "vendors.change_vendorredeemtoken",
+        "DELETE": "vendors.delete_vendorredeemtoken",
+    }
+
+    def has_permission(self, request, view):
+        user = getattr(request, "user", None)
+
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.userType not in ALLOWED_ROLES:
+            return False
+
+        perm = self.perms_by_method.get(request.method)
+        if not perm:
+            return False
+
+        return user.has_perm(perm)
+
 

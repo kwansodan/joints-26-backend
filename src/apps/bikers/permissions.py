@@ -49,3 +49,27 @@ class VehicleModelPermission(BasePermission):
             return False
 
         return user.has_perm(perm)
+
+class DeliveryModelPermission(BasePermission):
+    perms_by_method = {
+        "GET": "bikers.view_delivery",
+        "POST": "bikers.add_delivery",
+        "PUT": "bikers.change_delivery",
+        "PATCH": "bikers.change_delivery",
+        "DELETE": "bikers.delete_delivery",
+    }
+
+    def has_permission(self, request, view):
+        user = getattr(request, "user", None)
+
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.userType not in ALLOWED_ROLES:
+            return False
+
+        perm = self.perms_by_method.get(request.method)
+        if not perm:
+            return False
+
+        return user.has_perm(perm)

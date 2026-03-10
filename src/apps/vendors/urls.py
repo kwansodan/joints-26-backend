@@ -1,8 +1,10 @@
 from django.urls import path
 
+
 from .views.menu import *
 from .views.vendor import *
 from .views.vendor_location import *
+from src.apps.vendors.views.vendor_redeem_token import *
 
 app_name = "vendors"
 
@@ -21,4 +23,8 @@ urlpatterns = [
     ),
     path("menu/list/", MenuListView.as_view(), name="menu-list-view"),
     path("menu/detail/<str:pk>/", MenuDetailView.as_view(), name="menu-detail-view"),
+    
+    path("redeem-token/list/", VendorRedeemTokenListView.as_view(), name="menu-list-view"),
+    path("redeem-token/detail/<str:pk>/", VendorRedeemTokenDetailView.as_view(), name="menu-detail-view"),
+
 ]

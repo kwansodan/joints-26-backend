@@ -1,5 +1,5 @@
 from src.apps.external.models import GeneratedLink
-from src.apps.orders.models import OrderLocation, Order
+from src.apps.orders.models import Order, OrderLocation
 
 
 def clean_email(data):
@@ -16,7 +16,7 @@ def verify_location_capture_link(token, category):
     try:
         link = GeneratedLink.objects.get(token=token, category=category)
         if link is not None and not link.expired:
-            return True 
+            return True
         else:
             return False
     except Exception as e:
@@ -75,7 +75,7 @@ def prep_wegoo_delivery_price_detail(order_id: str):
                     ],
                     "metadata": {
                         "recipient": {
-                            "name": f"{order.customer.get_full_name()}",
+                            "name": f"{order.customer.customer_fullname}",
                             "phone": order.customer.phone,
                         },
                         "sender": {"name": vendor.name, "phone": vendor.phone},

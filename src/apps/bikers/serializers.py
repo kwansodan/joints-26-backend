@@ -1,6 +1,6 @@
 from typing import Any
 from rest_framework import serializers
-from src.apps.bikers.models import Biker, Vehicle
+from src.apps.bikers.models import Biker, Delivery, Vehicle
 
 class BikerSerializer(serializers.ModelSerializer):
     userInfo = serializers.SerializerMethodField(read_only=True)
@@ -34,4 +34,17 @@ class VehicleSerializer(serializers.ModelSerializer):
               "vehicleType",
               "licensePlate",
               "registered",
+        ]
+
+class DeliverySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Delivery 
+        fields = [
+              "id",
+              "orderId",
+              "deliveryTokenId",
+              "completed",
+              "deliveryCompletionNote",
+              "dispatchService",
         ]

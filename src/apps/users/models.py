@@ -107,6 +107,13 @@ class Customer(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
 
+    @property
+    def customer_fullname(self):
+        try:
+            return f"{self.first_name} {self.last_name}"
+        except Exception:
+            return 
+
     class _Meta:
         verbose_name_plural = "Customers"
         ordering = ["-createdAt"]

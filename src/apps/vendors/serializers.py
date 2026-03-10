@@ -2,7 +2,7 @@ from typing import Any
 
 from rest_framework import serializers
 
-from src.apps.vendors.models import MenuItem, Vendor, VendorLocation
+from src.apps.vendors.models import MenuItem, Vendor, VendorLocation, VendorRedeemToken
 
 
 class VendorSerializer(serializers.ModelSerializer):
@@ -93,3 +93,16 @@ class VendorLocationSerializer(serializers.ModelSerializer):
         except Exception as e:
             print(f"Exception {str(e)}")
             return None
+
+
+class VendorRedeemTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VendorRedeemToken 
+        fields = [
+            "id",
+            "vendor",
+            "redeemToken",
+            "deliveryId",
+            "redeemNote",
+            "redeemed",
+        ]

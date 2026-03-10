@@ -1,6 +1,8 @@
+from django.urls import path
+
 from .views.biker import *
 from .views.vehicle import *
-from django.urls import path 
+from .views.delivery import *
 
 app_name = "bikers"
 
@@ -24,6 +26,16 @@ urlpatterns = [
     path("vehicles/detail/<str:pk>/",
          VehicleDetailView.as_view(),
          name="vehicle-detail-view"
+    ),
+
+    path("order-deliveries/list/", 
+         DeliveryListView.as_view(),
+         name="delivery-list-view"
+    ),
+
+    path("order-deliveries/detail/<str:pk>/",
+         DeliveryDetailView.as_view(),
+         name="delivery-detail-view"
     )
 
 ]

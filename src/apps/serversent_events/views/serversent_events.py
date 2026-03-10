@@ -14,21 +14,18 @@ class NotifyFrontendView(View):
     def _event_stream():
         pubsub = get_redis().pubsub()
         pubsub.subscribe(orderLocationUpdateChannel)
-
-        while True:
-            message = pubsub.get_message(timeout=1)
-
-            if message and message["type"] == "message":
-                data = message["data"]
-                if isinstance(data, bytes):
-                    data = data.decode()
-
-                yield f"data: {data}\n\n"
-
-            else:
-                yield ": keepalive\n\n"
-
-            time.sleep(1)
+        try:
+            while True:
+                message = pubsub.get_message(timeout=30)
+                if message:
+                    if message["type"] == "message":
+                        print("received message", message)
+                        yield f"data: {message['data'].decode()}\n\n"
+                else:
+                    yield ": keepalive\n\n"
+        finally:
+            pubsub.unsubscribe()
+            pubsub.close()
 
     def get(self, request):
         token = request.GET.get("token")
