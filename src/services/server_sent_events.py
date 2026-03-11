@@ -17,28 +17,21 @@ def get_redis():
     return _rds
 
 
-orderLocationUpdateChannel = "order_location_updates"
+orderUpdateChannel = "order_updates"
 
 
 def notify_frontend(update_type, update_action, update_id, status):
     try:
-        if update_type == "Order":
-
-            match update_action:
-                case "location":
-                    results = get_redis().publish(
-                        orderLocationUpdateChannel,
-                        json.dumps(
-                            {
-                                "update_type": update_type,
-                                "update_action": update_action,
-                                "update_id": update_id,
-                                "status": status,
-                            }
-                        ),
-                    )
-                    print(f"PUBLISHED to redis, subscribers: {results}")  # ← add this
-        else:
-            pass
+        get_redis().publish(
+            orderUpdateChannel,
+            json.dumps(
+                {
+                    "update_type": update_type,
+                    "update_action": update_action,
+                    "update_id": update_id,
+                    "status": status,
+                }
+            ),
+        )
     except Exception as e:
         print("Failed to notify frontend", str(e))

@@ -5,6 +5,7 @@ from django.db import transaction
 
 from src.apps.orders.models import Order
 from src.apps.payments.models import Payment, PaystackTransactionReference
+from src.services.server_sent_events import notify_frontend
 from src.utils.dbOptions import PAYSTACK_TRANSACTION_REF_LEN, TOKEN_LEN
 from src.utils.paystack import Paystack
 from src.utils.sms_mnotify import Mnotifiy
@@ -140,6 +141,16 @@ def verify_and_update_order_payment(self, trxRef: str):
         )
         print("order finally updated for payment. final payment close off")
         PaystackTransactionReference.objects.filter(id=trxRef).update(processed=True)
+
+        customer = orderObj.customer
+        if customer:
+            customer_fullname = customer.customer_fullname
+            notify_frontend(
+                    update_type="Order",
+                    update_action="payment",
+                    update_id=f"Order payment for {customer_fullname} received",
+                    status=True,
+                )
 
         # try:
         #     mnotify = Mnotifiy(recipients=recipients, message=message)

@@ -48,6 +48,9 @@ class WeGoo:
         return delta.isoformat()
 
     def validate(self):
+        print("combined wegoo delivery detail==============")
+        pprint(self.details)
+
         if self.service not in ["intracity", "nationwide"]:
             raise ValueError("Invalid service type")
 
@@ -115,7 +118,9 @@ class WeGoo:
 
     def create_quote(self):
         self.validate()
+        print("VALIDATION PASSED=================================")
 
+        self.is_prepaid_delivery = False
         self.service = (
             "nationwide"
             if self.details["destination_state"] != self.details["origin_state"]
@@ -127,7 +132,7 @@ class WeGoo:
         if self.service == "intracity":
             self.delivery_option = "SAME_DAY" if hourNow < 10 else "NEXT_DAY"
         else:
-            self.delivery_option ="NEXT_DAY"
+            self.delivery_option = "NEXT_DAY"
 
         data = {
             "is_fulfillment_delivery": self.is_fulfilment_delivery,
@@ -135,14 +140,13 @@ class WeGoo:
             "details": [self.details],
         }
 
-        pprint(data, indent=1)
+        pprint(data)
 
         try:
             response = requests.post(
                 url=self.get_quote_url, json=data, headers=self.headers
             )
             json_response = response.json()
-            print("quote response", json_response)
 
             if response.status_code in [201, 200]:
                 quote_data = [json_response["data"][0]]
@@ -150,17 +154,16 @@ class WeGoo:
             else:
                 return False, None
         except Exception as e:
-            print(f"[WeGoo Create Delivery Price Exception]: {str(e)}")
+            print(f"[WeGoo get quote price exception]: {str(e)}")
             return False, None
 
     def create_delivery(self):
         quote_status, quote_data = self.create_quote()
+        print("QUOTE INFO", quote_data)
+        return True, "fake-tracking-nubmer", "fake-delivery-type"
 
         if not quote_status or not quote_data:
-            return False
-
-        print("QUOTE SUCCESSFULLY CREATED")
-        print("QUOTE DATA", quote_data)
+            return False, None, None
 
         try:
             for index, item in enumerate(quote_data):
@@ -199,20 +202,21 @@ class WeGoo:
                     ],
                 }
 
-            pprint(data, indent=1)
+            # pprint(data, indent=1)
 
             response = requests.post(
                 url=self.create_delivery_url, json=data, headers=self.headers
             )
             json_response = response.json()
-            print("response from create delivery", json_response)
+            # pprint(json_response)
 
             if response.status_code in [201, 200]:
-                print("\n delivery response\n", response)
-                return (True,)
+                tracking_number = json_response["data"][0]["tracking_number"]
+                delivery_type = json_response["data"][0]["type"]
+                return True, tracking_number, delivery_type
             else:
                 print("failed to create delivery")
-                return False
+                return False, None, None
         except Exception as e:
             print(f"[WeGoo Create Delivery Price Exception]: {str(e)}")
-            return False
+            return False, None, None

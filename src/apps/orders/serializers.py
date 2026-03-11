@@ -4,7 +4,7 @@ from typing import Any
 from rest_framework import serializers
 
 from src.apps.orders.models import Order, OrderItem, OrderLocation
-from src.apps.payments.models import Payment
+from src.apps.payments.models import Payment, PaystackTransactionReference
 from src.apps.users.serializers import CustomerSerializer
 from src.apps.vendors.serializers import MenuItemSerializer
 
@@ -81,15 +81,20 @@ class OrderSerializer(serializers.ModelSerializer):
             return 0.0
 
     def get_paymentLinkSent(self, obj) -> Any:
+        PaystackTransactionReference.objects.get_or_create(order=obj)
         return True if obj.paystackTrxRefObj.processed else False
 
     def get_paymentLink(self, obj) -> Any:
-        if obj.paystackTrxRefObj:
+        PaystackTransactionReference.objects.get_or_create(order=obj)
+        try:
             return obj.paystackTrxRefObj.paymentLink
-        return "N/A"
+        except:
+            return "N/A"
 
     def get_paymentInfo(self, obj) -> Any:
-        if not obj.payment or not obj.paystackTrxRefObj:
+        PaystackTransactionReference.objects.get_or_create(order=obj)
+        Payment.objects.get_or_create(order=obj)
+        if not obj.payment:
             return None
         paymentObj = obj.payment
         return {

@@ -81,8 +81,16 @@ class Delivery(models.Model):
         max_length=TINY_STR_LEN, unique=True, null=True, blank=True
     )
     completed = models.BooleanField(default=False)
+    vendorNotified = models.BooleanField(default=False)
+    dispatchAssigned = models.BooleanField(default=False)
     deliveryCompletionNote = models.CharField(
         max_length=MAX_STR_LEN, null=True, blank=True
+    )
+    dispatchServiceTrackingNumber = models.CharField(
+        max_length=MIN_STR_LEN, unique=True, null=True, blank=True
+    )
+    dispatchServiceDeliveryType = models.CharField(
+        max_length=MIN_STR_LEN, null=True, blank=True
     )
     dispatchService = models.CharField(max_length=MAX_STR_LEN, null=True, blank=True)
     createdBy = models.CharField(
@@ -94,8 +102,18 @@ class Delivery(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
 
-    class _Meta:
-        verbose_name_plural = "Order Delivery"
+    @property
+    def fulfils_deliveryDispatch(self):
+        return (
+            True
+            if self.vendorNotified
+            and self.dispatchAssigned
+            and any(self.dispatchServiceTrackingNumber)
+            else False
+        )
+
+    class Meta:
+        verbose_name_plural = "Order Deliveries"
         ordering = ["-createdAt"]
 
     def __str__(self):

@@ -6,9 +6,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from src.apps.orders.permissions import OrderItemModelPermission
 from src.apps.orders.serializers import OrderLocationSerializer
-from src.services.order_dispatch import (
-    updateOrderRiderDispatchService,
-)
+from src.services.order_dispatch import updateOrderRiderDispatchService
 from src.services.order_item import *
 from src.utils.helpers import (
     BAD_REQUEST_400,

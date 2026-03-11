@@ -3,14 +3,10 @@ from pprint import pprint
 from django.db import transaction
 
 from src.apps.bikers.models import Delivery
+from src.apps.bikers.tasks import alert_vendor_on_order_delivery_created
 from src.apps.orders.models import Order
-from src.apps.vendors.models import Vendor, VendorLocation
-from src.apps.vendors.serializers import VendorLocationSerializer
 from src.utils.wegoo import WeGoo
-from src.utils.workers import (
-    prep_wegoo_delivery_price_detail,
-    verify_location_capture_link,
-)
+from src.utils.workers import prep_wegoo_delivery_price_detail
 
 
 def updateOrderRiderDispatchService(pk, requestData):
@@ -30,42 +26,60 @@ def updateOrderRiderDispatchService(pk, requestData):
             if not orderLocation or not paymentObj:
                 return False, "Customer order location or payment not found", None
 
-            if not orderLocation.captured: 
+            if not orderLocation.captured:
                 return False, "Customer location must be captured to proceed", None
 
             if not paymentObj.processed or not paymentObj.paymentStatus:
                 return False, "Payment must be made to proceed", None
- 
-            prep_status, delivery_price_detail = prep_wegoo_delivery_price_detail(
-                order_id=pk
+
+            deliveryObj, created = Delivery.objects.get_or_create(
+                orderId=order.id, dispatchService=dispatchService
             )
-            if not prep_status or delivery_price_detail is None:
-                print("FAILED TO PREP WEGOO DELIVERY PRICE")
-                return False, "Failed to prep wegoo delivery price detail", None
+            if not created:
+                if deliveryObj.fulfils_deliveryDispatch:
+                    return (
+                        True,
+                        "Delivery has already been assigned and vendor notified",
+                        None,
+                    )
+                else:
+                    deliveryObj.delete()
+                    Delivery.objects.create(
+                        orderId=order.id, dispatchService=dispatchService
+                    )
+            return True, "Successfully dispatched rider for this order", None
 
-            for item in delivery_price_detail:
-                pprint(item)
-
-                metadata = item.pop("metadata")
-
-                wegoo = WeGoo(
-                    is_fulfillment_delivery=False,
-                    service="intracity",
-                    details=item,
-                    recipient=metadata["recipient"],
-                    sender=metadata["sender"],
-                )
-                delivery_status = wegoo.create_delivery()
-                if not delivery_status:
-                    print("DELIVERY CREATION FAILED")
-                    return False, "failed to create delivery price", None
-
-                # create in-app delivery for tracking
-                Delivery.objects.get_or_create(
-                    orderId=order.id,
-                    dispatchService=dispatchService,
-                )
-            return True, "success", None
+            # else:
+            #     prep_status, delivery_price_detail = prep_wegoo_delivery_price_detail(
+            #         order_id=pk
+            #     )
+            #     if not prep_status or delivery_price_detail is None:
+            #         return False, "Failed to prep wegoo delivery price detail", None
+            #
+            #     for item in delivery_price_detail:
+            #         metadata = item.pop("metadata")
+            #
+            #         wegoo = WeGoo(
+            #             is_fulfillment_delivery=False,
+            #             service="intracity",
+            #             details=item,
+            #             recipient=metadata["recipient"],
+            #             sender=metadata["sender"],
+            #         )
+            #         delivery_status, tracking_number, delivery_type = (
+            #             wegoo.create_delivery()
+            #         )
+            #         if not delivery_status:
+            #             print("DELIVERY CREATION FAILED")
+            #             return False, "failed to create delivery price", None
+            #
+            #         Delivery.objects.create(
+            #             orderId=order.id,
+            #             dispatchServiceTrackingNumber=tracking_number,
+            #             dispatchServiceDeliveryType=delivery_type,
+            #             dispatchService=dispatchService,
+            #         )
+            # return True, "success", None
     except Exception as e:
         print(f"[WegooOrderDispatchService Err] Failed to dispatch wegoo order: {e}")
         return False, "failed", None

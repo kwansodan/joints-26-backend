@@ -40,7 +40,7 @@ class Order(models.Model):
         ordering = ["-createdAt"]
 
     def __str__(self):
-        return f"Order - {self.customer}"
+        return f"Order - {self.customer.first_name} {self.customer.last_name}"
 
 
 class OrderLocation(models.Model):
@@ -62,8 +62,8 @@ class OrderLocation(models.Model):
     longitude = models.DecimalField(
         max_digits=MAX_DIGIT_LEN, decimal_places=MIN_DIGIT_LEN, default=Decimal("0.00")
     )
-    city = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
-    state = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
+    city = models.CharField(max_length=MIN_STR_LEN, default="Accra", null=True, blank=True)
+    state = models.CharField(max_length=MIN_STR_LEN, null=True, default="Greater Accra", blank=True)
     houseNumber = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     road = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)
     town = models.CharField(max_length=MIN_STR_LEN, null=True, blank=True)

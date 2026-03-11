@@ -32,6 +32,12 @@ class Payment(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        order = Order.objects.get(id=self.order.id)
+        order.paymentConfirmed = self.paymentStatus
+        order.save()
+        return super().save(*args, **kwargs)
+
     class _Meta:
         verbose_name_plural = "Order Payment"
         ordering = ["-createdAt"]
@@ -61,7 +67,7 @@ class PaystackTransactionReference(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
 
-    class _Meta:
+    class Meta:
         verbose_name_plural = "Paystack Transaction Ref"
         ordering = ["-createdAt"]
 
