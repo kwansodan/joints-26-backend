@@ -74,14 +74,55 @@ class Vehicle(models.Model):
         return f"{self.biker.user.email} - {self.vehicleType} - {self.licensePlate}"
 
 
-class Delivery(models.Model):
+class ParentDeliveryItem(models.Model):
     id = models.CharField(primary_key=True, default=random_token, editable=False)
-    deliveryTokenId = models.CharField(default=random_token, editable=False)
     orderId = models.CharField(
         max_length=TINY_STR_LEN, unique=True, null=True, blank=True
     )
     completed = models.BooleanField(default=False)
+    createdBy = models.CharField(
+        max_length=MIN_STR_LEN, default="dev", null=True, blank=True
+    )
+    updatedBy = models.CharField(
+        max_length=MIN_STR_LEN, default="dev", null=True, blank=True
+    )
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
+
+    @property
+    def all_childDeliveriesProcessed(self):
+        child_deliveries = ChildDeliveryItem.objects.filter(parentDeliveryItem=self)
+        completions = [item.completed for item in child_deliveries]
+        tracking_numbers = [
+            item.dispatchServiceDeliveryType for item in child_deliveries
+        ]
+        assignments = [item.dispatchAssigned for item in child_deliveries]
+
+        return (
+            True
+            if all(completions) and all(tracking_numbers) and all(assignments)
+            else False
+        )
+
+    class Meta:
+        verbose_name_plural = "Parent Delivery Items"
+        ordering = ["-createdAt"]
+
+    def __str__(self):
+        return f"{self.orderId} - {self.completed}"
+
+
+class ChildDeliveryItem(models.Model):
+    id = models.CharField(primary_key=True, default=random_token, editable=False)
+    parentDeliveryItem = models.ForeignKey(
+        ParentDeliveryItem, on_delete=models.CASCADE, null=False, blank=False
+    )
+    deliveryTokenId = models.CharField(default=random_token, editable=False)
+    completed = models.BooleanField(default=False)
     vendorNotified = models.BooleanField(default=False)
+    dispatchService = models.CharField(
+        max_length=MAX_STR_LEN, default="wegoo", null=False, blank=False
+    )
     dispatchAssigned = models.BooleanField(default=False)
     deliveryCompletionNote = models.CharField(
         max_length=MAX_STR_LEN, null=True, blank=True
@@ -92,7 +133,6 @@ class Delivery(models.Model):
     dispatchServiceDeliveryType = models.CharField(
         max_length=MIN_STR_LEN, null=True, blank=True
     )
-    dispatchService = models.CharField(max_length=MAX_STR_LEN, null=True, blank=True)
     createdBy = models.CharField(
         max_length=MIN_STR_LEN, default="dev", null=True, blank=True
     )
@@ -113,7 +153,7 @@ class Delivery(models.Model):
         )
 
     class Meta:
-        verbose_name_plural = "Order Deliveries"
+        verbose_name_plural = "Child Delivery Items"
         ordering = ["-createdAt"]
 
     def __str__(self):

@@ -2,7 +2,7 @@ from pprint import pprint
 
 from django.db import transaction
 
-from src.apps.bikers.models import Delivery
+from src.apps.bikers.models import ParentDeliveryItem
 from src.apps.bikers.tasks import alert_vendor_on_order_delivery_created
 from src.apps.orders.models import Order
 from src.utils.wegoo import WeGoo
@@ -32,11 +32,11 @@ def updateOrderRiderDispatchService(pk, requestData):
             if not paymentObj.processed or not paymentObj.paymentStatus:
                 return False, "Payment must be made to proceed", None
 
-            deliveryObj, created = Delivery.objects.get_or_create(
+            deliveryObj, created = ParentDeliveryItem.objects.get_or_create(
                 orderId=order.id, dispatchService=dispatchService
             )
             if not created:
-                if deliveryObj.fulfils_deliveryDispatch:
+                if deliveryObj.all_childDeliveriesProcessed:
                     return (
                         True,
                         "Delivery has already been assigned and vendor notified",
@@ -44,7 +44,7 @@ def updateOrderRiderDispatchService(pk, requestData):
                     )
                 else:
                     deliveryObj.delete()
-                    Delivery.objects.create(
+                    ParentDeliveryItem.objects.create(
                         orderId=order.id, dispatchService=dispatchService
                     )
             return True, "Successfully dispatched rider for this order", None

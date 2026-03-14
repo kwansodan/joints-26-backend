@@ -4,18 +4,20 @@ from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from src.apps.bikers.models import Delivery
-from src.apps.bikers.tasks import alert_vendor_on_order_delivery_created, dispatch_order_delivery_wegoo
-from src.utils.wegoo import WeGoo
+from src.apps.bikers.models import ChildDeliveryItem, ParentDeliveryItem
+from src.apps.bikers.tasks import dispatch_order_delivery_wegoo
 from src.utils.workers import prep_wegoo_delivery_price_detail
 
 
-@receiver(post_save, sender=Delivery)
-def on_delivery_created(sender, instance: Delivery, created: bool, **kwargs):
+@receiver(post_save, sender=ParentDeliveryItem)
+def onParentDeliveryCreated(
+    sender, instance: ParentDeliveryItem, created: bool, **kwargs
+):
 
-    delivery_task_id = f"alert_vendor_on_delivery_created-{instance.pk}"
     orderId = instance.orderId
+    parent_delivery_id = instance.id
     dispatchService = getattr(instance, "dispatchService", "")
+    task_id = f"dispatch_order_{orderId}-{parent_delivery_id}"
 
     if created:
 
@@ -36,34 +38,27 @@ def on_delivery_created(sender, instance: Delivery, created: bool, **kwargs):
             for item in filtered_delivery_objs:
                 metadata = item.pop("metadata")
 
+                is_delivery_fulfilment = False
+                service = "intracity"
+
+                # create sub delivery before dispatching to wegoo
+                child_delivery_item, _ = ChildDeliveryItem.objects.get_or_create(
+                    parentDeliveryItem=instance.id,
+                )
+
                 dispatch_order_delivery_wegoo.apply_async(
-                    args=(instance.pk,), task_id=delivery_task_id, retry=False
+                    args=(
+                        orderId,
+                        parent_delivery_id,
+                        child_delivery_item.id,
+                        is_delivery_fulfilment,
+                        service,
+                        metadata,
+                        item,
+                    ),
+                    task_id=task_id,
+                    retry=False,
                 )
-                wegoo = WeGoo(
-                    is_fulfillment_delivery=False,
-                    service="intracity",
-                    details=filtered_delivery_objs,
-                    recipient=metadata["recipient"],
-                    sender=metadata["sender"],
-                )
-
-                # delivery_status, tracking_number, delivery_type = (
-                #     wegoo.create_delivery()
-                # )
-                # if not delivery_status:
-                #     print("DELIVERY CREATION FAILED")
-                #     return False, "failed to create delivery price", None
-
-            # Delivery.objects.filter(
-            #     orderId=orderId, dispatchService=dispatchService
-            # ).update(
-            #     dispatchServiceTrackingNumber=tracking_number,
-            #     dispatchServiceDeliveryType=delivery_type,
-            # )
-            #
-            #     alert_vendor_on_order_delivery_created.apply_async(
-            #         args=(instance.pk,), task_id=delivery_task_id, retry=False
-            #     )
 
         transaction.on_commit(_enqueue)
 

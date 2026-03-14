@@ -1,6 +1,6 @@
 from typing import Any
 from rest_framework import serializers
-from src.apps.bikers.models import Biker, Delivery, Vehicle
+from src.apps.bikers.models import Biker, ParentDeliveryItem, Vehicle, ChildDeliveryItem
 
 class BikerSerializer(serializers.ModelSerializer):
     userInfo = serializers.SerializerMethodField(read_only=True)
@@ -25,7 +25,6 @@ class BikerSerializer(serializers.ModelSerializer):
 
 
 class VehicleSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Vehicle
         fields = [
@@ -36,10 +35,18 @@ class VehicleSerializer(serializers.ModelSerializer):
               "registered",
         ]
 
-class DeliverySerializer(serializers.ModelSerializer):
-
+class ParentDeliveryItemSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Delivery 
+        model = ParentDeliveryItem
+        fields = [
+              "id",
+              "orderId",
+              "completed",
+        ]
+
+class ChildDeliveryItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildDeliveryItem
         fields = [
               "id",
               "orderId",

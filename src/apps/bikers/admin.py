@@ -1,9 +1,17 @@
 from django.contrib import admin
 
-from src.apps.bikers.models import Biker, Delivery, Vehicle
+from src.apps.bikers.models import Biker, ParentDeliveryItem, ChildDeliveryItem, Vehicle
 
 
-class DeliveryModelAdmin(admin.ModelAdmin):
+class ParentDeliveryItemModelAdmin(admin.ModelAdmin):
+    list_display = (
+        "orderId",
+        "completed",
+    )
+    list_filter = ("orderId",)
+    search_fields = ("orderId",)
+
+class ChildDeliveryItemModelAdmin(admin.ModelAdmin):
     list_display = (
         "orderId",
         "deliveryTokenId",
@@ -16,6 +24,8 @@ class DeliveryModelAdmin(admin.ModelAdmin):
     search_fields = ("deliveryTokenId",)
 
 
+
 admin.site.register(Biker)
 admin.site.register(Vehicle)
-admin.site.register(Delivery, DeliveryModelAdmin)
+admin.site.register(ParentDeliveryItem, ParentDeliveryItemModelAdmin)
+admin.site.register(ChildDeliveryItem, ChildDeliveryItemModelAdmin)
